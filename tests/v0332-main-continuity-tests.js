@@ -22,7 +22,6 @@ function withDetachedClone(label, action, sourceRoot = root) {
     const clone = continuity.cloneCurrentHead(sourceRoot, directory);
     must(continuity.currentBranch(directory) === null, `${label} must start detached`);
     must(command(directory, ['rev-parse', 'HEAD']) === clone.sourceHead, `${label} source HEAD mismatch`);
-    must(!continuity.refSha(directory, 'refs/heads/main'), `${label} must not inherit a local main ref`);
     action(directory, clone.sourceHead);
   } finally {
     fs.rmSync(directory, { recursive: true, force: true });
@@ -66,6 +65,7 @@ withDetachedClone('detached-head', (directory, candidate) => {
 withDetachedClone('missing-main', (directory, base) => {
   command(directory, ['checkout', '-b', 'continuity-no-main', base]);
   commitDocumentation(directory, 'NO_MAIN.md');
+  if (continuity.refSha(directory, 'refs/heads/main')) command(directory, ['update-ref', '-d', 'refs/heads/main']);
   must(continuity.refSha(directory, 'refs/heads/main') === null, 'local main must remain absent');
   const expected = command(directory, ['rev-parse', 'HEAD']);
   continuity.ensureCheckedOutMain(directory);
@@ -98,10 +98,13 @@ withDetachedClone('squash-and-future', (directory, base) => {
 });
 
 withDetachedClone('pr-source-contract', (source, sourceHead) => {
+  if (continuity.refSha(source, 'refs/heads/main')) command(source, ['update-ref', '-d', 'refs/heads/main']);
+  must(continuity.refSha(source, 'refs/heads/main') === null, 'PR-style source must not have local main');
   const target = fs.mkdtempSync(path.join(os.tmpdir(), 'minsheng-v0332-pr-target-'));
   try {
     const clone = continuity.cloneCurrentHead(source, target);
-    must(clone.sourceHead === sourceHead && continuity.currentBranch(target) === null, 'detached PR source must clone its exact current HEAD without local main');
+    if (continuity.refSha(target, 'refs/heads/main')) command(target, ['update-ref', '-d', 'refs/heads/main']);
+    must(clone.sourceHead === sourceHead && continuity.currentBranch(target) === null && continuity.refSha(target, 'refs/heads/main') === null, 'detached PR source must clone its exact current HEAD without local main');
     const legacy = childProcess.spawnSync('git', ['checkout', 'main'], { cwd: target, encoding: 'utf8' });
     must(legacy.status !== 0, 'direct git checkout main must fail in the PR-style detached fixture');
   } finally {
