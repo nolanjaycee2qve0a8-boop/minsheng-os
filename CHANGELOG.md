@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.33.1 — Continuous public CI baseline
+
+- Replaced the one-time public-main SHA assertion with enduring content and classification invariants; the public runner now exercises merged-main and future documentation-main simulations in isolated clones.
+- Made the test manifest the authoritative classification for public, local-only, browser-only and LIVE validation paths, with fail-closed missing, duplicate and unclassified-path checks.
+- Pinned the public Actions dependencies to reviewed full commit SHAs with readable upstream-version comments.
+
+## v0.33 — Public CI, reproducibility and collaboration gates
+
+- Added a read-only GitHub Actions workflow for pushes and pull requests to `main`, with offline-only public test execution, bounded runtime and cancellation of superseded runs.
+- Added a classified public CI entry point: deterministic public tests run in CI, while local bank-source validation, real-browser validation and LIVE acquisition are reported as explicit `NOT_RUN` categories.
+- Added public collaboration, security and reproducibility documentation; the project remains unlicensed and does not distribute third-party originals.
+
 ## v0.32.1 — Public repository boundary remediation
 
 - Removed workstation-specific paths from tracked documentation, browser-audit tooling and stored audit output; browser and Playwright selection now use discovery, environment variables or explicit arguments without persisting executable paths.
