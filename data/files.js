@@ -1,0 +1,1 @@
+window.MinshengFiles = [{id:'file_pboc_202607_csv',fileName:'pboc_2026_07_mock.csv',fileType:'csv',mimeType:'text/csv',size:null,importedAt:'2026-08-18T00:00:00.000Z',checksum:null,storageType:'metadata_only',status:'ACTIVE',sourceDocumentId:'doc_pboc_2026_07_financial_stats',notes:'仅保存元数据；浏览器不会持久访问用户磁盘路径。'}];

@@ -1,0 +1,20 @@
+{
+  "version": "v0.22.0",
+  "runId": "bank_asset_quality_v022",
+  "scope": "ICBC, ABC and PSBC audited entity 2025 annual-report asset-quality disclosures; not a national banking series",
+  "method": {
+    "textExtraction": {"tool": "pypdf", "version": "6.10.0"},
+    "visualVerification": {"tool": "Poppler pdftoppm", "version": "26.05.0", "dpi": 250},
+    "reviewStatus": "VISUALLY_VERIFIED_BY_CODEX"
+  },
+  "sources": [
+    {"bank": "ICBC", "localFile": "sources/official-v021/raw/icbc_2025_annual_report_en.pdf", "sha256": "149A2194A7B3A3F6C4EF0C0872DAA765E2D2BD35BDC51F1318F47EA7AAB25215", "pagesReviewed": [75, 76], "language": "EN"},
+    {"bank": "ABC", "localFile": "sources/official-v021/raw/abc_2025_annual_report.pdf", "sha256": "92E8FCCF530422A615C4563EB8845661F995C932B0B132044BE1871BD7DD6F02", "pagesReviewed": [83, 84], "language": "EN"},
+    {"bank": "PSBC", "localFile": "sources/official-v021/raw/psbc_2025_annual_report_en.pdf", "sha256": "D437FAF974AC5D89D1BA3715210ACD65497484B34675BA5A3283883FE6B6F412", "pagesReviewed": [144, 146], "language": "EN"}
+  ],
+  "accepted": {"publishedRecords": 36, "derivedRecords": 4, "current2025": 18, "comparative2024AsPublishedIn2025Report": 18, "corporateRealEstate": 12, "personalMortgage": 12, "bankWideBackground": 12},
+  "derivedReconciliation": {"roundingMatch": 4, "reconciliationMismatch": 1, "crossScopeRejected": 1, "tolerancePercentagePoints": 0.005},
+  "rejectedMappings": ["BANK_TOTAL_NPL_RATIO_AS_PROPERTY_NPL", "PERSONAL_LOAN_NPL_AS_MORTGAGE_NPL", "CONSTRUCTION_NPL_AS_REAL_ESTATE_NPL", "OVERDUE_AS_NPL", "STAGE_2_AS_NPL", "STAGE_3_AS_NPL_WITHOUT_ACCOUNTING_MATCH", "PROVISION_AS_REALIZED_LOSS", "NPL_RATIO_AS_PD", "NPL_BALANCE_AS_EXPECTED_LOSS", "PROVISION_COVERAGE_APPLIED_TO_PROPERTY", "CROSS_SCOPE_RATIO_DERIVATION", "CROSS_PERIOD_RATIO_DERIVATION", "PARENT_CONSOLIDATED_MIX", "SAMPLE_TO_NATIONAL_EXTRAPOLATION"],
+  "unknown": ["bank-by-bank LGFV asset-quality disclosure", "national-bank-quality aggregation", "property-specific overdue, Stage 2 and ECL coverage on a consistent bank sample"],
+  "fixtureCounted": false
+}

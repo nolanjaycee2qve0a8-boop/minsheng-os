@@ -1,0 +1,43 @@
+/* v0.29.1 selector population contract. Independent inventory only; it never calls the Cockpit selector to build expectations. */
+window.MinshengSelectorPopulationContract=(()=>{
+ const VERSION='1.0.0',array=x=>Array.isArray(x)?x:[],text=x=>typeof x==='string'?x:JSON.stringify(x??''),norm=x=>text(x).toUpperCase();
+ const hash=value=>{let n=2166136261;for(const ch of String(value)){n^=ch.charCodeAt(0);n=Math.imul(n,16777619);}return (n>>>0).toString(36);};
+ const canonical=value=>Array.isArray(value)?`[${value.map(canonical).sort().join(',')}]`:value&&typeof value==='object'?`{${Object.keys(value).sort().map(key=>`${JSON.stringify(key)}:${canonical(value[key])}`).join(',')}}`:JSON.stringify(value);
+ const classify=row=>{const s=norm([row.status,row.evidenceType,row.classification,row.valueType,row.sourceType,row.qualification,row.staleStatus]);if(row.value===null||s.includes('UNKNOWN'))return 'UNKNOWN';if(s.includes('BLOCKED'))return 'BLOCKED';if(s.includes('DERIVED'))return 'DERIVED';if(s.includes('SCENARIO'))return 'SCENARIO';if(s.includes('PROXY'))return 'PROXY';if(s.includes('REAL'))return 'REAL';if(s.includes('MOCK'))return 'MOCK';if(s.includes('ASSUMPTION'))return 'ASSUMPTION';return 'OTHER';};
+ const domain=(store,row)=>{if(store==='records')return 'OBSERVATION';if(/^bankDisclosure/.test(store))return 'BANK_DISCLOSURE';if(/^internationalObservation/.test(store))return 'INTERNATIONAL_OBSERVATION';if(/Scenario(Runs|Cases|Matrices|Aggregates)|scenarioRuns/i.test(store))return 'SCENARIO_RUN';if(/forecast|chinaGdp/i.test(store))return /outcome|evaluation/i.test(store)?'OUTCOME_EVALUATION':'FORECAST';if(/research|evidence|inbox|policyStatements|policyActions|policySignals/i.test(store))return 'RESEARCH_EVIDENCE';if(/causal/i.test(store))return 'CAUSAL_RECORD';if(/assessment|readiness|qualification/i.test(store))return 'READINESS_ASSESSMENT';if(/audit|currentState|stateFeature|regimeEvidence|regimeCandidate|structuralBreak/i.test(store))return 'BOOTSTRAP_DERIVED_METADATA';if(/source|rawPayload|file|document|methodology|connector/i.test(store))return 'SOURCE_PROVENANCE';return 'OTHER';};
+ const stableKey=(store,row,identity)=>{if(store==='records')return ['OBS',row.sourceId,row.seriesId||row.indicatorId,row.period,row.revision??0].map(x=>x??'').join('|');if(row.id)return `${store}|${row.id}`;return identity;};
+ const derivedStore=store=>/audit|currentState|stateFeature|regimeEvidence|regimeCandidate|structuralBreak|qualification|readiness|assessment|Derived/i.test(store);
+ const projectionStoreReasons={forecastAssumptions:'UI_ALIAS_OF_ASSUMPTIONS',forecastRisks:'UI_ALIAS_OF_RISKS'};
+ function inventory(state){
+  const entries=[],stores={},excludedStores=[],references=new WeakMap(),referenceDuplicates=[];
+  Object.keys(state||{}).sort().forEach(store=>{
+   const value=state[store];
+   if(!Array.isArray(value)){excludedStores.push({store,reason:'NOT_A_DECLARED_OBJECT_ARRAY_STORE'});return;}
+   if(projectionStoreReasons[store]){excludedStores.push({store,reason:projectionStoreReasons[store]});return;}
+   const rows=value.filter(row=>row&&typeof row==='object'&&!Array.isArray(row));
+   const local=[];
+   rows.forEach((row,index)=>{
+    const id=row.id||String(index),identity=`${store}:${id}`,entry={identity,id,store,row,recordClass:classify(row),domain:domain(store,row),stableBusinessKey:stableKey(store,row,identity),isNestedProjection:false};
+    entries.push(entry);local.push(entry);
+    if(references.has(row))referenceDuplicates.push({identity,firstIdentity:references.get(row)});else references.set(row,identity);
+    if(store==='sectorBalanceSheets')array(row.lineItems).filter(item=>item&&typeof item==='object'&&!Array.isArray(item)).forEach((item,lineIndex)=>{
+     const lineId=item.id||`${store}_${index}`,lineIdentity=`${store}:${lineId}:line:${lineIndex}`,line={identity:lineIdentity,id:lineId,store,row:{...item,parentSheetId:row.id,sectorId:row.sectorId,period:item.period||row.period},recordClass:classify(item),domain:'LEDGER_LINE_ITEM',stableBusinessKey:stableKey(`${store}.lineItems`,item,lineIdentity),isNestedProjection:true};
+     entries.push(line);local.push(line);if(references.has(item))referenceDuplicates.push({identity:lineIdentity,firstIdentity:references.get(item)});else references.set(item,lineIdentity);
+    });
+   });
+   const ids=local.map(item=>item.id),keys=local.map(item=>item.stableBusinessKey),duplicates=list=>Object.entries(list.reduce((out,item)=>(out[item]=(out[item]||0)+1,out),{})).filter(([,count])=>count>1).map(([value,count])=>({value,count}));
+   stores[store]={store,rawEntryCount:rows.length,includedSelectorEntries:local.length,excludedEntryCount:value.length-rows.length,excludedReasons:value.length===rows.length?[]:['NON_OBJECT_OR_ARRAY_ENTRY'],uniqueIds:new Set(ids).size,duplicateIds:duplicates(ids),stableBusinessKeys:new Set(keys).size,duplicateBusinessKeys:duplicates(keys),persistedWhenSaved:true,readOnlyDerived:derivedStore(store),observation:store==='records',runEvaluationOrEvidence:['SCENARIO_RUN','FORECAST','OUTCOME_EVALUATION','RESEARCH_EVIDENCE','CAUSAL_RECORD','BANK_DISCLOSURE','INTERNATIONAL_OBSERVATION','READINESS_ASSESSMENT'].some(kind=>local.some(item=>item.domain===kind)),allowedInCockpitFullList:true,nestedLineItemEntries:local.filter(item=>item.isNestedProjection).length};
+  });
+  const crossStoreIds={};entries.forEach(entry=>{if(entry.row.id)(crossStoreIds[entry.id]??=[]).push(entry.store);});
+  const duplicateIdsAcrossStores=Object.entries(crossStoreIds).filter(([,names])=>new Set(names).size>1).map(([id,names])=>({id,stores:[...new Set(names)].sort()}));
+  const totals=(field)=>Object.fromEntries([...new Set(entries.map(item=>item[field]))].sort().map(key=>[key,entries.filter(item=>item[field]===key).length]));
+  return {entries,stores,excludedStores,referenceDuplicates,duplicateIdsAcrossStores,recordClassTotals:totals('recordClass'),domainTotals:totals('domain')};
+ }
+ function contract(state,selectorRows=[]){
+  const inv=inventory(state),expectedKeys=inv.entries.map(entry=>entry.identity).sort(),actualKeys=array(selectorRows).map(row=>row.key).sort(),actualSet=new Set(actualKeys),expectedSet=new Set(expectedKeys),missingFromSelector=expectedKeys.filter(key=>!actualSet.has(key)),unexpectedInSelector=actualKeys.filter(key=>!expectedSet.has(key));
+  const duplicateSelectorKeys=actualKeys.filter((key,index)=>index&&key===actualKeys[index-1]);
+  const duplicatePass=!Object.values(inv.stores).some(store=>store.duplicateIds.length||store.duplicateBusinessKeys.length)&&!inv.referenceDuplicates.length&&!duplicateSelectorKeys.length;
+  return {contractVersion:VERSION,populationName:'Cockpit displayable underlying object-store entries',includedStores:Object.keys(inv.stores).sort(),excludedStores:inv.excludedStores,inclusionRule:'Every top-level object-array store in runtime data is included once per object; sectorBalanceSheets.lineItems are separately included because they are independently rendered ledger entries.',exclusionRule:'Scalars, plain objects, arrays nested outside the declared sectorBalanceSheets.lineItems expansion, and the declared forecastAssumptions/forecastRisks aliases are excluded because they are not independent object-store records.',identityRule:'Top-level identity is collection:id (or collection:index fallback); ledger line identity is sectorBalanceSheets:lineId:line:index.',deduplicationRule:'No valid revision is removed. Duplicate identity, duplicate object reference, duplicate ID within a store, duplicate business key within a store, and cross-store reused IDs are diagnosed explicitly. Same ID in different semantic stores is retained as a collision diagnostic unless it is the same object reference.',classificationRule:'Record class derives from status/evidence/classification/value type; domain derives from declared store semantics and remains separate from REAL observation status.',storeCounts:inv.stores,recordClassTotals:inv.recordClassTotals,domainTotals:inv.domainTotals,independentExpectedCount:expectedKeys.length,selectorActualCount:actualKeys.length,reconciliationStatus:missingFromSelector.length||unexpectedInSelector.length||duplicateSelectorKeys.length?'MISMATCH':'MATCH',duplicateDiagnostics:{crossStoreIdCollisions:inv.duplicateIdsAcrossStores,objectReferenceDuplicates:inv.referenceDuplicates,duplicateSelectorKeys,duplicatePass},reconciliation:{missingFromSelector,unexpectedInSelector},generatedFromStateFingerprint:hash(canonical(state)),uiOnlyProjectionCount:2,bootstrapDerivedMetadataCount:inv.domainTotals.BOOTSTRAP_DERIVED_METADATA||0};
+ }
+ return {VERSION,canonical,hash,inventory,contract};
+})();

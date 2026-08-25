@@ -1,0 +1,12 @@
+{
+  "fixtureKind": "TEST_FIXTURE_SYNTHETIC",
+  "purpose": "Original, minimal public test specification. It is not an official response or evidence.",
+  "years": [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
+  "nullObservationCount": 26,
+  "indicators": [
+    { "id": "NE.CON.PRVT.ZS", "name": "Synthetic consumption ratio" },
+    { "id": "NE.CON.PRVT.KD.ZG", "name": "Synthetic consumption growth" },
+    { "id": "FS.AST.PRVT.GD.ZS", "name": "Synthetic private credit ratio" },
+    { "id": "SI.POV.GINI", "name": "Synthetic inequality index" }
+  ]
+}

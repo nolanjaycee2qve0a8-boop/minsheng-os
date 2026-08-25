@@ -1,0 +1,26 @@
+{
+  "id": "live_official_income_distribution_v017_20260820",
+  "version": "v0.17.0",
+  "explicitLive": true,
+  "completedAt": "2026-08-20T06:36:58.003253+00:00",
+  "attemptedReleases": 1,
+  "attemptedRoutes": 1,
+  "originalSuccesses": 1,
+  "fixtureCounted": false,
+  "parsedCandidates": 7,
+  "mappedCandidates": 7,
+  "notes": "All accepted values are annual national per-capita income observations; quintile values are GROUP_MEAN, not group boundaries or household income.",
+  "routes": [
+    {
+      "url": "https://www.stats.gov.cn/sj/zxfb/202601/t20260119_1962330.html",
+      "role": "ORIGINAL",
+      "expectedMimeType": "text/html",
+      "status": "FETCHED",
+      "mimeType": "text/html",
+      "fileName": "nbs_2025_household_income_distribution.html",
+      "fileSize": 629358,
+      "sha256": "13EDB6F7DBC08CFDDC86119715C7A867E36229E51EAD5028F6D8E94B9D1CDC77",
+      "contentConsistencyVerified": true
+    }
+  ]
+}

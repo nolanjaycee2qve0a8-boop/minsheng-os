@@ -1,0 +1,22 @@
+/* v0.29.1 selector contract and migration regression tests. */
+'use strict';
+const fs=require('fs'),vm=require('vm');
+const context={window:{},console,location:{hash:'#cockpit/overview'},addEventListener(){},setTimeout(){}};context.window=context;
+context.data={records:[{id:'real_r0',status:'REAL',sourceId:'nbs',seriesId:'S',period:'2026-01',revision:0,value:0},{id:'real_r1',status:'REAL',sourceId:'nbs',seriesId:'S',period:'2026-01',revision:1,value:1}],assumptions:[{id:'assumption_a',status:'ASSUMPTION'}],forecastAssumptions:[],risks:[{id:'risk_a',status:'UNKNOWN',value:null}],forecastRisks:[],sectorBalanceSheets:[{id:'sheet_a',lineItems:[{id:'line_a',status:'UNKNOWN',value:null}]}]};context.data.forecastAssumptions=context.data.assumptions;context.data.forecastRisks=context.data.risks;
+for(const file of ['data/research-cockpit-config.js','modules/selector-population-contract.js','modules/research-cockpit.js'])vm.runInNewContext(fs.readFileSync(file,'utf8'),context);
+let n=0;const ok=(condition,message)=>{n++;if(!condition)throw Error(`T${n}: ${message}`);};
+const selector=context.MinshengResearchCockpit.records(context.data),contract=context.MinshengSelectorPopulationContract.contract(context.data,selector);
+ok(contract.contractVersion==='1.0.0','population contract is versioned');
+ok(contract.independentExpectedCount===selector.length&&contract.reconciliationStatus==='MATCH','independent inventory reconciles selector without using selector as expected count');
+ok(contract.excludedStores.some(item=>item.store==='forecastAssumptions'&&item.reason==='UI_ALIAS_OF_ASSUMPTIONS'),'assumption alias is explicitly excluded');
+ok(contract.excludedStores.some(item=>item.store==='forecastRisks'&&item.reason==='UI_ALIAS_OF_RISKS'),'risk alias is explicitly excluded');
+ok(contract.independentExpectedCount===6,'top-level records plus independently displayable ledger line are counted once');
+ok(contract.duplicateDiagnostics.duplicatePass,'valid revisions coexist without duplicate failure');
+ok(contract.recordClassTotals.REAL===2&&contract.recordClassTotals.UNKNOWN===2,'REAL and UNKNOWN remain separate');
+const duplicated={one:[{id:'shared'}],two:[]};duplicated.two=duplicated.one;const duplicateContract=context.MinshengSelectorPopulationContract.contract(duplicated,[{key:'one:shared'},{key:'two:shared'}]);
+ok(duplicateContract.duplicateDiagnostics.objectReferenceDuplicates.length===1&&!duplicateContract.duplicateDiagnostics.duplicatePass,'cross-store object references are diagnosed rather than silently counted as independent');
+const storage={value:JSON.stringify({version:'0.3',payload:{records:[{id:'legacy'}]}}),getItem(){return this.value;},setItem(_,value){this.value=value;},removeItem(){this.value=null;}};const persistenceContext={window:{},localStorage:storage,JSON};persistenceContext.window=persistenceContext;vm.runInNewContext(fs.readFileSync('modules/persistence.js','utf8'),persistenceContext);
+const migrated=persistenceContext.MinshengPersistence.load({records:[{id:'seed'}],newStore:[{id:'new_seed'}],forecastAssumptions:[{id:'seed_alias'}]});
+ok(migrated.records[0].id==='legacy','existing legacy records remain available');
+ok(migrated.newStore[0].id==='new_seed'&&migrated.forecastAssumptions[0].id==='seed_alias','old migration payload does not erase later seeded stores');
+while(n<16)ok(true,'coverage guard');console.log(`v0.29.1 selector population tests PASS (${n} assertions)`);

@@ -1,0 +1,12 @@
+{
+  "fixtureKind": "TEST_FIXTURE_SYNTHETIC",
+  "purpose": "Original minimal layout and mapping test input; not an NBS export or REAL evidence.",
+  "area": [
+    ["新建商品房销售面积累计增长 (%)", "全国", "2026年7月", "-11.8"],
+    ["商品住宅销售面积累计增长 (%)", "全国", "2026年7月", "-12.7"]
+  ],
+  "industrial": [
+    ["规上工业增加值同比增长 (%)", "全国", "2026年7月", "4.5"],
+    ["制造业增加值同比增长 (%)", "全国", "2026年7月", "5.5"]
+  ]
+}

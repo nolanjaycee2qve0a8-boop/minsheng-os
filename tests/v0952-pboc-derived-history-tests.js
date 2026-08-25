@@ -1,0 +1,13 @@
+const fs=require('fs'),vm=require('vm'),path=require('path');
+const root=path.resolve(__dirname,'..'),c={window:{MinshengMethodologyEvents:[]},data:{records:[],sourceDocuments:[],methodologyEvents:[]}};c.window=c.window;vm.createContext(c);
+['data/derived-series-rules.js','data/pboc-v0952-derived-history.js','modules/pboc-m2-derived-history.js','modules/nbs-export-diagnostics.js'].forEach(f=>vm.runInContext(fs.readFileSync(path.join(root,f),'utf8'),c,{filename:f}));
+const must=(v,m)=>{if(!v)throw Error(m)},engine=c.window.MinshengPBOCM2DerivedHistory;
+const fixture=[{id:'a',period:'2024-01',value:100,convertedValue:100},{id:'b',period:'2025-01',value:110,convertedValue:110}];
+const result=engine.derive(fixture);must(result.derived.length===1&&Math.abs(result.derived[0].value-10)<1e-9,'lag-12 formula');must(engine.derive([{id:'a',period:'2024-01',value:100}]).derived.length===0,'no prior year');
+must(engine.merge([...fixture,{id:'c',period:'2025-01',value:110}]).issues[0].status==='DUPLICATE','duplicate');must(engine.merge([...fixture,{id:'c',period:'2025-01',value:111}]).issues[0].status==='REVISION_CANDIDATE','revision');
+must(engine.derive(fixture,{events:[{seriesId:'CN.PBOC.M2.MONTHLY.BALANCE',comparabilityImpact:'BREAK',effectivePeriod:'2025-01'}]}).blockedPeriods[0]==='2025-01','methodology break');
+const derived=[{id:'d',period:'2026-03',convertedValue:8.53}];must(engine.validate(derived,[{id:'o',seriesId:'CN.PBOC.M2.YOY.MONTHLY',status:'REAL',period:'2026-03',value:8.5}]).comparisons[0].status==='ROUNDING_MATCH','official validation');
+must(c.data.records.filter(r=>r.seriesId==='CN.PBOC.M2.MONTHLY.BALANCE').length===103,'actual balance count');must(c.data.records.filter(r=>r.seriesId==='CN.PBOC.M2.MONTHLY.YOY.DERIVED_OFFICIAL').length===91,'actual derived count');
+must(c.window.MinshengNbsExportDiagnostics.inspect({file:'x.csv',rows:2,periods:['2026-07'],series:'x'}).status==='SINGLE_PERIOD_EXPORT','single period');must(c.window.MinshengNbsExportDiagnostics.inspect({file:'x.csv',rows:24,periods:Array.from({length:24},(_,i)=>`2024-${String(i%12+1).padStart(2,'0')}`),series:'x'}).status==='INSUFFICIENT_PERIOD_COVERAGE','unique period diagnostic');
+must(c.window.MinshengNbsExportDiagnostics.inspect({file:'x.csv',rows:10,periods:['2024','2026-07'],targetRows:[{period:'2026-07'}],series:'x'}).status==='SINGLE_PERIOD_EXPORT','target series coverage diagnostic');
+console.log('v0.9.5.2 PBOC derived history tests PASS');

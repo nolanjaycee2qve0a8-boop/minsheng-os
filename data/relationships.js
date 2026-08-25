@@ -1,0 +1,6 @@
+window.MinshengRelationships = [
+  {id:'rel_property_consumption',from:'second_hand_home_price',to:'household_consumption',direction:'positive',strength:.55,confidence:.72,lag:{min:3,max:6,unit:'month'},mechanism:'住房资产价格变化可能通过财富感受、抵押约束与未来预期影响居民消费倾向。',evidenceType:'INFERENCE',supportingEvidence:['evidence_deposit'],contradictingEvidence:['evidence_consumption_recovery']},
+  {id:'rel_income_consumption',from:'income_expectation',to:'household_consumption',direction:'positive',strength:.72,confidence:.75,lag:{min:1,max:3,unit:'month'},mechanism:'收入预期影响居民的支出时点与预防性储蓄权衡。',evidenceType:'INFERENCE',supportingEvidence:['evidence_income_expectation'],contradictingEvidence:[]},
+  {id:'rel_transactions_land',from:'property_transactions',to:'land_sales',direction:'positive',strength:.48,confidence:.52,lag:{min:3,max:9,unit:'month'},mechanism:'成交活跃度可能影响开发商土地获取意愿，但受融资和库存制约。',evidenceType:'HYPOTHESIS',supportingEvidence:['evidence_fiscal_context'],contradictingEvidence:[]},
+  {id:'rel_pef_startup',from:'policy_execution_friction',to:'expert_trust',direction:'negative',strength:.25,confidence:.28,lag:{min:6,max:18,unit:'month'},mechanism:'制度体验可能影响公众对政策执行的感知；当前尚缺直接证据。',evidenceType:'HYPOTHESIS',supportingEvidence:[],contradictingEvidence:[]}
+];

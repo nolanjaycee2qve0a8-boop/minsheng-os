@@ -1,0 +1,23 @@
+{
+  "version": "v0.25.0",
+  "acquiredAt": "2026-08-21T00:00:00.000Z",
+  "scope": "Openly accessible primary research only; no paywall circumvention.",
+  "attempted": 13,
+  "successful": 11,
+  "failed": 2,
+  "records": [
+    {"file":"bis-bulletin-22.pdf","status":200,"sha256":"1154c6e01386995552821f986badc620276cabf4a02a157a74e257f9790172a5","pageCount":9,"licenseStatus":"public institutional publication","versionRelationship":"INDEPENDENT_STUDY"},
+    {"file":"bis-mortgages-developers-property-prices.pdf","status":200,"sha256":"bafbc3bd1bb16187ee47edd8a2563fd43e31ef525be564843deed93818979d03","pageCount":15,"licenseStatus":"public institutional publication","versionRelationship":"INDEPENDENT_STUDY"},
+    {"file":"nber-w11534.pdf","status":200,"sha256":"04bc52c32d52e3f12f0c77e7abc29578972f9f84c2b1e07671adfd53032fdc94","pageCount":76,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w17516.pdf","status":200,"sha256":"933284ce41a494ddbec5f09ed486d830eacad221059c14b470766e004675be67","pageCount":64,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w18762.pdf","status":200,"sha256":"f7e250406ab3b89b88d5573e9ec6cb3ff0aa6af8f94e37a5df034eac4e30aee5","pageCount":56,"licenseStatus":"NBER working-paper access","versionRelationship":"INDEPENDENT_STUDY"},
+    {"file":"nber-w19421.pdf","status":200,"sha256":"8403b7fa1b1606204b3f432de4a32e08fea2a4e6b67f7847904742292ad5d103","pageCount":76,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w23968.pdf","status":200,"sha256":"0ed8e7174b0cced2f94b317f899572f6d71aa3a6f1df2040be0c5ce3bb8130d9","pageCount":46,"licenseStatus":"NBER working-paper access","versionRelationship":"INDEPENDENT_STUDY","qualification":"METHOD_REFERENCE_NOT_EDGE_EVIDENCE"},
+    {"file":"nber-w24964.pdf","status":200,"sha256":"67875f1c4c21a93bd97002685e41ead16a9163071802dc524bbb433960f1a4fc","pageCount":54,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w25246.pdf","status":200,"sha256":"882c561cc11fe2b3b135ee3d38be1e2dd280a74c21ae82c162767699795a29bf","pageCount":42,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w29527.pdf","status":200,"sha256":"baad764499fab6aedeff49286489b69b1c3726ba5ce78ee7d3920c46d0ce034e","pageCount":57,"licenseStatus":"NBER working-paper access","versionRelationship":"SAME_STUDY_EARLIER_VERSION"},
+    {"file":"nber-w32013-rev0.pdf","status":200,"sha256":"524220116b4b66c5e6809b3569c7525825cb6a58b680fb3ba7049b4a0f9759ea","pageCount":58,"licenseStatus":"NBER working-paper access","versionRelationship":"INDEPENDENT_STUDY"},
+    {"file":"imf-wp-2019-258.pdf","status":403,"error":"Access denied by origin; no local raw file created","sourceUrl":"https://www.imf.org/-/media/files/publications/wp/2019/wpiea2019258-print-pdf.pdf","qualification":"NOT_COUNTED"},
+    {"file":"bfi-wp-2022-24.pdf","status":403,"error":"Access denied by origin; no local raw file created","sourceUrl":"https://www.jrcef.cn/wp-content/uploads/sites/5/2022/09/BFI_WP_2022-24.pdf","qualification":"NOT_COUNTED"}
+  ]
+}

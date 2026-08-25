@@ -1,0 +1,243 @@
+{
+  "briefingId": "brief_a19a65da",
+  "briefingType": "SECTOR_STATUS_BRIEF",
+  "asOf": "2026-08-23T00:00:00Z",
+  "populationContractVersion": "1.0.0",
+  "rulesVersion": "1.0.0",
+  "templateVersion": "v0.32.0",
+  "sourceSnapshot": [
+    "record_nbs_income_pc_national_2026h1",
+    "record_pboc_dev_loan_balance_2026q2_v015",
+    "record_mof_land_transfer_revenue_2026h1_v015",
+    "record_mof_legal_debt_balance_2026m06_v015",
+    "record_mof_land_transfer_revenue_2026h1_v015",
+    "record_mof_local_fund_own_revenue_2026h1_v015",
+    "v023_lgfv_scenario_readiness",
+    "household_income_per_capita_national_h1_2026"
+  ],
+  "statementIds": [
+    "s_income_pc_h1",
+    "s_dev_loan",
+    "s_land_gross",
+    "s_legal_debt",
+    "s_land_share",
+    "s_lgfv_gap",
+    "s_household_blocked"
+  ],
+  "statements": [
+    {
+      "statementId": "s_income_pc_h1",
+      "statementType": "OBSERVED_LEVEL",
+      "subject": "全国居民人均可支配收入",
+      "concept": "HOUSEHOLD_PER_CAPITA_INCOME",
+      "predicate": "记录值",
+      "value": 22981,
+      "unit": "元",
+      "period": "2026-H1",
+      "geography": "CN",
+      "scope": "HOUSEHOLD_PER_CAPITA_NATIONAL",
+      "classification": "REAL",
+      "qualification": "MAPPED",
+      "sourceRecordIds": [
+        "record_nbs_income_pc_national_2026h1"
+      ],
+      "evidenceLocators": [
+        "doc_nbs_household_income_2026h1:表1/全国居民人均可支配收入"
+      ],
+      "rawArtifactSha256": "NBS_V014_RETAINED",
+      "limitations": [
+        "人均累计收入，不得扩展为居民总收入。"
+      ],
+      "renderTemplateId": "REAL_LEVEL",
+      "sector": "HOUSEHOLD",
+      "renderedText": "官方发布显示：全国居民人均可支配收入截至2026-H1，记录值为22981元（范围：HOUSEHOLD_PER_CAPITA_NATIONAL）。"
+    },
+    {
+      "statementId": "s_dev_loan",
+      "statementType": "OBSERVED_LEVEL",
+      "subject": "房地产开发贷款余额",
+      "concept": "PROPERTY_DEVELOPMENT_LOANS",
+      "predicate": "记录值",
+      "value": 12.65,
+      "unit": "万亿元",
+      "period": "2026-06",
+      "geography": "CN",
+      "scope": "PROPERTY_DEVELOPMENT_LOANS",
+      "classification": "REAL",
+      "qualification": "MAPPED",
+      "sourceRecordIds": [
+        "record_pboc_dev_loan_balance_2026q2_v015"
+      ],
+      "evidenceLocators": [
+        "doc_pboc_loan_destination_2026q2_v015:房地产贷款"
+      ],
+      "rawArtifactSha256": "PBOC_V015_RETAINED",
+      "limitations": [
+        "仅为一种融资工具，不代表完整房企融资。"
+      ],
+      "renderTemplateId": "REAL_LEVEL",
+      "sector": "PROPERTY_DEVELOPER",
+      "renderedText": "官方发布显示：房地产开发贷款余额截至2026-06，记录值为12.65万亿元（范围：PROPERTY_DEVELOPMENT_LOANS）。"
+    },
+    {
+      "statementId": "s_land_gross",
+      "statementType": "OBSERVED_LEVEL",
+      "subject": "国有土地使用权出让收入",
+      "concept": "GROSS_LAND_TRANSFER_REVENUE",
+      "predicate": "记录值",
+      "value": 9778,
+      "unit": "亿元",
+      "period": "2026-H1",
+      "geography": "CN",
+      "scope": "LOCAL_GOVERNMENT_GROSS_LAND_TRANSFER",
+      "classification": "REAL",
+      "qualification": "MAPPED",
+      "sourceRecordIds": [
+        "record_mof_land_transfer_revenue_2026h1_v015"
+      ],
+      "evidenceLocators": [
+        "doc_mof_fiscal_2026h1_v015:政府性基金预算"
+      ],
+      "rawArtifactSha256": "MOF_V015_RETAINED",
+      "limitations": [
+        "毛收入，不是净财政资源。"
+      ],
+      "renderTemplateId": "REAL_LEVEL",
+      "sector": "LOCAL_GOVERNMENT",
+      "renderedText": "官方发布显示：国有土地使用权出让收入截至2026-H1，记录值为9778亿元（范围：LOCAL_GOVERNMENT_GROSS_LAND_TRANSFER）。"
+    },
+    {
+      "statementId": "s_legal_debt",
+      "statementType": "OBSERVED_LEVEL",
+      "subject": "地方政府法定债务余额",
+      "concept": "LEGAL_LOCAL_GOVERNMENT_DEBT",
+      "predicate": "记录值",
+      "value": 587706,
+      "unit": "亿元",
+      "period": "2026-06",
+      "geography": "CN",
+      "scope": "LOCAL_GOVERNMENT_LEGAL_DEBT",
+      "classification": "REAL",
+      "qualification": "MAPPED",
+      "sourceRecordIds": [
+        "record_mof_legal_debt_balance_2026m06_v015"
+      ],
+      "evidenceLocators": [
+        "doc_mof_local_debt_2026m06_v015:地方政府债务余额"
+      ],
+      "rawArtifactSha256": "MOF_V015_RETAINED",
+      "limitations": [
+        "不包括 LGFV 与隐性债务。"
+      ],
+      "renderTemplateId": "REAL_LEVEL",
+      "sector": "LOCAL_GOVERNMENT",
+      "renderedText": "官方发布显示：地方政府法定债务余额截至2026-06，记录值为587706亿元（范围：LOCAL_GOVERNMENT_LEGAL_DEBT）。"
+    },
+    {
+      "statementId": "s_land_share",
+      "statementType": "DERIVED_STRUCTURE",
+      "subject": "土地出让收入占地方政府性基金本级收入比重",
+      "concept": "LAND_TRANSFER_SHARE",
+      "predicate": "结构比率",
+      "value": 76.11,
+      "unit": "%",
+      "period": "2026-H1",
+      "geography": "CN",
+      "scope": "LOCAL_GOVERNMENT_FUND_BUDGET",
+      "classification": "DERIVED",
+      "qualification": "QUALIFIED_WITH_LIMITATIONS",
+      "sourceRecordIds": [
+        "record_mof_land_transfer_revenue_2026h1_v015",
+        "record_mof_local_fund_own_revenue_2026h1_v015"
+      ],
+      "evidenceLocators": [
+        "derived:land_transfer_share_of_local_fund_2026h1"
+      ],
+      "rawArtifactSha256": null,
+      "transformation": "record_mof_land_transfer_revenue_2026h1_v015 / record_mof_local_fund_own_revenue_2026h1_v015 × 100",
+      "limitations": [
+        "按已登记公式计算；不是净财政资源。"
+      ],
+      "renderTemplateId": "DERIVED_RATIO",
+      "sector": "LOCAL_GOVERNMENT",
+      "renderedText": "按已登记公式计算，土地出让收入占地方政府性基金本级收入比重为76.11%；公式：record_mof_land_transfer_revenue_2026h1_v015 / record_mof_local_fund_own_revenue_2026h1_v015 × 100。"
+    },
+    {
+      "statementId": "s_lgfv_gap",
+      "statementType": "UNKNOWN_GAP",
+      "subject": "LGFV 直接、可审计敞口",
+      "concept": "LGFV_DIRECT_EXPOSURE",
+      "predicate": "数据状态",
+      "value": null,
+      "unit": null,
+      "period": "UNKNOWN",
+      "geography": "CN",
+      "scope": "LGFV",
+      "classification": "UNKNOWN",
+      "qualification": "BLOCKED",
+      "sourceRecordIds": [
+        "v023_lgfv_scenario_readiness"
+      ],
+      "evidenceLocators": [
+        "v023_lgfv_scenario_readiness"
+      ],
+      "limitations": [
+        "当前没有合格数据；不得以相邻概念替代。"
+      ],
+      "blockedReasons": [
+        "LGFV_DIRECT_EXPOSURE_UNKNOWN"
+      ],
+      "renderTemplateId": "UNKNOWN_GAP",
+      "sector": "LGFV",
+      "renderedText": "当前没有合格数据：LGFV 直接、可审计敞口。"
+    },
+    {
+      "statementId": "s_household_blocked",
+      "statementType": "BLOCKED_CALCULATION",
+      "subject": "居民正式债务服务计算",
+      "concept": "HOUSEHOLD_DEBT_SERVICE",
+      "predicate": "计算状态",
+      "value": null,
+      "unit": null,
+      "period": "2026-H1",
+      "geography": "CN",
+      "scope": "HOUSEHOLD",
+      "classification": "BLOCKED",
+      "qualification": "BLOCKED",
+      "sourceRecordIds": [
+        "household_income_per_capita_national_h1_2026"
+      ],
+      "evidenceLocators": [
+        "household_income_per_capita_national_h1_2026"
+      ],
+      "limitations": [
+        "按揭余额不等于偿债流；缺利率、期限、摊还与分布。"
+      ],
+      "blockedReasons": [
+        "RATE_TERM_AMORTIZATION_MISSING"
+      ],
+      "renderTemplateId": "BLOCKED",
+      "sector": "HOUSEHOLD",
+      "renderedText": "正式计算继续阻断：居民正式债务服务计算。"
+    }
+  ],
+  "limitations": [
+    "人均累计收入，不得扩展为居民总收入。",
+    "仅为一种融资工具，不代表完整房企融资。",
+    "毛收入，不是净财政资源。",
+    "不包括 LGFV 与隐性债务。",
+    "按已登记公式计算；不是净财政资源。",
+    "当前没有合格数据；不得以相邻概念替代。",
+    "按揭余额不等于偿债流；缺利率、期限、摊还与分布。"
+  ],
+  "parentBriefingId": null,
+  "qualityAudit": {
+    "pass": true,
+    "errors": [],
+    "numericStatements": 5
+  },
+  "fingerprint": "a19a65da",
+  "immutable": true,
+  "createdAt": "2026-08-23T00:00:00Z",
+  "headlines": []
+}

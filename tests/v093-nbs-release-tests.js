@@ -1,0 +1,18 @@
+const fs=require('fs'),vm=require('vm'),path=require('path');
+const root=path.resolve(__dirname,'..'),context={console,window:{}};context.window=context;
+['data/series-registry.js','adapters/nbs-release-parser.js','modules/nbs-collector-manifest-import.js','modules/nbs-batch-review.js'].forEach(file=>vm.runInNewContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file}));
+const must=(condition,message)=>{if(!condition)throw Error(message);};
+const parsed=context.MinshengNbsReleaseParser.parse({publicationDate:'2024-04-16',sourceDocumentId:'doc_1',html:'3月份规模以上工业增加值同比增长4.5%。1—3月社会消费品零售总额同比增长4.7%。'});
+must(parsed.candidates.length===2&&parsed.candidates.some(x=>x.indicatorId==='industrial_value_added_yoy'&&x.nominalReal==='REAL'),'Explicit release parser did not preserve industrial candidate provenance');
+const manifest={collector_run_id:'run_1',releases:[{id:'a',source:'nbs',title:'工业',url:'https://www.stats.gov.cn/a.html',status:'DOWNLOADED',local_path:'sources/nbs/raw/a.html',sha256:'abc'}]};
+const state={sourceDocuments:[],rawPayloads:[]},result=context.MinshengNbsCollectorManifestImport.register(state,manifest);
+must(result.registered.length===1&&state.sourceDocuments[0].collectorRunId==='run_1','Collector manifest registration failed');
+must(context.MinshengNbsCollectorManifestImport.validate({releases:[{id:'bad',source:'nbs',url:'https://example.com/x',status:'DISCOVERED'}]}).length===1,'Non-official manifest URL must reject');
+const macro=context.MinshengNbsReleaseParser.parse({publicationDate:'2024-04-16',sourceDocumentId:'doc_2',html:'1—3月份，社会消费品零售总额1200亿元，同比增长4.7%。商品房销售面积2000万平方米，同比下降12.3%。商品房销售额2100亿元，同比下降13.1%。民间固定资产投资同比增长0.4%。'});
+must(macro.candidates.some(x=>x.indicatorId==='retail_sales_ytd')&&macro.candidates.some(x=>x.indicatorId==='property_sales_area_yoy'&&x.value===-12.3)&&macro.candidates.some(x=>x.indicatorId==='property_sales_value_yoy'&&x.value===-13.1),'Macro parser did not preserve explicit YTD values and signs');
+const batch=context.MinshengNbsBatchReview.stage({parsedDocuments:[{sourceDocumentId:'doc_2',originalUrl:'https://www.stats.gov.cn/doc_2.html',checksum:'abc',candidates:macro.candidates}],existingRecords:[]});
+must(batch.summary.valid>=4&&batch.staged.every(x=>x.status==='STAGED'),'Valid release candidates were not staged for manual batch review');
+const batchState={records:[],sourceDocuments:[{id:'doc_2',relatedIndicatorIds:[],relatedDataRecordIds:[]}],historicalStaging:[],historicalImportBatches:[]};
+const commit=context.MinshengNbsBatchReview.acceptAllValid(batchState,batch);
+must(commit.accepted.length===batch.summary.valid&&batchState.records.every(x=>x.status==='REAL'),'Accept All Valid did not commit only reviewed REAL records');
+console.log('v0.9.3 NBS release tests PASS');

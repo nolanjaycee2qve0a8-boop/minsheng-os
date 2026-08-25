@@ -1,0 +1,37 @@
+{
+  "collector_run_id": "nbs_collect_20260819_101846",
+  "started_at": "2026-08-19T02:18:12.421074+00:00",
+  "completed_at": "2026-08-19T02:18:46.772476+00:00",
+  "config": {
+    "archive_url": "https://www.stats.gov.cn/sj/zxfb/",
+    "start_year": 2026,
+    "end_year": 2026,
+    "categories": "",
+    "max_pages": 2,
+    "delay": 1.0,
+    "root": "sources\\nbs",
+    "dry_run": true,
+    "download": false,
+    "resume": false,
+    "yes": false
+  },
+  "archive_pages": [
+    "https://www.stats.gov.cn/sj/zxfb/"
+  ],
+  "releases": [],
+  "year_category_summary": {},
+  "coverage_warnings": [
+    {
+      "year": 2026,
+      "status": "DISCOVERY_COVERAGE_WARNING",
+      "discovered": 0
+    }
+  ],
+  "errors": [
+    {
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
+      "error": "HTTP_ERROR",
+      "detail": "The read operation timed out"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "briefingId": "brief_110fce3",
+  "briefingType": "FORECAST_OUTCOME_BRIEF",
+  "asOf": "2026-08-23T00:00:00Z",
+  "populationContractVersion": "1.0.0",
+  "rulesVersion": "1.0.0",
+  "templateVersion": "v0.32.0",
+  "sourceSnapshot": [
+    "registration_wb_gdp_2025_v1",
+    "outcome_nbs_gdp_2025_first_v1",
+    "evaluation_wb_gdp_2025_first_v1"
+  ],
+  "statementIds": [
+    "s_forecast_gdp"
+  ],
+  "statements": [
+    {
+      "statementId": "s_forecast_gdp",
+      "statementType": "FORECAST_EVALUATION",
+      "subject": "World Bank 2025 中国实际 GDP 增长预测与首次发布实际值",
+      "concept": "CN.NBS.REAL_GDP_GROWTH.ANNUAL",
+      "predicate": "误差",
+      "value": -0.5,
+      "unit": "百分点",
+      "period": "2025",
+      "geography": "CN",
+      "scope": "NATIONAL",
+      "classification": "FORECAST",
+      "qualification": "ELIGIBLE",
+      "sourceRecordIds": [
+        "registration_wb_gdp_2025_v1",
+        "outcome_nbs_gdp_2025_first_v1",
+        "evaluation_wb_gdp_2025_first_v1"
+      ],
+      "evidenceLocators": [
+        "doc_wb_update_2025_06:p24",
+        "doc_nbs_2025_communique:National accounts"
+      ],
+      "rawArtifactSha256": "WB_V028_RETAINED",
+      "comparisonRecordIds": [
+        "outcome_nbs_gdp_2025_first_v1"
+      ],
+      "limitations": [
+        "预测不等于实际；仅一个可评价样本，不形成机构排名。"
+      ],
+      "renderTemplateId": "FORECAST_ERROR",
+      "sector": "CENTRAL_GOVERNMENT",
+      "renderedText": "机构预测相对首次发布实际值的误差为-0.5百分点；预测不等于实际。"
+    }
+  ],
+  "limitations": [
+    "预测不等于实际；仅一个可评价样本，不形成机构排名。"
+  ],
+  "parentBriefingId": null,
+  "qualityAudit": {
+    "pass": true,
+    "errors": [],
+    "numericStatements": 1
+  },
+  "fingerprint": "110fce3",
+  "immutable": true,
+  "createdAt": "2026-08-23T00:00:00Z",
+  "headlines": []
+}

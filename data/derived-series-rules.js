@@ -1,0 +1,1 @@
+window.MinshengDerivedSeriesRules=[{id:'pboc_m2_yoy_from_balance',seriesId:'CN.PBOC.M2.MONTHLY.YOY.DERIVED_OFFICIAL',sourceSeriesId:'CN.PBOC.M2.MONTHLY.BALANCE',formula:'(current / lag12 - 1) * 100',formulaVersion:'pboc-m2-yoy-2.0.0',derivationType:'OFFICIAL_SOURCE_TRANSFORMATION',validationTolerancePp:0.1,minimumUnderlyingN:60,minimumDerivedN:48,status:'RESEARCH_CONFIG'}];

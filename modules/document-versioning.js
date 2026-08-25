@@ -1,0 +1,5 @@
+window.MinshengDocumentVersioning = (() => {
+  const canSupersede=(documents,previousId,nextId)=>{if(!previousId||!nextId||previousId===nextId)return false;const byId=id=>documents.find(x=>x.id===id);let cursor=byId(previousId),seen=new Set;while(cursor){if(seen.has(cursor.id)||cursor.id===nextId)return false;seen.add(cursor.id);cursor=cursor.supersedesDocumentId?byId(cursor.supersedesDocumentId):null;}return true;};
+  const createRevision=(documents,original,patch)=>{const id=patch.id||`${original.id}_v${Number(original.version||1)+1}`;if(!canSupersede(documents,original.id,id))throw new Error('DOCUMENT_VERSION_CYCLE');const next={...original,...patch,id,version:Number(original.version||1)+1,supersedesDocumentId:original.id,supersededByDocumentId:null,status:'REVISED',createdAt:new Date().toISOString().slice(0,10),updatedAt:new Date().toISOString().slice(0,10)};original.supersededByDocumentId=next.id;original.status='SUPERSEDED';documents.push(next);return next;};
+  return {createRevision,canSupersede};
+})();

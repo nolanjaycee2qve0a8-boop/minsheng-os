@@ -1,0 +1,18 @@
+{
+  "version": "v0.28.0",
+  "parserVersion": "v0.28.0",
+  "mappingVersion": "v0.28.0",
+  "acceptedForecastVintages": 9,
+  "acceptedProviders": ["IMF", "WORLD_BANK"],
+  "acceptedNbsFirstReleaseActuals": 3,
+  "acceptedNbsLatestActuals": 1,
+  "acceptedImfIndependentReleases": 3,
+  "imfForecasts": [
+    {"id":"imf_weo_oct2022_gdp_2023","release":"World Economic Outlook, October 2022","publicationDate":"2022-10-11","targetYear":2023,"value":4.4,"route":"ELIBRARY_OFFICIAL_HTML","locator":"CH001.xml line 26655; China growth expected to rise to 4.4 percent in 2023","forecastStatus":"SOURCE_PUBLISHED_FORECAST"},
+    {"id":"imf_weo_oct2023_gdp_2024","release":"World Economic Outlook, October 2023","publicationDate":"2023-10-10","targetYear":2024,"value":4.2,"route":"ELIBRARY_OFFICIAL_HTML","locator":"CH001.xml line 26752; lower forecast for China ... 4.2 percent in 2024","forecastStatus":"SOURCE_PUBLISHED_FORECAST"},
+    {"id":"imf_weo_oct2024_gdp_2025","release":"World Economic Outlook, October 2024","publicationDate":"2024-10-22","targetYear":2025,"value":4.5,"route":"ELIBRARY_OFFICIAL_PDF","locator":"CH001.pdf printed page 34, Annex Table 1.1.2, China / Real GDP / 2025 = 4.5; Projections header","forecastStatus":"SOURCE_PUBLISHED_FORECAST","visualReviewStatus":"VISUALLY_VERIFIED_BY_CODEX"}
+  ],
+  "rejectedOrUnavailable": [{"provider":"IMF","reason":"FIVE_DIRECT_IMF_PRIMARY_HOST_ROUTES_RETURNED_HTTP_403_AND_REMAIN_AUDITED"}],
+  "liveAcceptance": "ACCEPTED_WITH_LIMITATIONS",
+  "notes": ["World Bank June 2023 Table 1 was extracted from the local official PDF.","World Bank December 2023/2024 values were extracted from local official release pages.","The three IMF records were extracted from official IMF eLibrary WEO release artifacts; no current WEO data, media reporting, secondary database, fixture, policy target or estimate was used.","The October 2024 PDF magic bytes, MIME, pypdf parsing and page-34 table locator were checked; PDF visual review is recorded as performed by Codex.","The v0.27 World Bank 2025 registration remains immutable and is referenced rather than duplicated."]
+}

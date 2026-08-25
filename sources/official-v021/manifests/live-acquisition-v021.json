@@ -1,0 +1,13 @@
+{
+  "version": "v0.21.0",
+  "explicitLive": true,
+  "purpose": "Audited entity disclosure only; not a national-bank series.",
+  "files": [
+    {"bank":"ICBC","language":"ZH","file":"icbc_2025_annual_report.pdf","sha256":"15A148052F4743A63288ADAB9329B73DBD65AD3D147A9BDD3A21230493F82C59","pages":299,"sourceUrl":"https://www.icbc-ltd.com/page/1211087084107182080.html"},
+    {"bank":"ICBC","language":"EN","file":"icbc_2025_annual_report_en.pdf","sha256":"149A2194A7B3A3F6C4EF0C0872DAA765E2D2BD35BDC51F1318F47EA7AAB25215","pages":295,"sourceUrl":"https://v.icbc.com.cn/userfiles/Resources/ICBCLTD/download/2026/2025AnnualReport.pdf","relationship":"SAME_REPORT_DIFFERENT_LANGUAGE_VERSION"},
+    {"bank":"ABC","language":"EN","file":"abc_2025_annual_report.pdf","sha256":"92E8FCCF530422A615C4563EB8845661F995C932B0B132044BE1871BD7DD6F02","pages":380,"sourceUrl":"https://www.abchina.com/en/investor-relations/performance-reports/annual-reports/202603/P020260423652699711023.pdf"},
+    {"bank":"PSBC","language":"ZH","file":"psbc_2025_annual_report.pdf","sha256":"6D6ACF8F449C493FFEA0E04D330DA5012776CE88BFC86C173D9E2F1E66136AEC","pages":null,"sourceUrl":"https://www.psbc.com/cn/gyyc/tzzgx/gsgg/aggg/202603/P020260327777965568736.pdf"},
+    {"bank":"PSBC","language":"EN","file":"psbc_2025_annual_report_en.pdf","sha256":"D437FAF974AC5D89D1BA3715210ACD65497484B34675BA5A3283883FE6B6F412","pages":439,"sourceUrl":"https://www.psbc.com/en/investor_relations/finance/financial_reports/202604/P020260415322721338496.pdf","relationship":"SAME_REPORT_DIFFERENT_LANGUAGE_VERSION"}
+  ],
+  "counts":{"officialAnnualReports":3,"officialLanguageFiles":5,"acceptedRecords":6,"fixturesCounted":false}
+}

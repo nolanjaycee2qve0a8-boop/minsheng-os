@@ -1,0 +1,1 @@
+window.MinshengAdapters=window.MinshengAdapters||{};window.MinshengAdapters.documentParser={parseMetadata:()=>({status:'NOT_IMPLEMENTED'}),extractText:()=>({status:'NOT_IMPLEMENTED'}),extractTables:()=>({status:'NOT_IMPLEMENTED'})};

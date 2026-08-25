@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>民生 OS · 研究系统</title>
+  <!-- Keep the cockpit fully local: system fallbacks in styles.css avoid an external font request on every cold load. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23153a35'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-size='18' fill='%23ffffff'%3EM%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="v02.css" />
+  <link rel="stylesheet" href="v03.css" />
+  <link rel="stylesheet" href="v03-extra.css" />
+  <link rel="stylesheet" href="v03-dashboard.css" />
+  <link rel="stylesheet" href="v04.css" />
+  <link rel="stylesheet" href="v05.css" />
+  <link rel="stylesheet" href="v06.css" />
+  <link rel="stylesheet" href="v07.css" />
+  <link rel="stylesheet" href="v09.css" />
+  <link rel="stylesheet" href="v29.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">M</span><span>民生 <b>OS</b></span></div>
+      <div class="workspace"><span class="pulse"></span>研究工作台 <span class="chevron">⌄</span></div>
+      <nav>
+        <p class="nav-label">总览</p>
+        <button class="nav-item active" data-view="overview"><i>◉</i>态势总览</button>
+        <button class="nav-item" data-view="intelligence"><i>✦</i>情报流</button>
+        <p class="nav-label">研究系统</p>
+        <button class="nav-item" data-view="causal"><i>⌘</i>因果与传导</button>
+        <button class="nav-item" data-view="property"><i>⌂</i>房地产系统</button>
+        <button class="nav-item" data-view="cities"><i>◎</i>城市制度</button>
+        <button class="nav-item" data-view="household"><i>◌</i>居民部门</button>
+        <button class="nav-item" data-view="evidence"><i>▣</i>证据库</button>
+        <p class="nav-label">工具</p>
+        <button class="nav-item" data-view="scenarios"><i>◇</i>情景推演</button>
+        <button class="nav-item" data-view="watchlist"><i>⊞</i>观察清单 <span class="badge">6</span></button>
+      </nav>
+      <div class="sidebar-bottom"><button class="help">? <span>研究方法与口径</span></button><div class="user"><div class="avatar">研</div><div><b>研究员</b><small>个人工作区</small></div><span>•••</span></div></div>
+    </aside>
+    <main>
+      <section id="researchCockpitRoot" aria-live="polite"></section>
+      <template id="v029LegacyViews">
+      <header><div class="crumb"><span id="view-kicker">态势总览</span><span>/</span><b id="view-title">中国民生研究态势</b></div><div class="header-actions"><button class="period">2026 · Q3 <span>⌄</span></button><button class="icon-button" title="搜索">⌕</button><button class="icon-button" title="通知">♧<sup>3</sup></button><button class="primary" id="newResearch">+ 新建研究</button></div></header>
+      <section id="overview" class="view active-view">
+        <div class="hero"><div><p class="eyebrow"><span class="live-dot"></span>研究快照 · 演示工作区</p><h1>穿透数据，理解<span>真实经济。</span></h1><p class="lede">从外部冲击到居民行为，追踪政策、制度与利益结构如何塑造结果。</p></div><div class="asof"><span>数据截点</span><b>2026.08.18</b><small>本页面指标为界面演示，非实时结论</small></div></div>
+        <div class="signal-row"><article class="signal-card"><div class="signal-head"><span>经济温度</span><button>···</button></div><div class="metric">谨慎修复 <span class="metric-chip neutral">需验证</span></div><p>需求韧性与资产负债表修复并行</p><div class="spark"><span style="height:27%"></span><span style="height:38%"></span><span style="height:30%"></span><span style="height:47%"></span><span style="height:43%"></span><span style="height:60%"></span><span style="height:68%"></span><span style="height:64%"></span><span style="height:76%"></span><span style="height:72%"></span></div></article><article class="signal-card"><div class="signal-head"><span>政策传导</span><button>···</button></div><div class="metric">分化 <span class="metric-chip amber">INFERENCE</span></div><p>地方执行能力是当前主要分叉点</p><div class="bar-scale"><div><i style="width:72%"></i><span>政策资源</span></div><div><i style="width:46%"></i><span>执行落地</span></div><div><i style="width:31%"></i><span>居民感知</span></div></div></article><article class="signal-card"><div class="signal-head"><span>系统风险</span><button>···</button></div><div class="metric">可控 <span class="metric-chip green">BASELINE</span></div><p>局部压力需置于反馈链中观察</p><div class="risk-lines"><span><i class="high"></i>地方财政</span><span><i class="mid"></i>房地产</span><span><i class="low"></i>外部冲击</span></div></article></div>
+        <div class="content-grid"><section class="panel narrative"><div class="panel-title"><div><p class="eyebrow">本期主线</p><h2>居民部门正在如何调整？</h2></div><button class="text-btn" data-target="causal">查看完整推理 →</button></div><p class="narrative-text">居民行为并非仅由收入决定。资产价格、债务压力、就业预期和社会保障预期共同改变消费与储蓄的权衡。当前应重点识别不同收入、年龄与城市层级群体的异质性。</p><div class="reasoning"><div class="step fact"><b>01</b><span><small>FACT</small> 收入、就业、资产价格等基础数据</span></div><i>→</i><div class="step inference"><b>02</b><span><small>INFERENCE</small> 预期与去杠杆行为变化</span></div><i>→</i><div class="step hypothesis"><b>03</b><span><small>HYPOTHESIS</small> 消费修复存在结构性差异</span></div></div><div class="evidence-note">证据状态：3 条官方数据 · 2 条调查 · 1 条待交叉验证</div></section>
+          <section class="panel feed"><div class="panel-title"><div><p class="eyebrow">情报流</p><h2>需要研判的变化</h2></div><button class="text-btn" data-target="intelligence">全部 18 条 →</button></div><div class="feed-list"><div class="feed-item"><span class="type official">官方</span><div><b>政策文件出现新表述</b><p>等待结构化比对与资源投入验证</p></div><time>2h</time></div><div class="feed-item"><span class="type market">市场</span><div><b>城市成交出现分层信号</b><p>需区分季节性、政策与信贷影响</p></div><time>5h</time></div><div class="feed-item"><span class="type multilateral">国际</span><div><b>外部金融条件发生变化</b><p>待评估人民币与信用传导路径</p></div><time>昨天</time></div></div></section></div>
+        <section class="panel system-map"><div class="panel-title"><div><p class="eyebrow">系统地图</p><h2>从冲击到经济结果</h2></div><button class="text-btn" data-target="causal">进入因果图谱 →</button></div><div class="map"><div class="map-node external">国际 / 战争 / 天气</div><span>→</span><div class="map-node policy">国家目标<br>政策资源</div><span>→</span><div class="map-node friction">制度摩擦<br>地方执行</div><span>→</span><div class="map-node actors">企业 · 银行<br>房地产 · 居民</div><span>→</span><div class="map-node outcome">就业 · 收入<br>消费 · 储蓄</div><span class="loop">↺</span></div></section>
+      </section>
+      <section id="causal" class="view"><div class="view-intro"><p class="eyebrow">Causal relationship graph</p><h1>因果与传导图谱</h1><p>每一条连线均需可追溯；相关性不会自动成为因果关系。</p></div><div class="causal-layout"><div class="panel graph-panel"><div class="graph-toolbar"><button class="filter selected">居民消费</button><button class="filter">房地产</button><button class="filter">地方财政</button><button class="filter">外部冲击</button><span></span><button class="icon-button">⊙</button></div><div class="graph-canvas"><svg viewBox="0 0 800 410" preserveAspectRatio="none"><defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="3" orient="auto"><path d="M0,0 L0,6 L7,3 z" fill="#6e807c"/></marker></defs><path d="M145 105 C260 105,260 205,365 205" marker-end="url(#arrow)"/><path d="M145 305 C250 305,275 220,365 220" marker-end="url(#arrow)"/><path d="M460 205 C545 205,560 120,650 120" marker-end="url(#arrow)"/><path d="M460 215 C545 220,560 305,650 305" marker-end="url(#arrow)"/><path class="dashed" d="M695 150 C780 200,760 365,465 315" marker-end="url(#arrow)"/></svg><div class="g-node n1">住房资产价格<small>FACT</small></div><div class="g-node n2">就业与收入预期<small>FACT</small></div><div class="g-node focus">居民消费倾向<small>INFERENCE</small></div><div class="g-node n3">企业营收与招聘<small>INFERENCE</small></div><div class="g-node n4">预防性储蓄<small>HYPOTHESIS</small></div></div></div><aside class="panel edge-card"><p class="eyebrow">已选关系</p><h2>资产价格 → 消费倾向</h2><dl><dt>方向</dt><dd>正向</dd><dt>强度</dt><dd><div class="strength"><i></i><i></i><i></i><i></i><i class="empty"></i></div></dd><dt>滞后</dt><dd>待估计</dd><dt>置信度</dt><dd><span class="metric-chip amber">中</span></dd></dl><hr><b>机制说明</b><p>资产估值变化可能通过财富感受、抵押约束与未来预期影响消费；需控制收入与信贷条件。</p><button class="secondary">查看支持与反驳证据</button></aside></div></section>
+      <section id="intelligence" class="view"><div class="view-intro"><p class="eyebrow">Intelligence stream</p><h1>情报流</h1><p>信息先进入证据队列，再成为可讨论的结论。</p></div><section class="panel table-panel"><div class="table-tools"><div class="tabs"><button class="selected">全部 18</button><button>待验证 6</button><button>已入库 12</button></div><button class="secondary">筛选条件</button></div><table><thead><tr><th>信息</th><th>来源类型</th><th>证据类别</th><th>状态</th><th>时间</th></tr></thead><tbody><tr><td><b>货币政策执行报告</b><small>待提取政策工具变化与措辞强度</small></td><td>official_report</td><td><span class="metric-chip green">FACT</span></td><td><span class="status review">待解读</span></td><td>今天</td></tr><tr><td><b>城市住房成交周度数据</b><small>须核验样本覆盖与口径连续性</small></td><td>market_data</td><td><span class="metric-chip green">FACT</span></td><td><span class="status ready">已入库</span></td><td>昨天</td></tr><tr><td><b>海外金融条件变化</b><small>等待传导路径的反向证据</small></td><td>multilateral</td><td><span class="metric-chip amber">INFERENCE</span></td><td><span class="status review">待验证</span></td><td>昨天</td></tr><tr><td><b>居民预期调查</b><small>不能代表全部居民，需保留抽样局限</small></td><td>survey</td><td><span class="metric-chip purple">ESTIMATE</span></td><td><span class="status review">待交叉验证</span></td><td>08.15</td></tr></tbody></table></section></section>
+      <section id="property" class="view placeholder"><p class="eyebrow">Property system</p><h1>房地产系统</h1><p>连接居民、银行、地方财政与企业的反馈网络。</p><button class="primary" data-target="causal">打开房地产传导图</button></section>
+      <section id="cities" class="view placeholder"><p class="eyebrow">City institutional competitiveness</p><h1>城市制度</h1><p>从 PEF、IRF、人才、融资和产业链评估地方差异。</p></section>
+      <section id="household" class="view placeholder"><p class="eyebrow">Household balance sheet</p><h1>居民部门</h1><p>按收入、年龄、城市层级与家庭生命周期分层研究。</p></section>
+      <section id="evidence" class="view placeholder"><p class="eyebrow">Evidence engine</p><h1>证据库</h1><p>结论 → 推理 → 数据 → 来源，完整可追溯。</p><button class="primary" data-target="intelligence">查看入库队列</button></section>
+      <section id="scenarios" class="view"><div class="view-intro"><p class="eyebrow">Scenario engine</p><h1>情景推演</h1><p>情景不是预测：明确写下假设、传导和结果。</p></div><div class="scenario-grid"><section class="panel scenario-selector"><p class="eyebrow">选择框架</p><button class="scenario active"><span>BASELINE</span><b>基准情景</b><small>当前条件延续</small></button><button class="scenario"><span>STRESS</span><b>压力情景</b><small>局部冲击放大</small></button><button class="scenario"><span>TAIL RISK</span><b>尾部风险</b><small>低概率高影响事件</small></button></section><section class="panel scenario-result"><p class="eyebrow">传导假设</p><h2>外部金融条件收紧</h2><div class="scenario-chain"><span>海外利率</span><i>→</i><span>汇率预期</span><i>→</i><span>货币空间</span><i>→</i><span>国内信用</span></div><div class="assumptions"><div><b>假设</b><p>以可编辑的变量区间表达，不内置结论。</p></div><div><b>需要的证据</b><p>跨境流动、汇率预期与信用数据的同期交叉验证。</p></div></div><button class="primary">编辑情景参数</button></section></div></section>
+      <section id="watchlist" class="view placeholder"><p class="eyebrow">Research watchlist</p><h1>观察清单</h1><p>追踪关键变量、数据发布和待验证命题。</p></section>
+      </template>
+    </main>
+  </div>
+  <div class="modal-backdrop" id="modal"><div class="modal"><button class="close">×</button><p class="eyebrow">新建研究</p><h2>定义一个可验证的问题</h2><label>研究问题<input placeholder="例如：不同城市的政策传导为何分化？" autofocus></label><label>初始证据类型<select><option>官方一手数据</option><option>官方报告</option><option>调查数据</option><option>市场数据</option></select></label><button class="primary close">创建研究卡片</button></div></div>
+  <script src="data/sources.js"></script>
+  <script src="data/indicators.js"></script>
+  <script src="data/intelligence.js"></script>
+  <script src="data/relationships.js"></script>
+  <script src="data/scenarios.js"></script>
+  <script src="data/cities.js"></script>
+  <script src="data/research.js"></script>
+  <script src="data/evidence.js"></script>
+  <script src="data/evidence-inbox.js"></script>
+  <script src="data/data-records.js?v=0732"></script>
+  <script src="data/methodologies.js"></script>
+  <script src="data/source-documents.js"></script>
+  <script src="data/import-batches.js"></script>
+  <script src="data/methodology-events.js"></script>
+  <script src="data/files.js"></script>
+  <script src="data/document-sections.js"></script>
+  <script src="data/connectors.js"></script>
+  <script src="data/source-indicator-mappings.js"></script>
+  <script src="data/raw-payloads.js"></script>
+  <script src="data/pboc-parser-rules.js"></script>
+  <script src="data/policy-themes.js"></script>
+  <script src="data/policy-language.js"></script>
+  <script src="data/policy-statements.js"></script>
+  <script src="data/institutional-research.js"></script>
+  <script src="data/pboc-2026-policy-intelligence.js"></script>
+  <script src="data/derived-series-rules.js"></script>
+  <script src="data/pboc-v0952-derived-history.js"></script>
+  <script src="data/institutional-forecast-seed.js"></script>
+  <script src="data/calibrations.js"></script>
+  <script src="data/historical-backfill-seed.js"></script>
+  <script src="data/historical-calibration-overlay.js"></script>
+  <script src="data/nbs-v094-real-commit.js"></script>
+  <script src="data/nbs-v095-manual-export-commit.js"></script>
+    <script src="data/nbs-v0953-industrial-real-commit.js"></script>
+    <script src="data/nbs-v0954-total-series-real-commit.js"></script>
+    <script src="data/calibration-specs.js"></script>
+  <script src="data/series-registry.js"></script>
+  <script src="data/v010-baseline-snapshot.js"></script>
+  <script src="data/regimes.js"></script>
+  <script src="data/scenario-parameters.js"></script>
+  <script src="config/regime-feature-config.js"></script>
+  <script src="config/structural-break-config.js"></script>
+  <script src="data/regime-evidence.js"></script>
+  <script src="data/structural-breaks.js"></script>
+  <script src="data/sector-balance-sheets.js"></script>
+  <script src="data/sector-exposures.js"></script>
+  <script src="data/sector-data-gaps.js"></script>
+  <script src="data/sector-shocks.js"></script>
+  <script src="config/critical-exposure-qualification-rules.js"></script>
+  <script src="data/critical-exposure-qualifications.js"></script>
+  <script src="data/causal-edge-validation.js"></script>
+  <script src="data/official-wave1-seed.js"></script>
+  <script src="data/official-wave2-seed.js"></script>
+  <script src="data/mortgage-scenario-seed.js"></script>
+  <script src="data/distribution-cohort-seed.js"></script>
+  <script src="data/developer-cashflow-seed.js"></script>
+  <script src="data/international-statistics-seed.js"></script>
+  <script src="data/international-comparison-pack-seed.js"></script>
+  <script src="data/bank-exposure-seed.js"></script>
+  <script src="data/bank-asset-quality-seed.js"></script>
+  <script src="data/bank-credit-loss-scenario-seed.js"></script>
+  <script src="data/cross-sector-scenario-seed.js"></script>
+  <script src="data/causal-evidence-seed.js"></script>
+  <script src="data/scenario-uncertainty-seed.js"></script>
+  <script src="data/forecast-evaluation-seed.js"></script>
+  <script src="data/china-gdp-vintage-seed.js"></script>
+  <script src="data/official-source-registry.js"></script>
+  <script src="data/official-data-ops-seed.js"></script>
+  <script src="data/official-release-calendar.js"></script>
+  <script src="data/official-release-watch-seed.js"></script>
+  <script src="data/research-briefing-config.js"></script>
+  <script src="modules/evidence-briefing-engine.js"></script>
+  <script src="data/research-briefing-seed.js"></script>
+  <script src="data/research-cockpit-config.js"></script>
+  <script src="data/nbs-series-mappings.js"></script>
+  <script src="data/nbs-methodology-rules.js"></script>
+  <script src="config/connector-config.js"></script>
+  <script src="modules/confidence-engine.js"></script>
+  <script src="modules/persistence.js"></script>
+  <script src="modules/import-export.js"></script>
+  <script src="modules/research-memory.js"></script>
+  <script src="modules/audit-log.js"></script>
+  <script src="modules/data-provenance.js"></script>
+  <script src="modules/outlier-rules.js"></script>
+  <script src="modules/file-registry.js"></script>
+  <script src="modules/soft-delete.js"></script>
+  <script src="modules/rfc4180.js"></script>
+  <script src="modules/document-versioning.js"></script>
+  <script src="modules/indexeddb-storage.js"></script>
+  <script src="modules/evidence-locator.js"></script>
+  <script src="modules/file-integrity.js"></script>
+  <script src="modules/document-health.js"></script>
+  <script src="modules/period-normalizer.js"></script>
+  <script src="modules/mapping-registry.js"></script>
+  <script src="modules/connector-engine.js"></script>
+  <script src="modules/connector-staging.js"></script>
+  <script src="modules/real-data-health.js"></script>
+  <script src="adapters/official-connector.js"></script>
+  <script src="adapters/pboc-adapter.js"></script>
+  <script src="adapters/pboc-statistical-report-parser.js"></script>
+  <script src="adapters/pboc-2026h1-rule-fixes.js"></script>
+  <script src="adapters/nbs-adapter.js"></script>
+  <script src="adapters/nbs-release-parser.js"></script>
+  <script src="adapters/mof-adapter.js"></script>
+  <script src="adapters/customs-adapter.js"></script>
+  <script src="adapters/safe-adapter.js"></script>
+  <script src="adapters/document-parser.js"></script>
+  <script src="adapters/spreadsheet-parser.js"></script>
+  <script src="app.js?v=0729"></script>
+  <script src="modules/document-workspace.js"></script>
+  <script src="modules/connector-workspace.js?v=0729"></script>
+  <script src="modules/real-acceptance.js"></script>
+  <script src="modules/official-text-intake.js?v=0731"></script>
+  <script src="modules/pboc-h1-acceptance.js"></script>
+  <script src="modules/policy-institutional-intelligence.js"></script>
+  <script src="modules/pboc-2026-policy-workspace.js"></script>
+  <script src="modules/pboc-m2-derived-history.js"></script>
+  <script src="modules/nbs-export-diagnostics.js"></script>
+  <script src="modules/institutional-forecast-workspace.js"></script>
+  <script src="modules/series-builder.js"></script>
+  <script src="modules/regression-engine.js"></script>
+  <script src="modules/lag-explorer.js"></script>
+  <script src="modules/regime-analysis.js"></script>
+  <script src="modules/calibration-staleness.js"></script>
+  <script src="modules/calibration-engine.js"></script>
+  <script src="modules/historical-calibration-runner.js"></script>
+  <script src="modules/calibration-workspace.js"></script>
+  <script src="modules/historical-backfill-engine.js"></script>
+  <script src="modules/nbs-period-normalizer.js"></script>
+  <script src="modules/historical-series-quality.js"></script>
+  <script src="modules/pair-readiness.js"></script>
+  <script src="modules/nbs-historical-intake.js"></script>
+  <script src="modules/nbs-official-export-intake.js"></script>
+  <script src="modules/nbs-collector-manifest-import.js"></script>
+  <script src="modules/nbs-batch-review.js"></script>
+  <script src="modules/historical-series-workspace.js"></script>
+  <script src="modules/nbs-historical-workspace.js"></script>
+  <script src="modules/scenario-v010-engine.js"></script>
+  <script src="modules/regime-detection-v011.js"></script>
+  <script src="modules/loss-allocation-engine.js"></script>
+  <script src="modules/critical-exposure-qualification.js"></script>
+  <script src="modules/official-wave1-intake.js"></script>
+  <script src="modules/official-wave2-intake.js"></script>
+  <script src="modules/mortgage-scenario-engine.js"></script>
+  <script src="modules/distribution-cohort-engine.js"></script>
+  <script src="modules/developer-cashflow-engine.js"></script>
+  <script src="modules/international-statistics-engine.js"></script>
+  <script src="modules/international-comparison-pack.js"></script>
+  <script src="modules/bank-exposure-evidence.js"></script>
+  <script src="modules/bank-asset-quality-evidence.js"></script>
+  <script src="modules/bank-credit-loss-scenario-engine.js"></script>
+  <script src="modules/cross-sector-scenario-workspace.js"></script>
+  <script src="modules/causal-parameter-registry.js"></script>
+  <script src="modules/causal-evidence-qualification.js"></script>
+  <script src="modules/scenario-uncertainty-engine.js"></script>
+  <script src="modules/forecast-outcome-monitor.js"></script>
+  <script src="modules/china-gdp-forecast-vintage-benchmark.js"></script>
+  <script src="modules/official-data-operations.js"></script>
+  <script src="modules/official-release-watch.js"></script>
+  <script src="modules/selector-population-contract.js"></script>
+  <script src="modules/research-cockpit.js"></script>
+</body>
+</html>

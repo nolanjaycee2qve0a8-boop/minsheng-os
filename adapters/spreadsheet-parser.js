@@ -1,0 +1,1 @@
+window.MinshengAdapters=window.MinshengAdapters||{};window.MinshengAdapters.spreadsheetParser={getSheets:()=>({status:'NOT_IMPLEMENTED'}),readSheet:()=>({status:'NOT_IMPLEMENTED'}),mapColumns:()=>({status:'NOT_IMPLEMENTED'})};

@@ -1,0 +1,8 @@
+{
+  "version": "v0.25.0",
+  "policy": "Unknown values remain UNKNOWN. No coefficient is converted or propagated automatically.",
+  "dimensions": ["treatment_match","outcome_match","temporal_order","counterfactual","parallel_trends_or_identification","iv_exclusion","rdd_bandwidth_manipulation","sample_selection","measurement_error","reverse_causality","mediator_controls","standard_error","clustering","multiple_testing","heterogeneity","robustness","placebo","pretrends","external_validity","china_current_scope"],
+  "verifiedEstimateIds": ["estimate_w29527_table5_col3","estimate_w29527_table5_col4","estimate_w24964_principal_default","estimate_w24964_consumption"],
+  "conflicts": [{"type":"MIXED_WITHIN_STUDY","studyId":"study_nber_w24964","detail":"Principal/wealth relief and immediate liquidity relief are not interchangeable."},{"type":"CROSS_STUDY_CONFLICT","edgeId":"edge_house_price_collateral_mortgage_migration","detail":"US collateral IV evidence and China firm-collateral null evidence have distinct outcomes and scopes; neither resolves the China mortgage edge."}],
+  "fixtureCountsAsLive": false
+}

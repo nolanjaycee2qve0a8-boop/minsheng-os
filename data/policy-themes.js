@@ -1,0 +1,3 @@
+window.MinshengPolicyThemes=[
+  ['economic_growth','经济增长'],['employment','就业'],['inflation','通胀'],['deflation_risk','通缩风险'],['domestic_demand','内需'],['consumption','消费'],['private_investment','民间投资'],['property_market','房地产'],['local_government_debt','地方债务'],['financial_risk','金融风险'],['banking','银行业'],['credit','信贷'],['money_supply','货币供应'],['interest_rate','利率'],['exchange_rate','汇率'],['capital_flow','资本流动'],['technology','科技'],['industrial_upgrade','产业升级'],['private_economy','民营经济'],['fiscal_policy','财政政策'],['monetary_policy','货币政策'],['household_income','居民收入'],['social_stability','社会稳定']
+].map(([id,name])=>({id,name,status:'ACTIVE'}));

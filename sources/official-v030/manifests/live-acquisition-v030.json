@@ -1,0 +1,690 @@
+{
+  "manifestVersion": "1.0.0",
+  "runId": "v030_wave1_live_20260822",
+  "immutable": true,
+  "mode": "ACQUIRE_AND_STAGE",
+  "asOf": "2026-08-22",
+  "createdAt": "2026-08-22T07:48:58Z",
+  "registryVersion": "1.0.0",
+  "qualificationRulesVersion": "v0.13.0",
+  "pipeline": [
+    {
+      "stage": "RELEASE_DISCOVERY",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "ROUTE_RESOLUTION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "RAW_ACQUISITION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "CONTENT_VALIDATION",
+      "status": "FAILED"
+    },
+    {
+      "stage": "PARSER_STAGING",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "SEMANTIC_DIFF",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "QUALIFICATION",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "MATERIALIZATION_PREVIEW",
+      "status": "NOT_RUN"
+    },
+    {
+      "stage": "APPROVED_SUBMISSION",
+      "status": "NOT_RUN"
+    }
+  ],
+  "families": [
+    {
+      "id": "NBS_HOUSEHOLD_INCOME_CONSUMPTION",
+      "provider": "NBS",
+      "expectedFrequency": "QUARTERLY",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "NBS_PROPERTY_ACTIVITY",
+      "provider": "NBS",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "NBS_GDP_ACTUAL",
+      "provider": "NBS",
+      "expectedFrequency": "QUARTERLY",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "PBOC_FINANCIAL_STATISTICS",
+      "provider": "PBOC",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "PBOC_LOAN_DESTINATION",
+      "provider": "PBOC",
+      "expectedFrequency": "QUARTERLY",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "PBOC_MORTGAGE_POLICY",
+      "provider": "PBOC",
+      "expectedFrequency": "UNKNOWN",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "MOF_FISCAL_REVENUE_AND_FUNDS",
+      "provider": "MOF",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "MOF_LOCAL_GOVERNMENT_DEBT",
+      "provider": "MOF",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "ICBC_IR_DISCOVERY",
+      "provider": "ICBC",
+      "expectedFrequency": "SEMI_ANNUAL",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "ABC_IR_DISCOVERY",
+      "provider": "ABC",
+      "expectedFrequency": "SEMI_ANNUAL",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "PSBC_IR_DISCOVERY",
+      "provider": "PSBC",
+      "expectedFrequency": "SEMI_ANNUAL",
+      "sourceHealth": "CONTENT_TYPE_MISMATCH"
+    },
+    {
+      "id": "CCB_IR_DISCOVERY_ONLY",
+      "provider": "CCB",
+      "expectedFrequency": "UNKNOWN",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "id": "WORLD_BANK_API_MACRO",
+      "provider": "WORLD_BANK",
+      "expectedFrequency": "ANNUAL",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "DBNOMICS_AGGREGATOR_DISCOVERY",
+      "provider": "DBNOMICS",
+      "expectedFrequency": "UNKNOWN",
+      "sourceHealth": "LICENSE_REVIEW_REQUIRED"
+    },
+    {
+      "id": "BIS_STATISTICS",
+      "provider": "BIS",
+      "expectedFrequency": "QUARTERLY",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "OECD_STATISTICS",
+      "provider": "OECD",
+      "expectedFrequency": "UNKNOWN",
+      "sourceHealth": "UNKNOWN"
+    },
+    {
+      "id": "IMF_WEO_ELIBRARY",
+      "provider": "IMF",
+      "expectedFrequency": "SEMI_ANNUAL",
+      "sourceHealth": "HTTP_BLOCKED"
+    }
+  ],
+  "routes": [
+    {
+      "provider": "NBS",
+      "releaseFamily": "NBS_HOUSEHOLD_INCOME_CONSUMPTION",
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
+      "requestTime": "2026-08-22T07:48:58Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "NBS",
+      "releaseFamily": "NBS_PROPERTY_ACTIVITY",
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
+      "requestTime": "2026-08-22T07:49:01Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "NBS",
+      "releaseFamily": "NBS_GDP_ACTUAL",
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
+      "requestTime": "2026-08-22T07:49:03Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1010)",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "PBOC",
+      "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "requestTime": "2026-08-22T07:49:04Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html"
+      ],
+      "routeType": "OFFICIAL_INDEX",
+      "httpStatus": 200,
+      "finalRoute": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:08 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "37661",
+        "Connection": "close",
+        "Server": "nginx",
+        "Last-Modified": "Wed, 19 Aug 2026 11:30:23 GMT",
+        "ETag": "\"6a8593cf-931d\"",
+        "Accept-Ranges": "bytes",
+        "Guomissl": "type=2",
+        "x-via": "1.1 PS-TAO-01eyW190:4 (Cdn Cache Server V2.0), 1.1 CS-000-01hW9188:7 (Cdn Cache Server V2.0), 1.1 PS-FOC-01zeI133:15 (Cdn Cache Server V2.0)",
+        "Age": "148",
+        "x-ws-request-id": "6a895474_PS-FOC-01zeI133_47865-63101"
+      },
+      "mime": "text/html",
+      "contentLength": 37661,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4",
+      "relativePath": "sources/official-v030/raw/24/2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4.html",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:08Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "PBOC",
+        "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "PBOC",
+      "releaseFamily": "PBOC_LOAN_DESTINATION",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "requestTime": "2026-08-22T07:49:08Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html"
+      ],
+      "routeType": "OFFICIAL_INDEX",
+      "httpStatus": 200,
+      "finalRoute": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:10 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "37661",
+        "Connection": "close",
+        "Server": "nginx",
+        "Last-Modified": "Wed, 19 Aug 2026 11:30:23 GMT",
+        "ETag": "\"6a8593cf-931d\"",
+        "Accept-Ranges": "bytes",
+        "Guomissl": "type=2",
+        "x-via": "1.1 PS-TAO-01eyW190:4 (Cdn Cache Server V2.0), 1.1 CS-000-01hW9188:7 (Cdn Cache Server V2.0), 1.1 PS-FOC-01zeI133:22 (Cdn Cache Server V2.0)",
+        "Age": "150",
+        "x-ws-request-id": "6a895476_PS-FOC-01zeI133_53981-45465"
+      },
+      "mime": "text/html",
+      "contentLength": 37661,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4",
+      "relativePath": "sources/official-v030/raw/24/2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4.html",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:11Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "PBOC",
+        "releaseFamily": "PBOC_LOAN_DESTINATION",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "PBOC",
+      "releaseFamily": "PBOC_MORTGAGE_POLICY",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "requestTime": "2026-08-22T07:49:11Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html"
+      ],
+      "routeType": "OFFICIAL_INDEX",
+      "httpStatus": 200,
+      "finalRoute": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:13 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "37661",
+        "Connection": "close",
+        "Server": "nginx",
+        "Last-Modified": "Wed, 19 Aug 2026 11:30:23 GMT",
+        "ETag": "\"6a8593cf-931d\"",
+        "Accept-Ranges": "bytes",
+        "Guomissl": "type=2",
+        "x-via": "1.1 PS-TAO-01eyW190:4 (Cdn Cache Server V2.0), 1.1 CS-000-01hW9188:7 (Cdn Cache Server V2.0), 1.1 PS-FOC-01zeI133:7 (Cdn Cache Server V2.0)",
+        "Age": "153",
+        "x-ws-request-id": "6a895479_PS-FOC-01zeI133_44588-45589"
+      },
+      "mime": "text/html",
+      "contentLength": 37661,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4",
+      "relativePath": "sources/official-v030/raw/24/2490A9604776BD6ADA58877AE0D7C149B5ADDB2BE9D6DE01578D4428AAB259B4.html",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:14Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "PBOC",
+        "releaseFamily": "PBOC_MORTGAGE_POLICY",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "MOF",
+      "releaseFamily": "MOF_FISCAL_REVENUE_AND_FUNDS",
+      "url": "https://www.mof.gov.cn/zhengwuxinxi/caizhengshuju/",
+      "requestTime": "2026-08-22T07:49:14Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.mof.gov.cn/zhengwuxinxi/caizhengshuju/",
+        "http://www.mof.gov.cn/gkml/caizhengshuju/"
+      ],
+      "routeType": "OFFICIAL_INDEX",
+      "httpStatus": 200,
+      "finalRoute": "http://www.mof.gov.cn/gkml/caizhengshuju/",
+      "responseHeaders": {
+        "Connection": "close",
+        "Transfer-Encoding": "chunked",
+        "Age": "68",
+        "Content-Type": "text/html",
+        "Date": "Sat, 22 Aug 2026 07:49:18 GMT",
+        "Server": "nginx",
+        "X-Via": "1.1 PS-CZX-01JVc159:14 (Cdn Cache Server V2.0), 1.1 PS-CZX-01p6I139:15 (Cdn Cache Server V2.0), 1.1 PS-HND-01qKN131:8 (Cdn Cache Server V2.0)",
+        "X-Ws-Request-Id": "6a89547e_PS-HND-01qKN131_43509-64503"
+      },
+      "mime": "text/html",
+      "contentLength": 18736,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "9BA5656D32D73F94B5B3EE87C463C39D086A4CC8B122720083BC58F285DE067A",
+      "relativePath": "sources/official-v030/raw/9B/9BA5656D32D73F94B5B3EE87C463C39D086A4CC8B122720083BC58F285DE067A.html",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:19Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "MOF",
+        "releaseFamily": "MOF_FISCAL_REVENUE_AND_FUNDS",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "http://www.mof.gov.cn/gkml/caizhengshuju/",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "MOF",
+      "releaseFamily": "MOF_LOCAL_GOVERNMENT_DEBT",
+      "url": "https://zwgls.mof.gov.cn/tjsj/",
+      "requestTime": "2026-08-22T07:49:19Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "HTTP_FAILED",
+      "httpStatus": 502,
+      "error": "HTTP Error 502: Bad Gateway",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "ICBC",
+      "releaseFamily": "ICBC_IR_DISCOVERY",
+      "url": "https://www.icbc-ltd.com/ICBCLtd/about%20us/ir/financialreport/default.htm",
+      "requestTime": "2026-08-22T07:49:23Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_IR_INDEX",
+      "status": "HTTP_FAILED",
+      "httpStatus": 404,
+      "error": "HTTP Error 404: Not Found",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "ABC",
+      "releaseFamily": "ABC_IR_DISCOVERY",
+      "url": "https://www.abchina.com/en/AboutABC/InvestorRelations/FinancialInformation/",
+      "requestTime": "2026-08-22T07:49:26Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_IR_INDEX",
+      "status": "HTTP_FAILED",
+      "httpStatus": 302,
+      "error": "HTTP Error 302: Moved Temporarily",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "PSBC",
+      "releaseFamily": "PSBC_IR_DISCOVERY",
+      "url": "https://www.psbc.com/cn/about_us/ir/",
+      "requestTime": "2026-08-22T07:49:29Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.psbc.com/cn/about_us/ir/",
+        "https://www.psbc.com/cn/common/404/index.html"
+      ],
+      "routeType": "OFFICIAL_IR_INDEX",
+      "httpStatus": 200,
+      "finalRoute": "https://www.psbc.com/cn/common/404/index.html",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:35 GMT",
+        "Content-Type": "text/html",
+        "Transfer-Encoding": "chunked",
+        "Connection": "close",
+        "Server": "nginx",
+        "Content-Security-Policy": "frame-ancestors 'self' *.psbc.com *.psbc.cn *.psbcltd.com *.psbcltd.cn login-service.mobile-bank.psbc.com mobile-bank.psbc.com gateway-hf.mobile-bank.psbc.com static.mobile-bank.psbc.com login-service.mobile-bank.psbc.cn static.mobile-bank.psbc.cn c1.mobile-bank.psbc.cn c2.mobile-bank.psbc.cn;",
+        "x-via": "1.1 PS-000-01kcf60:15 (Cdn Cache Server V2.0), 1.1 PS-000-01BHf45:21 (Cdn Cache Server V2.0), 1.1 ny57:1 (Cdn Cache Server V2.0)",
+        "x-ws-request-id": "6a89548e_ny57_24616-55316"
+      },
+      "mime": "text/html",
+      "contentLength": 69382,
+      "eligible": false,
+      "reason": "HTML_ACCESS_CONTROL_REJECTED",
+      "magic": "HTML",
+      "status": "CONTENT_REJECTED",
+      "sourceHealth": "CONTENT_TYPE_MISMATCH"
+    },
+    {
+      "provider": "CCB",
+      "releaseFamily": "CCB_IR_DISCOVERY_ONLY",
+      "url": "https://www.ccb.com/en/investor/financialreports.html",
+      "requestTime": "2026-08-22T07:49:36Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_IR_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe legacy renegotiation disabled (_ssl.c:1010)",
+      "sourceHealth": "DEGRADED"
+    },
+    {
+      "provider": "WORLD_BANK",
+      "releaseFamily": "WORLD_BANK_API_MACRO",
+      "url": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?format=json",
+      "requestTime": "2026-08-22T07:49:39Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?format=json"
+      ],
+      "routeType": "OFFICIAL_API",
+      "httpStatus": 200,
+      "finalRoute": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?format=json",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:41 GMT",
+        "Content-Type": "application/json;charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "close",
+        "set-cookie": "_cfuvid=Oi7zUqmGGCzAQRAeH5tG0ROhY8lU2dQn15_93DwWKls-1787384981.0228236-1.0.1.1-8kEbBr.FbU8ok_LOZDfY4gxw2zIzQpckE_jYzbIlRkY; HttpOnly; SameSite=None; Secure; Path=/; Domain=worldbank.org",
+        "CF-Ray": "a2f0484368cdc993-IAD",
+        "CF-Cache-Status": "HIT",
+        "Access-Control-Allow-Origin": "*",
+        "Age": "12785",
+        "Cache-Control": "public, max-age=86400",
+        "Expires": "Sun, 23 Aug 2026 07:49:41 GMT",
+        "Last-Modified": "Sat, 22 Aug 2026 04:16:35 GMT",
+        "Server": "cloudflare",
+        "Vary": "accept-encoding",
+        "Access-Control-Allow-Headers": "X-Requested-With",
+        "Access-Control-Allow-Methods": "GET",
+        "Request-Context": "appId=cid-v1:da002513-bd8b-4441-9f30-737944134422",
+        "X-Powered-By": "ASP.NET"
+      },
+      "mime": "application/json",
+      "contentLength": 10686,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "JSON",
+      "sha256": "DFF1E25C0EAE9F31AC5AF36B65315B9988A8CD10E755F27B97C117A2ED2F5A54",
+      "relativePath": "sources/official-v030/raw/DF/DFF1E25C0EAE9F31AC5AF36B65315B9988A8CD10E755F27B97C117A2ED2F5A54.json",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:41Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "WORLD_BANK",
+        "releaseFamily": "WORLD_BANK_API_MACRO",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://api.worldbank.org/v2/country/CHN/indicator/NY.GDP.MKTP.KD.ZG?format=json",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "DBNOMICS",
+      "releaseFamily": "DBNOMICS_AGGREGATOR_DISCOVERY",
+      "url": "https://api.db.nomics.world/v22/providers/IMF",
+      "requestTime": "2026-08-22T07:49:41Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://api.db.nomics.world/v22/providers/IMF"
+      ],
+      "routeType": "AGGREGATOR_API",
+      "httpStatus": 200,
+      "finalRoute": "https://api.db.nomics.world/v22/providers/IMF",
+      "responseHeaders": {
+        "Server": "nginx/1.22.1",
+        "Date": "Sat, 22 Aug 2026 07:49:43 GMT",
+        "Content-Type": "application/json",
+        "Content-Length": "8251",
+        "Connection": "close",
+        "Access-Control-Allow-Origin": "*",
+        "X-Cache-Status": "HIT"
+      },
+      "mime": "application/json",
+      "contentLength": 8251,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "JSON",
+      "sha256": "20924CB69C36F671E356684A77A6DBD3819F5A21D64E0F2B801756187CBD252D",
+      "relativePath": "sources/official-v030/raw/20/20924CB69C36F671E356684A77A6DBD3819F5A21D64E0F2B801756187CBD252D.json",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:43Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "DBNOMICS",
+        "releaseFamily": "DBNOMICS_AGGREGATOR_DISCOVERY",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://api.db.nomics.world/v22/providers/IMF",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "BIS",
+      "releaseFamily": "BIS_STATISTICS",
+      "url": "https://stats.bis.org/",
+      "requestTime": "2026-08-22T07:49:43Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://stats.bis.org/",
+        "https://data.bis.org/"
+      ],
+      "routeType": "OFFICIAL_API",
+      "httpStatus": 200,
+      "finalRoute": "https://data.bis.org/",
+      "responseHeaders": {
+        "cache-control": "private",
+        "content-type": "text/html; charset=utf-8",
+        "vary": "Accept-Encoding",
+        "date": "Sat, 22 Aug 2026 07:49:46 GMT",
+        "age": "0",
+        "etag": "W/\"181rk95iuav46e8\"",
+        "accept-ranges": "bytes",
+        "content-security-policy": "default-src 'none'; script-src 'self' https://challenges.cloudflare.com/turnstile/; connect-src 'self' https://bis.matomo.cloud ; img-src 'self' data: bis.org; style-src 'self' 'unsafe-inline'; media-src 'self' bis.org; font-src 'self' data:; base-uri 'self'; frame-src www.youtube.com youtube.com bis.org www.bis.org https://challenges.cloudflare.com/ dataviz.bis.org; frame-ancestors 'none'; manifest-src 'self'",
+        "strict-transport-security": "max-age=63072000; includeSubDomains; preload",
+        "x-content-type-options": "nosniff",
+        "referrer-policy": "strict-origin-when-cross-origin",
+        "transfer-encoding": "chunked",
+        "set-cookie": "d95a117a4d9bd88166edd369fac646eb=f42cc1e55a6cebad78b2ca6b9c95bbe7; path=/; HttpOnly; Secure; SameSite=None",
+        "connection": "close"
+      },
+      "mime": "text/html",
+      "contentLength": 194916,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "BCA0E5EBFABCB19608CB5023A8B0DE3E07A53DA36C542B7AA8B6A014D47137D9",
+      "relativePath": "sources/official-v030/raw/BC/BCA0E5EBFABCB19608CB5023A8B0DE3E07A53DA36C542B7AA8B6A014D47137D9.html",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:47Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "BIS",
+        "releaseFamily": "BIS_STATISTICS",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://data.bis.org/",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "OECD",
+      "releaseFamily": "OECD_STATISTICS",
+      "url": "https://sdmx.oecd.org/public/rest/v1/dataflow/all/all/latest",
+      "requestTime": "2026-08-22T07:49:47Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://sdmx.oecd.org/public/rest/v1/dataflow/all/all/latest"
+      ],
+      "routeType": "OFFICIAL_API",
+      "httpStatus": 200,
+      "finalRoute": "https://sdmx.oecd.org/public/rest/v1/dataflow/all/all/latest",
+      "responseHeaders": {
+        "Date": "Sat, 22 Aug 2026 07:49:55 GMT",
+        "Content-Type": "application/json; charset=utf-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "close",
+        "Cache-Control": "public,max-age=86400",
+        "set-cookie": "__cf_bm=XYMKzw_KOnyXDsiUqKTXnP_VTpJKTg1moRj0vaXZ_ko-1787384989.4923217-1.0.1.1-gkmDY74upLG0xuZRQVv1vd.ynWD2YnKS0RtpC1jANG1Rws_.onU85YLaICb0V1l3MttOZaS73t_y7wvScv.8BaAvgzPe9cLiZnJdU_BO9.FpfBlo8JudeAVNkYWYjnve; HttpOnly; SameSite=None; Secure; Path=/; Domain=oecd.org; Expires=Sat, 22 Aug 2026 08:19:55 GMT",
+        "Vary": "Accept, Accept-Language, Accept-Encoding, Accept-Charset,Accept,Accept-Encoding,Accept-Encoding",
+        "Strict-Transport-Security": "max-age=2592000",
+        "api-supported-versions": "1",
+        "X-Server-Node": "Server 2",
+        "cf-cache-status": "DYNAMIC",
+        "Server": "cloudflare",
+        "CF-RAY": "a2f0487859406529-IAD",
+        "alt-svc": "h3=\":443\"; ma=86400"
+      },
+      "mime": "application/json",
+      "contentLength": 1066437,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "JSON",
+      "sha256": "97D47F67D26F76457B103F1F228393F7C4A765AF5C70C90305EA8B4457B5DC13",
+      "relativePath": "sources/official-v030/raw/97/97D47F67D26F76457B103F1F228393F7C4A765AF5C70C90305EA8B4457B5DC13.json",
+      "storage": "CONTENT_ADDRESS_REUSED",
+      "acquiredAt": "2026-08-22T07:49:57Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "OECD",
+        "releaseFamily": "OECD_STATISTICS",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://sdmx.oecd.org/public/rest/v1/dataflow/all/all/latest",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED"
+    },
+    {
+      "provider": "IMF",
+      "releaseFamily": "IMF_WEO_ELIBRARY",
+      "url": "https://www.imf.org/external/datamapper/api/v1/NGDP_RPCH/CHN",
+      "requestTime": "2026-08-22T07:49:57Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_API",
+      "status": "HTTP_FAILED",
+      "httpStatus": 403,
+      "error": "HTTP Error 403: Forbidden",
+      "sourceHealth": "HTTP_BLOCKED"
+    }
+  ],
+  "stagedCandidates": [],
+  "semanticDiffs": [],
+  "approval": null,
+  "submission": null,
+  "fixtureCounted": 0,
+  "networkUsed": true,
+  "verificationStatus": "VERIFIED",
+  "completedAt": "2026-08-22T07:49:59Z",
+  "manifestFingerprint": "374C43A5E4AA0964356D8CAC7B084F540547D18499F8EF11F2654DE66559EE0F"
+}

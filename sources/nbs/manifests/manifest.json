@@ -1,0 +1,93 @@
+{
+  "collector_run_id": "nbs_collect_20260819_093442",
+  "started_at": "2026-08-19T01:34:29.781685+00:00",
+  "completed_at": "2026-08-19T01:35:07.828104+00:00",
+  "config": {
+    "archive_url": "https://www.stats.gov.cn/sj/zxfb/",
+    "start_year": 2018,
+    "end_year": 2026,
+    "max_pages": 1,
+    "delay": 1.0,
+    "root": "sources\\nbs",
+    "dry_run": false,
+    "download": true,
+    "yes": true
+  },
+  "archive_pages": [
+    "https://www.stats.gov.cn/sj/zxfb/"
+  ],
+  "releases": [
+    {
+      "id": "0eabc4bcf218bec3",
+      "source": "nbs",
+      "title": "2026年7月份规模以上工业增加值增长4.5%",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202608/t20260817_1965055.html",
+      "publication_date": "2026-08-17",
+      "category": "industrial",
+      "status": "DOWNLOADED",
+      "local_path": "sources\\nbs\\raw\\unda\\industrial\\undated__industrial__0eabc4bcf218bec3.html",
+      "sha256": "d8a9cc4305ea657b6d9eeecc8633afcf6934bc05f7da72c9969c89e465833609",
+      "discovered_from_archive_url": "https://www.stats.gov.cn/sj/zxfb/",
+      "version": 1,
+      "downloaded_at": "2026-08-19T01:34:51.980513+00:00",
+      "http": {
+        "status_code": 200,
+        "content_type": "text/html",
+        "etag": null,
+        "last_modified": null
+      },
+      "metadata_repaired_at": "2026-08-19T02:23:12.568387+00:00",
+      "raw_storage_path_preserved": true
+    },
+    {
+      "id": "3fef03fce7356748",
+      "source": "nbs",
+      "title": "2026年1—7月份全国固定资产投资基本情况",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202608/t20260817_1965054.html",
+      "publication_date": "2026-08-17",
+      "category": "fixed_asset_investment",
+      "status": "DOWNLOADED",
+      "local_path": "sources\\nbs\\raw\\unda\\fixed_asset_investment\\undated__fixed_asset_investment__3fef03fce7356748.html",
+      "sha256": "137d2c4769ade6b868375855874f73dae4d4872cad0b7c7df33700d88fc76852",
+      "discovered_from_archive_url": "https://www.stats.gov.cn/sj/zxfb/",
+      "version": 1,
+      "downloaded_at": "2026-08-19T01:35:00.654652+00:00",
+      "http": {
+        "status_code": 200,
+        "content_type": "text/html",
+        "etag": null,
+        "last_modified": null
+      },
+      "metadata_repaired_at": "2026-08-19T02:23:12.570426+00:00",
+      "raw_storage_path_preserved": true
+    },
+    {
+      "id": "7f216d6f7805bdcb",
+      "source": "nbs",
+      "title": "2026年1—7月份社会消费品零售总额增长1.2%",
+      "url": "https://www.stats.gov.cn/sj/zxfb/202608/t20260817_1965052.html",
+      "publication_date": "2026-08-17",
+      "category": "retail_sales",
+      "status": "DOWNLOADED",
+      "local_path": "sources\\nbs\\raw\\unda\\retail_sales\\undated__retail_sales__7f216d6f7805bdcb.html",
+      "sha256": "0f5377cde8a141e98051b8b530c51bd4e38bcf0b2fd8619eec644ea2440c76d2",
+      "discovered_from_archive_url": "https://www.stats.gov.cn/sj/zxfb/",
+      "version": 1,
+      "downloaded_at": "2026-08-19T01:35:07.828104+00:00",
+      "http": {
+        "status_code": 200,
+        "content_type": "text/html",
+        "etag": null,
+        "last_modified": null
+      },
+      "metadata_repaired_at": "2026-08-19T02:23:12.572894+00:00",
+      "raw_storage_path_preserved": true
+    }
+  ],
+  "errors": [],
+  "metadata_repair": {
+    "repaired": 3,
+    "at": "2026-08-19T02:23:12.572894+00:00",
+    "network_requests": 0
+  }
+}

@@ -1,0 +1,2 @@
+window.MinshengDocumentSections = [{id:'section_pboc_mock_finance',documentId:'doc_pboc_2026_07_financial_stats',title:'金融统计概况（待原文定位）',order:1,pageStart:null,pageEnd:null,tags:['金融'],relatedIndicatorIds:['household_deposit','mortgage_growth']}];
+window.MinshengDocumentTables = [{id:'table_pboc_mock_balance',documentId:'doc_pboc_2026_07_financial_stats',title:'金融数据表（待原表定位）',page:null,relatedIndicatorIds:['household_deposit']}];

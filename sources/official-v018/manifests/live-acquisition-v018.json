@@ -1,0 +1,26 @@
+{
+  "id": "live_official_real_estate_v018_20260820",
+  "version": "v0.18.0",
+  "explicitLive": true,
+  "completedAt": "2026-08-20T07:19:40.532041+00:00",
+  "attemptedReleases": 1,
+  "attemptedRoutes": 1,
+  "originalSuccesses": 1,
+  "fixtureCounted": false,
+  "parsedCandidates": 14,
+  "mappedCandidates": 14,
+  "notes": "NBS 2026 H1 nationwide real-estate release. Sales activity, funds-in-place flows and loan stocks remain separate.",
+  "routes": [
+    {
+      "url": "https://www.stats.gov.cn/sj/zxfbhjd/202607/t20260715_1964126.html",
+      "role": "ORIGINAL",
+      "expectedMimeType": "text/html",
+      "status": "FETCHED",
+      "mimeType": "text/html",
+      "fileName": "nbs_2026_h1_real_estate_development.html",
+      "fileSize": 246964,
+      "sha256": "AE82363BB34199514C8AC51EA28E309C3C4141C338E008C4F5E080B8FDF29AC4",
+      "contentConsistencyVerified": true
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+const fs=require('fs'),vm=require('vm'),path=require('path');
+const root=path.resolve(__dirname,'..'),context={console,window:{}};context.window=context;
+const load=file=>vm.runInNewContext(fs.readFileSync(path.join(root,file),'utf8'),context,{filename:file});
+['data/regimes.js','config/regime-feature-config.js','config/structural-break-config.js','data/regime-evidence.js','data/structural-breaks.js'].forEach(load);
+const period=(index)=>`${2020+Math.floor(index/12)}-${String(index%12+1).padStart(2,'0')}`;
+const record=(id,indicatorId,index,value,extra={})=>({id,indicatorId,period:period(index),value,convertedValue:value,unit:'%',convertedUnit:'%',status:'REAL',sourceId:'nbs',sourceDocumentId:`doc_${indicatorId}`,revision:0,...extra});
+const records=[];
+for(let index=0;index<72;index++){
+  const base=Math.sin(index/4)*2;
+  records.push(record(`m2_${index}`,'money_m2_yoy_derived_official',index,8+base,{seriesType:'DERIVED',sourceId:'pboc'}));
+  records.push(record(`industrial_${index}`,'industrial_value_added_yoy',index,index<36?5+base:5-base));
+  const property=-3+Math.sin(index/5)*3,retail=index<36?3+property*.8+Math.cos(index)*.4:3+property*.5+Math.sin(index*1.7)*2;
+  records.push(record(`property_${index}`,'property_sales_area_yoy',index,property));
+  records.push(record(`retail_${index}`,'retail_sales_ytd_yoy',index,retail));
+}
+context.MinshengPBOCM2DerivedHealth={accepted:true};
+context.data={records,regimes:context.MinshengRegimes,stateRegimeRegistry:context.MinshengStateRegimeRegistry,regimeEvidence:[],regimeCandidates:[],structuralBreakCandidates:[],regimeVersions:[],currentStateSnapshots:[],stateFeatures:[],research:[],evidence:[],policyActions:[{id:'action',evidenceType:'FACT',sourceDocumentId:'doc_policy'}],priorityShifts:[{id:'shift',status:'ACCEPTED',change:10,sourceDocumentId:'doc_policy'}],policyStatements:[],auditLog:[]};
+load('modules/regime-detection-v011.js');
+const engine=context.MinshengRegimeDetectionV011,must=(condition,message)=>{if(!condition)throw Error(message);};
+must(engine.coverageLevel([{stance:'SUPPORT'}])==='DATA_INSUFFICIENT','A single supporting feature must be data insufficient');
+must(engine.coverageLevel([{stance:'SUPPORT'},{stance:'SUPPORT'},{stance:'SUPPORT'},{stance:'CONTRADICT'}])==='MODERATE_SUPPORT','Three support and one contradict must be moderate support');
+const built=engine.build(),propertyCandidate=built.candidates.find(item=>item.code==='PROPERTY_DELEVERAGING');
+must(propertyCandidate,'Property candidate missing');
+must(engine.scenarioGate(context.data,{parameterVersionIds:['param_property_retail_v1']}).suggestions.length===0,'Accepted-but-inactive candidate must not affect scenario suggestions');
+must(engine.acceptCandidate(propertyCandidate.id,{reason:'test review'}).ok,'Candidate acceptance failed');
+must(engine.activateCandidate(propertyCandidate.id,{reason:'test activation'}).ok,'Candidate activation failed');
+must(engine.scenarioGate(context.data,{parameterVersionIds:['param_property_retail_v1']}).suggestions.length===1,'Accepted active candidate must suggest a parameter');
+context.data.regimeCandidates.push({id:'conflict',regimeType:'STATE',status:'ACCEPTED',activated:true,code:'TEST_CONFLICT',parameterSuggestions:[{parameterId:'param_property_retail_v1',direction:'negative'}]});
+must(engine.scenarioGate(context.data,{parameterVersionIds:['param_property_retail_v1']}).reasons.includes('REGIME_PARAMETER_CONFLICT'),'Opposite active regime suggestions must block scenario use');
+const rolling=[{end:'2021-01',pearson:.3},{end:'2021-02',pearson:.25},{end:'2021-03',pearson:.2},{end:'2023-01',pearson:-.2},{end:'2023-02',pearson:-.25},{end:'2023-03',pearson:-.3}];
+must(engine.signReversal(rolling).detected,'Persistent rolling positive-to-negative change must create a sign-reversal candidate');
+const weakening=built.breaks.find(item=>item.type==='RELATIONSHIP_WEAKENING');
+must(weakening&&!built.breaks.some(item=>item.relationshipId==='rel_property_retail_ytd_historical'&&item.type==='POSSIBLE_STRUCTURAL_BREAK'),'A positive .8-to-.5 style change must be weakening, not a break');
+const historical=context.data.regimes.find(item=>item.id==='regime_2023_plus'),oldBoundary=historical.startDate;must(engine.rejectBreak(weakening.id,{reason:'test rejection'}).ok,'Break rejection failed');must(historical.startDate===oldBoundary,'Rejected break must not alter historical regime boundaries');
+const oldSnapshot=built.snapshot;context.data.records[0].revision=1;const next=engine.build();must(next.snapshot.id!==oldSnapshot.id&&context.data.currentStateSnapshots.length>=2,'A revised record must preserve the old snapshot and create a new one');
+console.log('v0.11 regime-detection and structural-break tests PASS');

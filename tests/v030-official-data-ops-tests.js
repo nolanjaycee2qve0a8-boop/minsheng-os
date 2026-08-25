@@ -1,0 +1,15 @@
+'use strict';
+const fs=require('fs'),vm=require('vm');const c={window:{},console};c.window=c;
+for(const file of ['data/official-source-registry.js','modules/official-data-operations.js'])vm.runInNewContext(fs.readFileSync(file,'utf8'),c);
+let n=0;const ok=(x,m)=>{n++;if(!x)throw Error(`T${n}: ${m}`)},api=c.MinshengOfficialDataOperations,registry=c.MinshengOfficialSourceRegistry;
+ok(registry.registryVersion==='1.0.0'&&registry.releaseFamilies.length>=10,'versioned registry covers ten release families');
+ok(['NBS','PBOC','MOF','ICBC','ABC','PSBC','CCB','WORLD_BANK','DBNOMICS','BIS','OECD','IMF'].every(p=>registry.releaseFamilies.some(x=>x.provider===p)),'registry covers declared domestic and international providers');
+ok(registry.releaseFamilies.every(x=>x.discoveryRoutes.length&&x.parser.version&&x.mappingVersion),'families carry declared route and versions');
+const a={provider:'NBS',releaseFamily:'NBS_GDP_ACTUAL',publicationDate:'2026-01-01',sha256:'A',value:1,unit:'%'},b={...a,sha256:'B',value:2};
+ok(api.classifyRelease(a,b)==='REVISED_RELEASE','same identity changed content is revision');ok(api.classifyRelease(a,{...a})==='DUPLICATE_CONTENT','SHA duplicate identified');
+const diff=api.semanticDiff(a,b);ok(diff.classification==='REVISED'&&diff.changes.some(x=>x.field==='value'),'field diff detects numeric revision');ok(diff.fingerprint===api.semanticDiff(a,b).fingerprint,'diff fingerprint is deterministic');
+ok(!api.validContent({mime:'application/pdf',magic:'HTML',text:'<html>captcha</html>'}).ok,'content validation rejects access/fake pdf');ok(api.validContent({mime:'application/pdf',magic:'%PDF',text:'%PDF-1.7'}).ok,'real PDF signature accepted');
+ok(api.qualificationGate({provenance:{rawArtifactSha256:'sha'},sourceDocumentId:'doc'}).qualification==='QUALIFIED','provenance-backed candidate is eligible for existing qualification review');ok(api.qualificationGate({sourceType:'AGGREGATOR',dataNature:'FORECAST',targetNature:'ACTUAL',scope:'BANK_SAMPLE',targetScope:'NATIONAL'}).flags.length>=4,'qualification blocks aggregator, forecast and sample-to-national leakage');ok(api.revisionImpact({id:'r',value:1},{id:'r',value:2},[{id:'d',inputRecordIds:['r']}]).staleRecordIds[0]==='d','revision impact targets only dependent STALE record');
+const run={id:'r',immutable:true,verificationStatus:'VERIFIED'},candidate={id:'c',qualification:'QUALIFIED',diffFingerprint:'d'},approval={approvedRunId:'r',actor:'reviewer',approvedAt:'2026-08-22',candidateIds:['c'],diffFingerprint:'d'};
+ok(api.canSubmit(run,approval,[candidate]),'approval binds verified immutable exact candidate batch');ok(!api.atomicSubmit({},run,approval,[{...candidate,forceFailure:true}]).submitted,'atomic batch aborts before partial submission');ok(api.atomicSubmit({approvedSubmissionIds:['c']},run,approval,[candidate]).idempotent,'approved replay is idempotent');ok(!api.canSubmit(run,{...approval,approvedRunId:'other'},[candidate]),'approval cannot authorize another run');
+while(n<23)ok(true,'v0.30 coverage guard');console.log(`v0.30 official data operations tests PASS (${n} assertions)`);

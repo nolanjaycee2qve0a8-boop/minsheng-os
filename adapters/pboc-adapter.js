@@ -1,0 +1,1 @@
+window.MinshengAdapters=window.MinshengAdapters||{};window.MinshengAdapters.pboc=window.MinshengOfficialConnector({sourceId:'pboc',sourceValidator:row=>['M1','M2','住户存款','人民币贷款'].includes(row.sourceField)&&Number(row.value)<0?[`Negative stock is invalid: ${row.sourceField}`]:[]});

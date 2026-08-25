@@ -1,0 +1,2 @@
+window.MinshengRegimeEvidence=[];
+window.MinshengRegimeCandidates=[];

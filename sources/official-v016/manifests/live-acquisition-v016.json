@@ -1,0 +1,52 @@
+{
+  "id": "live_official_mortgage_rate_v016_20260820",
+  "version": "v0.16.0",
+  "explicitLive": true,
+  "completedAt": "2026-08-20T06:11:06.742324+00:00",
+  "attemptedReleases": 3,
+  "attemptedRoutes": 3,
+  "originalSuccesses": 3,
+  "fixtureCounted": false,
+  "parsedCandidates": 1,
+  "mappedCandidates": 1,
+  "newRealObservationIds": [
+    "record_pboc_new_personal_housing_loan_rate_2025h1_v016"
+  ],
+  "stockEffectiveMortgageRate": "UNKNOWN",
+  "notes": "NEW_LOAN_RATE is retained as a separate REAL observation. No LIVE result is used as a stock-effective mortgage rate.",
+  "routes": [
+    {
+      "fileName": "pboc_2025h1_new_mortgage_rate.html",
+      "url": "https://www.pbc.gov.cn/hanglingdao/128697/5580410/5580420/2025100917113619740/index.html",
+      "role": "ORIGINAL",
+      "expectedMimeType": "text/html",
+      "status": "FETCHED",
+      "mimeType": "text/html",
+      "fileSize": 60386,
+      "sha256": "158D17EE6B8B69AC5A4ADD3770273257FAD8C07FC4380A6C2E043661D457710D",
+      "contentConsistencyVerified": true
+    },
+    {
+      "fileName": "pboc_2024_mortgage_pricing_policy.pdf",
+      "url": "https://www.pbc.gov.cn/chubanwu/114566/114579/5358353/5540955/2024122310475773688.pdf",
+      "role": "ORIGINAL",
+      "expectedMimeType": "application/pdf",
+      "status": "FETCHED",
+      "mimeType": "application/pdf",
+      "fileSize": 2861129,
+      "sha256": "8D80696DEF49CC0169833104D0D0D77758A8CE725139A0E9BC36BDEDF127B47E",
+      "contentConsistencyVerified": true
+    },
+    {
+      "fileName": "pboc_rate_publication_guide.html",
+      "url": "https://wzdt.pbc.gov.cn/eportal/ui?msgDataId=5a1ca14ce45740208156681603554924&pageId=77c3557bd521439ea5cd869f5393ba98",
+      "role": "ORIGINAL",
+      "expectedMimeType": "text/html",
+      "status": "FETCHED",
+      "mimeType": "text/html",
+      "fileSize": 28243,
+      "sha256": "37FD9CDA2031B110678A194B1F78341CC8AAA589BFE551E7FA04819D635B9C63",
+      "contentConsistencyVerified": true
+    }
+  ]
+}

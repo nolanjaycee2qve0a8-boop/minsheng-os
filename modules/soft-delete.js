@@ -1,0 +1,1 @@
+window.MinshengSoftDelete = (() => {const mark=(entity,reason)=>Object.assign(entity,{deleted:true,deletedAt:new Date().toISOString(),deleteReason:reason});const restore=entity=>Object.assign(entity,{deleted:false,deletedAt:null,deleteReason:null});return {mark,restore};})();

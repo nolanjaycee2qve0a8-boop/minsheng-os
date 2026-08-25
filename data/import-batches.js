@@ -1,0 +1,1 @@
+window.MinshengImportBatches = [{id:'batch_mock_migration_v04',importedAt:'2026-08-18T00:00:00.000Z',fileName:'v0.2-mock-indicators',fileType:'internal_migration',sourceId:null,recordCount:12,acceptedCount:12,rejectedCount:0,status:'completed',warnings:['MOCK 数据迁移批次'],errors:[]}];

@@ -1,0 +1,82 @@
+{
+  "version": "v0.15.0",
+  "explicitLive": true,
+  "createdAt": "2026-08-20T05:34:29.609575+00:00",
+  "attempts": [
+    {
+      "label": "pboc_credit_index",
+      "role": "OFFICIAL_INDEX",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/11040-2.html",
+      "fetchedAt": "2026-08-20T05:34:01.354100+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 38603,
+      "sha256": "365B2DE512B4C77DA2F5908BE39428E05C9CF95EDFB4DEFD9349AC2FE9567D4A"
+    },
+    {
+      "label": "pboc_credit_original",
+      "role": "ORIGINAL",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026072719364116939/index.html",
+      "fetchedAt": "2026-08-20T05:34:04.633654+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 29151,
+      "sha256": "4346AC293134703B81FE1DF161B16AF025B9DAD40436B1585D00EB4E4B8CD6A8",
+      "relativePath": "sources/official-v015/raw/pboc_credit_2026q2.html"
+    },
+    {
+      "label": "mof_fiscal_index",
+      "role": "OFFICIAL_INDEX",
+      "url": "https://www.mof.gov.cn/zhengwuxinxi/redianzhuanti/quanguocaizhengshouzhiqingkuang/",
+      "fetchedAt": "2026-08-20T05:34:08.462893+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 17338,
+      "sha256": "B99C7326B4EC439538FE230128BD358576B2E2B63884683E34B6F4BE17EB9C0F"
+    },
+    {
+      "label": "mof_fiscal_original",
+      "role": "ORIGINAL",
+      "url": "http://gks.mof.gov.cn/tongjishuju/202607/t20260722_3993943.htm",
+      "fetchedAt": "2026-08-20T05:34:16.110134+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 34838,
+      "sha256": "F65E8101CAC19B13C21D03D0F8150481531C32507361871461587BEDC7A9C023",
+      "relativePath": "sources/official-v015/raw/mof_fiscal_2026h1.html"
+    },
+    {
+      "label": "mof_debt_index",
+      "role": "OFFICIAL_INDEX",
+      "url": "https://zwgls.mof.gov.cn/tjsj/",
+      "fetchedAt": "2026-08-20T05:34:20.320193+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 12453,
+      "sha256": "580ECEB713C2B487B6305B7F3940B34EBCDD5AC5AF95DF90998589755DFF04D3"
+    },
+    {
+      "label": "mof_debt_original",
+      "role": "ORIGINAL",
+      "url": "https://zwgls.mof.gov.cn/tjsj/202607/t20260727_3994357.htm",
+      "fetchedAt": "2026-08-20T05:34:24.897914+00:00",
+      "fixture": false,
+      "status": "FETCHED",
+      "httpStatus": 200,
+      "mimeType": "text/html",
+      "bytes": 25699,
+      "sha256": "4CF1257FD1BFDDC8F7D9367D256FAD8A5FAD79D074FC994EFD0477AEFD91370D",
+      "relativePath": "sources/official-v015/raw/mof_local_debt_2026m06.html"
+    }
+  ]
+}

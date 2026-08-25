@@ -1,0 +1,9 @@
+{
+  "fixtureKind": "TEST_FIXTURE_SYNTHETIC",
+  "purpose": "Original public-test extraction metadata. It is not a bank disclosure and cannot be submitted as REAL evidence.",
+  "records": [
+    { "entity": "ICBC", "exposureConcept": "PERSONAL_MORTGAGE_LOANS", "sourceClass": "TEST_FIXTURE_SYNTHETIC" },
+    { "entity": "ABC", "exposureConcept": "CORPORATE_REAL_ESTATE_LOANS", "sourceClass": "TEST_FIXTURE_SYNTHETIC" },
+    { "entity": "PSBC", "exposureConcept": "PERSONAL_MORTGAGE_LOANS", "sourceClass": "TEST_FIXTURE_SYNTHETIC" }
+  ]
+}

@@ -1,0 +1,2 @@
+window.MinshengStructuralBreakCandidates=[];
+window.MinshengRegimeVersions=[];
