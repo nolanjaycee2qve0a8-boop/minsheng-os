@@ -1,5 +1,10 @@
 # Changelog
 
+## v0.33.2 — Checked-out main continuity hotfix
+
+- Fixed the isolated continuity clone to leave an already checked-out `main` untouched and otherwise safely check out a temporary `main` at the target HEAD.
+- Added real Git worktree regression coverage for checked-out main, feature, detached, missing-main, normal-merge, squash-like and future-documentation states, including failure-path cleanup.
+
 ## v0.33.1 — Continuous public CI baseline
 
 - Replaced the one-time public-main SHA assertion with enduring content and classification invariants; the public runner now exercises merged-main and future documentation-main simulations in isolated clones.
