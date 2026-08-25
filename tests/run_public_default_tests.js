@@ -4,7 +4,7 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
-const excluded = new Set(['run_public_default_tests.js', 'v029-browser-audit-tests.js', 'v0321-public-boundary-tests.js']);
+const excluded = new Set(['run_public_default_tests.js', 'v029-browser-audit-tests.js', 'v0321-public-boundary-tests.js', 'v033-public-ci-tests.js']);
 const tests = fs.readdirSync(__dirname)
   .filter(name => /^v\d+.*-tests\.js$/.test(name) && !excluded.has(name))
   .sort();

@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.33 — Public CI, reproducibility and collaboration gates
+
+- Added a read-only GitHub Actions workflow for pushes and pull requests to `main`, with offline-only public test execution, bounded runtime and cancellation of superseded runs.
+- Added a classified public CI entry point: deterministic public tests run in CI, while local bank-source validation, real-browser validation and LIVE acquisition are reported as explicit `NOT_RUN` categories.
+- Added public collaboration, security and reproducibility documentation; the project remains unlicensed and does not distribute third-party originals.
+
 ## v0.32.1 — Public repository boundary remediation
 
 - Removed workstation-specific paths from tracked documentation, browser-audit tooling and stored audit output; browser and Playwright selection now use discovery, environment variables or explicit arguments without persisting executable paths.

@@ -1,0 +1,14 @@
+{
+  "version": "v0.33.0",
+  "networkPolicy": "OFFLINE_ONLY",
+  "publicDefault": ["tests/run_public_default_tests.js"],
+  "publicBoundary": [
+    "tests/v0321-public-boundary-tests.js",
+    "tests/v0322-synthetic-html-fixture-tests.js",
+    "tests/v029-selector-population-tests.js",
+    "tests/v033-public-ci-tests.js"
+  ],
+  "localOnly": ["tools/validate_local_bank_sources.js"],
+  "browserOnly": ["tests/v029-browser-audit-tests.js"],
+  "liveAcquisition": ["tools/run_official_data_ops.py", "tools/run_v031_watch.py"]
+}
