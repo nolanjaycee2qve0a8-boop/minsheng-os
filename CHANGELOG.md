@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.33.1 — Continuous public CI baseline
+
+- Replaced the one-time public-main SHA assertion with enduring content and classification invariants; the public runner now exercises merged-main and future documentation-main simulations in isolated clones.
+- Made the test manifest the authoritative classification for public, local-only, browser-only and LIVE validation paths, with fail-closed missing, duplicate and unclassified-path checks.
+- Pinned the public Actions dependencies to reviewed full commit SHAs with readable upstream-version comments.
+
 ## v0.33 — Public CI, reproducibility and collaboration gates
 
 - Added a read-only GitHub Actions workflow for pushes and pull requests to `main`, with offline-only public test execution, bounded runtime and cancellation of superseded runs.
