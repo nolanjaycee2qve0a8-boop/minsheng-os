@@ -17,7 +17,7 @@ function validatePublicCiWorkflow(file = workflow) {
   }
   const required = [
     'name: Public CI', 'push:', 'pull_request:', 'branches: [main]', 'permissions:', 'contents: read',
-    'cancel-in-progress: true', 'timeout-minutes: 20', 'actions/checkout@v4', 'actions/setup-node@v4',
+    'cancel-in-progress: true', 'timeout-minutes: 20', 'actions/checkout@v4', 'fetch-depth: 0', 'actions/setup-node@v4',
     "node-version: '22'", 'actions/setup-python@v5', "python-version: '3.11'", 'node tools/run_public_ci.js'
   ];
   for (const value of required) if (!text.includes(value)) throw new Error(`YAML_REQUIRED_VALUE_MISSING:${value}`);

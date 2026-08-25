@@ -7,6 +7,17 @@ const root = path.resolve(__dirname, '..');
 const must = (value, message) => { if (!value) throw new Error(message); };
 const text = file => fs.readFileSync(path.join(root, file), 'utf8');
 const git = (...args) => childProcess.execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+const gitRef = ref => {
+  const result = childProcess.spawnSync('git', ['rev-parse', '--verify', ref], { cwd: root, encoding: 'utf8' });
+  return result.status === 0 ? result.stdout.trim() : null;
+};
+const resolveMainRef = () => {
+  const localMain = gitRef('main');
+  const remoteMain = gitRef('origin/main');
+  if (localMain) return localMain;
+  if (remoteMain) return remoteMain;
+  throw new Error('public main ref is unavailable');
+};
 const tracked = git('ls-files').split(/\r?\n/).filter(Boolean);
 const workflow = text('.github/workflows/public-ci.yml');
 const manifest = JSON.parse(text('config/public-ci-test-manifest.json'));
@@ -16,6 +27,7 @@ const { validatePublicCiWorkflow } = require('../tools/validate_public_ci_workfl
 const parsed = validatePublicCiWorkflow();
 must(parsed.status === 'YAML_STRUCTURAL_VALIDATION_PASSED', 'workflow YAML structural validation failed');
 must(/^permissions:\r?\n  contents: read$/m.test(workflow), 'CI permissions must be read-only');
+must(workflow.includes('fetch-depth: 0'), 'CI must fetch the public main ref for baseline comparison');
 must(!/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)/i.test(workflow), 'CI may not use secrets or write/network commands');
 must(!/raw\/|\.pdf|validate_local_bank_sources|run_official_.*live|run_v031_watch/i.test(workflow), 'CI workflow must not read raw sources or run local/LIVE acquisition');
 must(manifest.networkPolicy === 'OFFLINE_ONLY', 'public CI must be offline-only');
@@ -35,6 +47,7 @@ const personalPathFragments = [`C:${slash}Users${slash}`, ['', 'Users', ''].join
 const textFiles = tracked.filter(file => /\.(?:js|json|md|yml|yaml|py|html|css|txt)$/i.test(file));
 must(textFiles.every(file => !personalPathFragments.some(fragment => text(file).includes(fragment))), 'public tree contains a personal absolute path');
 must(!tracked.some(file => /eos/i.test(file)) && !git('remote').split(/\r?\n/).some(remote => /eos/i.test(remote)), 'EOS contamination detected');
-must(git('rev-parse', 'main') === '9034ddb979d317fe6d5011b755f0247be0e75660', 'main baseline changed during v0.33 work');
-must(git('diff', '--name-only', 'main', '--', 'data').length === 0, 'business data changed during v0.33 work');
+const mainRef = resolveMainRef();
+must(mainRef === '9034ddb979d317fe6d5011b755f0247be0e75660', 'main baseline changed during v0.33 work');
+must(git('diff', '--name-only', mainRef, '--', 'data').length === 0, 'business data changed during v0.33 work');
 console.log(`v0.33 public CI and collaboration gate tests PASS (${tracked.length} tracked files; ${parsed.parser})`);
