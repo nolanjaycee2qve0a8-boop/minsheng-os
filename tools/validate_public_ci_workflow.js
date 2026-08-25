@@ -22,7 +22,7 @@ function validatePublicCiWorkflow(file = workflow) {
     'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0', "python-version: '3.11'", 'node tools/run_public_ci.js'
   ];
   for (const value of required) if (!text.includes(value)) throw new Error(`YAML_REQUIRED_VALUE_MISSING:${value}`);
-  if (/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)/i.test(text)) throw new Error('YAML_PUBLIC_CI_PRIVILEGE_OR_NETWORK_WRITE_FORBIDDEN');
+  if (/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)|\bapproval\b|\brelease\b|\bLIVE\b|\bREAL(?:[_ -]?submission)?\b/i.test(text)) throw new Error('YAML_PUBLIC_CI_PRIVILEGE_OR_NETWORK_WRITE_FORBIDDEN');
   return { status: 'YAML_STRUCTURAL_VALIDATION_PASSED', parser: 'PROJECT_SUBSET_VALIDATOR', file: path.relative(path.resolve(__dirname, '..'), file) };
 }
 

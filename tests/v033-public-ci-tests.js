@@ -6,7 +6,7 @@ const path = require('path');
 const root = path.resolve(__dirname, '..');
 const must = (value, message) => { if (!value) throw new Error(message); };
 const text = file => fs.readFileSync(path.join(root, file), 'utf8');
-const { categories, loadManifest, validateManifest } = require('../tools/run_public_ci.js');
+const { categories, loadManifest, validateManifest, buildExecutionPlan } = require('../tools/run_public_ci.js');
 const { validatePublicCiWorkflow } = require('../tools/validate_public_ci_workflow.js');
 
 function hasGit() {
@@ -51,7 +51,7 @@ const parsed = validatePublicCiWorkflow();
 must(parsed.status === 'YAML_STRUCTURAL_VALIDATION_PASSED', 'workflow YAML structural validation failed');
 must(/^permissions:\r?\n  contents: read$/m.test(workflow), 'CI permissions must be read-only');
 must(workflow.includes('fetch-depth: 0'), 'CI must retain full repository checkout for clean-export validation');
-must(!/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)/i.test(workflow), 'CI may not use secrets or write/network commands');
+must(!/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)|\bapproval\b|\brelease\b|\bLIVE\b|\bREAL(?:[_ -]?submission)?\b/i.test(workflow), 'CI may not use secrets, approval, release, LIVE or write/network commands');
 must(!/raw\/|\.pdf|validate_local_bank_sources|run_official_.*live|run_v031_watch/i.test(workflow), 'CI workflow must not read raw sources or run local/LIVE acquisition');
 for (const pin of [
   'actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2',
@@ -63,10 +63,17 @@ must(manifest.networkPolicy === 'OFFLINE_ONLY', 'public CI must be offline-only'
 const manifestResult = validateManifest(manifest, root);
 must(manifestResult.status === 'MANIFEST_VALIDATED', 'manifest did not validate');
 must(categories.every(category => Array.isArray(manifest[category]) && manifest[category].length), 'manifest category missing or empty');
-must(runner.includes('manifest.publicDefault') && runner.includes('manifest.publicBoundary') && runner.includes('manifest.ciInfrastructure'), 'runner is not manifest-driven');
+must(runner.includes('buildExecutionPlan(manifest, nestedContinuity)') && runner.includes('validateManifest(manifest, projectRoot)'), 'runner is not manifest-driven');
 must(runner.includes('LOCAL_SOURCE_VALIDATION_NOT_RUN') && runner.includes('LOCAL_BROWSER_VALIDATION_NOT_RUN') && runner.includes('LIVE_ACQUISITION_NOT_RUN'), 'NOT_RUN categories are not explicit');
 must(!/https?:|fetch\(|http\.|https\.|LIVE_ACQUISITION_PASSED/.test(runner), 'public runner must not make network requests');
 must(runner.includes('process.stderr.write') && runner.includes('result.status !== 0'), 'runner must propagate stderr and failure status');
+const executionPlan = buildExecutionPlan(manifest);
+const publicPaths = [...manifest.publicDefault, ...manifest.publicBoundary, ...manifest.ciInfrastructure, ...manifest.pythonPublic];
+must(publicPaths.every(relative => executionPlan.some(step => step.kind === 'RUN' && step.args[0] === relative)), 'a declared public test is not executed');
+for (const category of ['localOnly', 'browserOnly', 'liveAcquisition']) {
+  must(manifest[category].every(relative => !executionPlan.some(step => step.kind === 'RUN' && step.args[0] === relative)), `${category} was incorrectly scheduled`);
+}
+must(executionPlan.filter(step => step.kind === 'NOT_RUN').length === 3, 'NOT_RUN categories must not count as PASS execution');
 
 const missing = deepCopy(manifest);
 missing.publicDefault.push('tests/not-present-tests.js');
