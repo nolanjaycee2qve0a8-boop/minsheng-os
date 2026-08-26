@@ -29,9 +29,8 @@ function errorMessage(value) {
   }
 }
 
-function redactDiagnostic(value, maxLength = MAX_DIAGNOSTIC_LENGTH) {
-  const limit = normalizeMaxLength(maxLength);
-  const normalized = safeString(value)
+function sanitizeDiagnostic(value) {
+  return safeString(value)
     .replace(/github_pat_[A-Za-z0-9_-]+|gh[pousr]_[A-Za-z0-9_-]+|sk-[A-Za-z0-9_-]+/gi, '[REDACTED]')
     .replace(/Authorization\s*:\s*[^\r\n]+/gi, 'Authorization: [REDACTED]')
     .replace(/Bearer\s+[^\s'"`]+/gi, 'Bearer [REDACTED]')
@@ -39,10 +38,19 @@ function redactDiagnostic(value, maxLength = MAX_DIAGNOSTIC_LENGTH) {
     .replace(/([?&](?:access_token|api[_-]?key|authorization|token)=)[^&#\s]+/gi, '$1[REDACTED]')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function boundDiagnostic(value, maxLength = MAX_DIAGNOSTIC_LENGTH) {
+  const limit = normalizeMaxLength(maxLength);
+  const normalized = safeString(value);
   if (normalized.length <= limit) return normalized;
   if (limit === 0) return '';
   if (limit <= TRUNCATION_MARKER.length) return TRUNCATION_MARKER.slice(0, limit);
   return `${normalized.slice(0, limit - TRUNCATION_MARKER.length - 1)} ${TRUNCATION_MARKER}`;
+}
+
+function redactDiagnostic(value, maxLength = MAX_DIAGNOSTIC_LENGTH) {
+  return boundDiagnostic(sanitizeDiagnostic(value), maxLength);
 }
 
 function failureState(result) {
@@ -54,15 +62,14 @@ function failureState(result) {
 function subprocessFailure(file, args, result, maxLength = MAX_DIAGNOSTIC_LENGTH) {
   const limit = normalizeMaxLength(maxLength);
   const safeResult = result && typeof result === 'object' ? result : {};
-  const command = String(file).split(/[\\/]/).pop() || 'subprocess';
-  const prefix = `${command} failed with ${failureState(safeResult)}`;
-  if (prefix.length >= limit) return new Error(prefix.slice(0, limit));
-  const details = redactDiagnostic([
+  const command = sanitizeDiagnostic(String(file).split(/[\\/]/).pop() || 'subprocess');
+  const prefix = `${command} failed with ${sanitizeDiagnostic(failureState(safeResult))}`;
+  const details = sanitizeDiagnostic([
     errorMessage(safeResult.error),
     safeResult.stdout,
     safeResult.stderr
-  ].filter(Boolean).join('\n'), limit - prefix.length - 2);
-  return new Error(`${prefix}${details ? `: ${details}` : ''}`.slice(0, limit));
+  ].filter(Boolean).join('\n'));
+  return new Error(boundDiagnostic(`${prefix}${details ? `: ${details}` : ''}`, limit));
 }
 
 function runSubprocess({ cwd, file, args = [], env = process.env, spawnSync = childProcess.spawnSync }) {
@@ -77,4 +84,4 @@ function runSubprocess({ cwd, file, args = [], env = process.env, spawnSync = ch
   return String(result.stdout || '');
 }
 
-module.exports = { MAX_DIAGNOSTIC_LENGTH, TRUNCATION_MARKER, errorMessage, normalizeMaxLength, redactDiagnostic, runSubprocess, subprocessFailure };
+module.exports = { MAX_DIAGNOSTIC_LENGTH, TRUNCATION_MARKER, boundDiagnostic, errorMessage, normalizeMaxLength, redactDiagnostic, runSubprocess, sanitizeDiagnostic, subprocessFailure };

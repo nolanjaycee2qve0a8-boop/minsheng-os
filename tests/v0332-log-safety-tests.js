@@ -67,6 +67,23 @@ const spawnThrow = capture(`
 must(!(spawnThrow.stdout || '').includes(spawnCanary) && !(spawnThrow.stdout || '').includes(canaries[0]), 'synchronous spawn throw leaked a canary');
 must((spawnThrow.stdout || '').includes('spawn failure') && (spawnThrow.stdout || '').includes('[REDACTED]'), 'synchronous spawn throw must be formatted and redacted');
 
+const returnedErrorCanary = token('ghr_', 'returned-error');
+const originalError = new Error(returnedErrorCanary);
+let returnedError;
+try {
+  diagnostics.runSubprocess({
+    cwd: root,
+    file: `C:/safe/${returnedErrorCanary}/node.exe`,
+    spawnSync: () => ({ error: originalError, stdout: `${returnedErrorCanary} ${queryUrl}`, stderr: returnedErrorCanary, status: null, signal: null })
+  });
+} catch (error) {
+  returnedError = error;
+}
+must(returnedError && returnedError !== originalError, 'returned spawn error must not escape directly');
+must(returnedError.message.includes('spawn failure') && returnedError.message.includes('[REDACTED]'), 'returned spawn error must use redacted spawn-failure formatting');
+must(returnedError.message.length <= diagnostics.MAX_DIAGNOSTIC_LENGTH, 'returned spawn error must remain bounded');
+must(!returnedError.message.includes(returnedErrorCanary) && !returnedError.message.includes(queryUrl), 'returned spawn error leaked a raw diagnostic');
+
 const signal = diagnostics.subprocessFailure('C:/safe/node.exe', [], { signal: 'SIGTERM', status: null, stdout: canaries[0], stderr: canaries[1], error: null });
 must(signal.message.includes('signal SIGTERM') && signal.message.length <= diagnostics.MAX_DIAGNOSTIC_LENGTH, 'signal diagnostics must be bounded');
 
@@ -76,6 +93,26 @@ for (const limit of [undefined, 0, 1, 5, diagnostics.TRUNCATION_MARKER.length, d
   must(output.length <= normalized, `strict length bound failed for ${String(limit)}`);
   if (normalized >= diagnostics.TRUNCATION_MARKER.length) must(output.includes(diagnostics.TRUNCATION_MARKER), `truncation marker missing for ${String(limit)}`);
 }
+
+for (const limit of [undefined, 0, -1, 1, 5, diagnostics.TRUNCATION_MARKER.length, diagnostics.TRUNCATION_MARKER.length + 1, 17.8, NaN, Infinity, diagnostics.MAX_DIAGNOSTIC_LENGTH, 73]) {
+  const normalized = diagnostics.normalizeMaxLength(limit);
+  const message = diagnostics.subprocessFailure(
+    `C:/safe/${token('ghp_', 'long-file')}/${'f'.repeat(800)}.exe`,
+    [],
+    {
+      signal: `SIGTERM ${token('gho_', 'long-signal')}${'s'.repeat(800)}`,
+      error: { message: `${token('ghu_', 'long-error')}${'e'.repeat(800)}` },
+      stdout: `${token('ghs_', 'long-stdout')}${'o'.repeat(800)} ${queryUrl}`,
+      stderr: `${token('sk-', 'long-stderr')}${'r'.repeat(800)}`,
+      status: null
+    },
+    limit
+  ).message;
+  must(message.length <= normalized, `complete subprocess failure bound failed for ${String(limit)}`);
+  for (const canary of [token('ghp_', 'long-file'), token('gho_', 'long-signal'), token('ghu_', 'long-error'), token('ghs_', 'long-stdout'), token('sk-', 'long-stderr'), queryUrl]) must(!message.includes(canary), `complete subprocess failure leaked ${String(limit)}`);
+  if (normalized >= diagnostics.TRUNCATION_MARKER.length && normalized < 1200) must(message.includes(diagnostics.TRUNCATION_MARKER), `complete subprocess failure marker missing for ${String(limit)}`);
+}
+must(diagnostics.subprocessFailure('safe.exe', [], { status: 17, stdout: '', stderr: '', error: null }, 80).message.includes('exit status 17'), 'complete subprocess failure must retain state when space permits');
 
 const legacy = capture(`
   const child = require('child_process').spawnSync(process.execPath, ['-e', ${JSON.stringify(`process.stderr.write(${JSON.stringify(canaries[0])}); process.exit(17);`)}], { encoding: 'utf8' });
