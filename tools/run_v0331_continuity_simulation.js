@@ -5,21 +5,17 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { redactDiagnostic, runSubprocess, subprocessFailure } = require('./subprocess-diagnostics.js');
 const root = path.resolve(__dirname, '..');
 
 function safeStderr(value) {
-  return String(value || '').replace(/(?:ghp_|github_pat_|gho_|sk-|Bearer\s+)[A-Za-z0-9_\-.]+/gi, '[REDACTED]').replace(/\s+/g, ' ').trim().slice(0, 500);
+  return redactDiagnostic(value);
 }
 
 function execute(cwd, file, args, env = process.env) {
-  const result = childProcess.spawnSync(file, args, { cwd, encoding: 'utf8', env });
-  process.stdout.write(result.stdout || '');
-  process.stderr.write(result.stderr || '');
-  if (result.error || result.status !== 0) {
-    const stderr = safeStderr(result.stderr);
-    throw result.error || new Error(`${file} ${args.join(' ')} failed with exit status ${result.status}${stderr ? `: ${stderr}` : ''}`);
-  }
-  return result.stdout || '';
+  const stdout = runSubprocess({ cwd, file, args, env });
+  process.stdout.write(stdout);
+  return stdout;
 }
 
 function git(cwd, args, executeImpl = execute) {
@@ -29,14 +25,14 @@ function git(cwd, args, executeImpl = execute) {
 function currentBranch(cwd) {
   const result = childProcess.spawnSync('git', ['symbolic-ref', '--quiet', '--short', 'HEAD'], { cwd, encoding: 'utf8' });
   if (result.status === 1) return null;
-  if (result.error || result.status !== 0) throw result.error || new Error(`git symbolic-ref failed with ${result.status}: ${safeStderr(result.stderr)}`);
+  if (result.error || result.status !== 0) throw subprocessFailure('git', ['symbolic-ref', '--quiet', '--short', 'HEAD'], result);
   return result.stdout.trim();
 }
 
 function refSha(cwd, ref) {
   const result = childProcess.spawnSync('git', ['rev-parse', '--verify', ref], { cwd, encoding: 'utf8' });
   if (result.status === 128) return null;
-  if (result.error || result.status !== 0) throw result.error || new Error(`git rev-parse ${ref} failed with ${result.status}: ${safeStderr(result.stderr)}`);
+  if (result.error || result.status !== 0) throw subprocessFailure('git', ['rev-parse', '--verify', ref], result);
   return result.stdout.trim();
 }
 

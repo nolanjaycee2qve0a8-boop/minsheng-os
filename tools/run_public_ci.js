@@ -4,6 +4,7 @@
 const childProcess = require('child_process');
 const fs = require('fs');
 const path = require('path');
+const { runSubprocess } = require('./subprocess-diagnostics.js');
 const root = path.resolve(__dirname, '..');
 const python = process.env.PYTHON_BIN || process.env.PYTHON || 'python';
 const categories = ['publicDefault', 'publicBoundary', 'ciInfrastructure', 'pythonPublic', 'localOnly', 'browserOnly', 'liveAcquisition'];
@@ -69,10 +70,8 @@ function main(projectRoot = root) {
 
   function run(label, executable, args = []) {
     process.stdout.write(`CI_STAGE START ${label}\n`);
-    const result = childProcess.spawnSync(executable, args, { cwd: projectRoot, encoding: 'utf8', env: process.env });
-    process.stdout.write(result.stdout || '');
-    process.stderr.write(result.stderr || '');
-    if (result.error || result.status !== 0) throw result.error || new Error(`${label} failed with exit status ${result.status}`);
+    const stdout = runSubprocess({ cwd: projectRoot, file: executable, args, env: process.env });
+    process.stdout.write(stdout);
     passed += 1;
     process.stdout.write(`CI_STAGE PASS ${label}\n`);
   }
@@ -83,12 +82,12 @@ function main(projectRoot = root) {
   }
 
   function tracked(extension) {
-    return childProcess.execFileSync('git', ['ls-files', `*.${extension}`], { cwd: projectRoot, encoding: 'utf8' })
+    return runSubprocess({ cwd: projectRoot, file: 'git', args: ['ls-files', `*.${extension}`] })
       .split(/\r?\n/).filter(Boolean);
   }
 
   function ensureClean() {
-    const output = childProcess.execFileSync('git', ['status', '--porcelain'], { cwd: projectRoot, encoding: 'utf8' }).trim();
+    const output = runSubprocess({ cwd: projectRoot, file: 'git', args: ['status', '--porcelain'] }).trim();
     if (output) throw new Error(`WORKTREE_POLLUTION: ${output.split(/\r?\n/).length} changed path(s)`);
   }
 
@@ -111,4 +110,4 @@ function main(projectRoot = root) {
 }
 
 if (require.main === module) main();
-module.exports = { categories, loadManifest, validateManifest, buildExecutionPlan, main };
+module.exports = { categories, loadManifest, validateManifest, buildExecutionPlan, main, runSubprocess };

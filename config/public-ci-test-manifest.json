@@ -40,7 +40,8 @@
     "tests/v0321-public-boundary-tests.js",
     "tests/v0322-synthetic-html-fixture-tests.js",
     "tests/v033-public-ci-tests.js",
-    "tests/v0332-main-continuity-tests.js"
+    "tests/v0332-main-continuity-tests.js",
+    "tests/v0332-log-safety-tests.js"
   ],
   "ciInfrastructure": [
     "tools/validate_public_ci_workflow.js",
