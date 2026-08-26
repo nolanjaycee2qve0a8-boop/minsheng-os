@@ -10,6 +10,11 @@
 - Public CI, continuity, clean-export, and public-default runners no longer forward raw subprocess stderr; failure diagnostics are bounded, redacted, and retain exit status.
 - Regression coverage captures parent stdout, stderr, exit status, and thrown messages for credential-like failure canaries.
 
+## v0.33.2 follow-up — Final diagnostic closure
+
+- Diagnostic length limits now include the truncation marker, and synchronous spawn throws enter the shared redacted failure path.
+- Four public runner failure paths and the complete redaction/mutation matrix are covered by public-boundary tests.
+
 ## v0.33.2 — Checked-out main continuity hotfix
 
 - Fixed the isolated continuity clone to leave an already checked-out `main` untouched and otherwise safely check out a temporary `main` at the target HEAD.

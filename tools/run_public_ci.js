@@ -69,11 +69,8 @@ function main(projectRoot = root) {
   const nestedContinuity = process.env.MINSHENG_CI_CONTINUITY_CHILD === '1';
 
   function run(label, executable, args = []) {
-    process.stdout.write(`CI_STAGE START ${label}\n`);
-    const stdout = runSubprocess({ cwd: projectRoot, file: executable, args, env: process.env });
-    process.stdout.write(stdout);
+    runStage(label, executable, args, projectRoot, process.env);
     passed += 1;
-    process.stdout.write(`CI_STAGE PASS ${label}\n`);
   }
 
   function notRunStatus(label, status) {
@@ -109,5 +106,13 @@ function main(projectRoot = root) {
   }
 }
 
+function runStage(label, executable, args = [], projectRoot = root, env = process.env) {
+  process.stdout.write(`CI_STAGE START ${label}\n`);
+  const stdout = runSubprocess({ cwd: projectRoot, file: executable, args, env });
+  process.stdout.write(stdout);
+  process.stdout.write(`CI_STAGE PASS ${label}\n`);
+  return stdout;
+}
+
 if (require.main === module) main();
-module.exports = { categories, loadManifest, validateManifest, buildExecutionPlan, main, runSubprocess };
+module.exports = { categories, loadManifest, validateManifest, buildExecutionPlan, main, runStage, runSubprocess };

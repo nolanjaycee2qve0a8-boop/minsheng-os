@@ -6,12 +6,13 @@ const os = require('os');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
 const continuity = require('../tools/run_v0331_continuity_simulation.js');
+const { subprocessFailure } = require('../tools/subprocess-diagnostics.js');
 const must = (value, message) => { if (!value) throw new Error(message); };
 
 function command(cwd, args) {
   const result = childProcess.spawnSync('git', args, { cwd, encoding: 'utf8' });
   if (result.error || result.status !== 0) {
-    throw result.error || new Error(`git ${args.join(' ')} failed with exit status ${result.status}: ${continuity.safeStderr(result.stderr)}`);
+    throw subprocessFailure('git', args, result);
   }
   return result.stdout.trim();
 }
