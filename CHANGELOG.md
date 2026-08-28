@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.33.2 follow-up — Detached PR checkout safety
+
+- Defined an explicit offline clone-current-HEAD contract that uses a no-checkout local clone, detached checkout at the verified source commit and clean-tree verification.
+- Rebuilt all v0.33.2 Git fixtures from the explicit candidate SHA, independent of local branches, remote-tracking refs and source symbolic HEAD; Git failures now include a redacted stderr summary.
+
+## v0.33.2 follow-up — Subprocess diagnostic safety
+
+- Public CI, continuity, clean-export, and public-default runners no longer forward raw subprocess stderr; failure diagnostics are bounded, redacted, and retain exit status.
+- Regression coverage captures parent stdout, stderr, exit status, and thrown messages for credential-like failure canaries.
+
+## v0.33.2 follow-up — Final diagnostic closure
+
+- Diagnostic length limits now include the truncation marker, and synchronous spawn throws enter the shared redacted failure path.
+- Four public runner failure paths and the complete redaction/mutation matrix are covered by public-boundary tests.
+
+## v0.33.2 — Checked-out main continuity hotfix
+
+- Fixed the isolated continuity clone to leave an already checked-out `main` untouched and otherwise safely check out a temporary `main` at the target HEAD.
+- Added real Git worktree regression coverage for checked-out main, feature, detached, missing-main, normal-merge, squash-like and future-documentation states, including failure-path cleanup.
+
 ## v0.33.1 — Continuous public CI baseline
 
 - Replaced the one-time public-main SHA assertion with enduring content and classification invariants; the public runner now exercises merged-main and future documentation-main simulations in isolated clones.

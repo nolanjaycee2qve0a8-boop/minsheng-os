@@ -66,7 +66,7 @@ must(categories.every(category => Array.isArray(manifest[category]) && manifest[
 must(runner.includes('buildExecutionPlan(manifest, nestedContinuity)') && runner.includes('validateManifest(manifest, projectRoot)'), 'runner is not manifest-driven');
 must(runner.includes('LOCAL_SOURCE_VALIDATION_NOT_RUN') && runner.includes('LOCAL_BROWSER_VALIDATION_NOT_RUN') && runner.includes('LIVE_ACQUISITION_NOT_RUN'), 'NOT_RUN categories are not explicit');
 must(!/https?:|fetch\(|http\.|https\.|LIVE_ACQUISITION_PASSED/.test(runner), 'public runner must not make network requests');
-must(runner.includes('process.stderr.write') && runner.includes('result.status !== 0'), 'runner must propagate stderr and failure status');
+must(runner.includes("require('./subprocess-diagnostics.js')") && runner.includes('runSubprocess'), 'runner must use bounded subprocess diagnostics');
 const executionPlan = buildExecutionPlan(manifest);
 const publicPaths = [...manifest.publicDefault, ...manifest.publicBoundary, ...manifest.ciInfrastructure, ...manifest.pythonPublic];
 must(publicPaths.every(relative => executionPlan.some(step => step.kind === 'RUN' && step.args[0] === relative)), 'a declared public test is not executed');

@@ -4,19 +4,18 @@ const childProcess = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
+const { runSubprocess } = require('./subprocess-diagnostics.js');
 const root = path.resolve(__dirname, '..');
-const target = fs.mkdtempSync(path.join(os.tmpdir(), 'minsheng-os-public-export-'));
 const forbidden = [String.fromCharCode(92) + 'Users' + String.fromCharCode(92), ['C:', 'Users', ''].join('/'), ['', 'Users', ''].join('/'), ['', 'home', ''].join('/')];
 
 function command(file, args, cwd) {
-  const result = childProcess.spawnSync(file, args, { cwd, encoding: 'utf8' });
-  process.stdout.write(result.stdout || '');
-  process.stderr.write(result.stderr || '');
-  if (result.status !== 0 || result.error) throw result.error || new Error(`${file} failed with ${result.status}`);
+  process.stdout.write(runSubprocess({ cwd, file, args }));
 }
 
-try {
-  const files = childProcess.execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { cwd: root, encoding: 'utf8' }).split(/\r?\n/).filter(Boolean);
+function main() {
+  const target = fs.mkdtempSync(path.join(os.tmpdir(), 'minsheng-os-public-export-'));
+  try {
+  const files = runSubprocess({ cwd: root, file: 'git', args: ['ls-files', '--cached', '--others', '--exclude-standard'] }).split(/\r?\n/).filter(Boolean);
   for (const relative of files) {
     const source = path.join(root, relative);
     const destination = path.join(target, relative);
@@ -31,6 +30,10 @@ try {
   }
   command(process.execPath, [path.join('tests', 'run_public_default_tests.js')], target);
   console.log(`clean public export PASS (${files.length} files; no .git or ignored sources copied)`);
-} finally {
-  if (target.startsWith(path.join(os.tmpdir(), 'minsheng-os-public-export-'))) fs.rmSync(target, { recursive: true, force: true });
+  } finally {
+    if (target.startsWith(path.join(os.tmpdir(), 'minsheng-os-public-export-'))) fs.rmSync(target, { recursive: true, force: true });
+  }
 }
+
+if (require.main === module) main();
+module.exports = { command, main };
