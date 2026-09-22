@@ -17,6 +17,7 @@ window.MinshengResearchCockpitConfig={version:'v0.29.0',modules:[
  {id:'audit-stale',label:'审计、修订和 STALE 状态',collections:['auditLog','officialRevisionEvents','downstreamStaleness','methodologyEvents'],warning:'STALE 不能视为当前结论；修订链和原始定位必须保留。'},
  {id:'official-data-operations',label:'官方数据运维',collections:['officialOpsRegistry','officialOpsRuns','officialOpsArtifacts','officialOpsCandidates','officialOpsSemanticDiffs','officialOpsApprovals','officialOpsSubmissions','officialOpsSourceHealth','officialOpsRecoveryEvents','officialReleaseCalendars','officialWatchJobs','officialReviewQueue','officialWatchLocks','officialSchedulerStatus','officialWatchRuns'],warning:'本模块只读展示日历、watch、review 与审计结果：LIVE 获取不等于 REAL，未获明确审批不得提交；静态页面不会启动后台采集。',cliCommand:'python tools/run_v031_watch.py --watch --due-only --dry-run --as-of 2026-08-22T00:00:00Z'}
  ,{id:'research-briefings',label:'研究简报',collections:['researchBriefings','briefingStatements','briefingHistory'],warning:'事实、派生、预测和情景不可混同；简报不是投资建议；UNKNOWN 不会补零，跨部门结果不可加总。',cliCommand:'node tools/run_v032_briefing.js --type COMBINED_RESEARCH_BRIEF --format markdown --dry-run'}
+ ,{id:'v013-evidence-dashboard',label:'v0.13 证据视图',collections:[],warning:'仅展示已验收的单年 n>=30 聚合证据；不可跨年比较、不可看趋势，也不构成因果、预测或政策结论。'}
 ],departments:[
  {id:'HOUSEHOLD',label:'居民',keys:['HOUSEHOLD','MORTGAGE','INCOME','RESIDENT']},
  {id:'PROPERTY_DEVELOPER',label:'开发商',keys:['PROPERTY_DEVELOPER','DEVELOPER','REAL_ESTATE','PROPERTY']},
