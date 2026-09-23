@@ -2,6 +2,7 @@
 
 const childProcess = require('child_process');
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const root = path.resolve(__dirname, '..');
 const must = (value, message) => { if (!value) throw new Error(message); };
@@ -42,13 +43,25 @@ function deepCopy(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function expectWorkflowMutation(label, mutate, code) {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'minsheng-v033-workflow-mutation-'));
+  const file = path.join(directory, 'public-ci.yml');
+  try {
+    fs.writeFileSync(file, mutate(workflow), 'utf8');
+    expectFailure(() => validatePublicCiWorkflow(file), code);
+  } finally {
+    fs.rmSync(directory, { recursive: true, force: true });
+  }
+  must(!fs.existsSync(directory), `workflow mutation directory not removed: ${label}`);
+}
+
 const tracked = trackedFiles();
 const workflow = text('.github/workflows/public-ci.yml');
 const manifest = loadManifest(root);
 const runner = text('tools/run_public_ci.js');
 const parsed = validatePublicCiWorkflow();
 
-must(parsed.status === 'YAML_STRUCTURAL_VALIDATION_PASSED', 'workflow YAML structural validation failed');
+must(parsed.status === 'YAML_SEMANTIC_VALIDATION_PASSED', 'workflow YAML semantic validation failed');
 must(/^permissions:\r?\n  contents: read$/m.test(workflow), 'CI permissions must be read-only');
 must(workflow.includes('fetch-depth: 0'), 'CI must retain full repository checkout for clean-export validation');
 must(!/secrets\.|GITHUB_TOKEN|permissions:\s*write|git\s+push|gh\s+(?:api|pr|repo)|\bapproval\b|\brelease\b|\bLIVE\b|\bREAL(?:[_ -]?submission)?\b/i.test(workflow), 'CI may not use secrets, approval, release, LIVE or write/network commands');
@@ -59,6 +72,20 @@ for (const pin of [
   'actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0'
 ]) must(workflow.includes(pin), `missing immutable verified action pin: ${pin}`);
 must(!/actions\/(?:checkout|setup-node|setup-python)@v\d+/i.test(workflow), 'mutable major-version action tag found');
+expectWorkflowMutation('push-main-trigger', value => value.replace(/(  push:\r?\n    branches: )\[main\]/, '$1[release]'), 'WORKFLOW_TRIGGER_MAIN_REQUIRED:push');
+expectWorkflowMutation('pull-request-main-trigger', value => value.replace(/(  pull_request:\r?\n    branches: )\[main\]/, '$1[release]'), 'WORKFLOW_TRIGGER_MAIN_REQUIRED:pull_request');
+expectWorkflowMutation('trigger-scope', value => value.replace('  pull_request:', '  workflow_dispatch:\n  pull_request:'), 'WORKFLOW_TRIGGER_SCOPE_INVALID');
+expectWorkflowMutation('read-only-permissions', value => value.replace('  contents: read', '  contents: write'), 'WORKFLOW_PERMISSIONS_NOT_READ_ONLY');
+expectWorkflowMutation('concurrency-group', value => value.replace('group: public-ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}', 'group: public-ci-unscoped'), 'WORKFLOW_CONCURRENCY_GROUP_INVALID');
+expectWorkflowMutation('concurrency-cancellation', value => value.replace('cancel-in-progress: true', 'cancel-in-progress: false'), 'WORKFLOW_CONCURRENCY_CANCELLATION_REQUIRED');
+expectWorkflowMutation('timeout', value => value.replace('timeout-minutes: 20', 'timeout-minutes: 21'), 'WORKFLOW_TIMEOUT_INVALID');
+expectWorkflowMutation('checkout-pin', value => value.replace('actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683', 'actions/checkout@v4'), 'WORKFLOW_ACTION_PIN_INVALID:checkout');
+expectWorkflowMutation('node-pin', value => value.replace('actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020', 'actions/setup-node@v4'), 'WORKFLOW_ACTION_PIN_INVALID:node');
+expectWorkflowMutation('python-pin', value => value.replace('actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065', 'actions/setup-python@v5'), 'WORKFLOW_ACTION_PIN_INVALID:python');
+expectWorkflowMutation('node-version', value => value.replace("node-version: '22'", "node-version: '20'"), 'WORKFLOW_NODE_VERSION_INVALID');
+expectWorkflowMutation('python-version', value => value.replace("python-version: '3.11'", "python-version: '3.12'"), 'WORKFLOW_PYTHON_VERSION_INVALID');
+expectWorkflowMutation('runner-command', value => value.replace('run: node tools/run_public_ci.js', 'run: node tools/unapproved_runner.js'), 'WORKFLOW_RUNNER_COMMAND_INVALID');
+expectWorkflowMutation('runner-command-uniqueness', value => value.replace('        run: node tools/run_public_ci.js', '        run: node tools/run_public_ci.js\n        run: node tools/unapproved_runner.js'), 'WORKFLOW_RUNNER_COMMAND_INVALID');
 must(manifest.networkPolicy === 'OFFLINE_ONLY', 'public CI must be offline-only');
 const manifestResult = validateManifest(manifest, root);
 must(manifestResult.status === 'MANIFEST_VALIDATED', 'manifest did not validate');
