@@ -7,6 +7,7 @@
     "tests/v011-regime-detection-tests.js",
     "tests/v012-sector-loss-tests.js",
     "tests/v013-critical-exposure-tests.js",
+    "tests/v013-interactive-evidence-dashboard-tests.js",
     "tests/v014-official-wave1-tests.js",
     "tests/v015-official-wave2-tests.js",
     "tests/v016-mortgage-scenario-tests.js",
