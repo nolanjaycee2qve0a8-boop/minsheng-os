@@ -1,0 +1,34 @@
+{
+  "recordType": "IMMUTABLE_MANIFEST_STATUS_CORRECTION",
+  "recordVersion": "1.0.0",
+  "createdAt": "2026-09-27T02:18:36Z",
+  "networkUsedForCorrection": false,
+  "corrects": {
+    "path": "sources/official-v030/manifests/v013-nbs-gdp-candidate-20260927.json",
+    "sha256": "EA6D73D6B23C209DF4F1B730BFD815ACF228D15FA2DA4BC7633A50BCD88F9635",
+    "runId": "v013_nbs_gdp_candidate_20260927"
+  },
+  "reason": "The original immutable manifest correctly records NETWORK_FAILED and UNVERIFIED, but its downstream pipeline statuses were generated before the fail-closed acquisition-state fix. The original file is preserved unchanged; this record supplies the corrected interpretation.",
+  "correctedPipeline": [
+    {"stage": "RELEASE_DISCOVERY", "status": "COMPLETE"},
+    {"stage": "ROUTE_RESOLUTION", "status": "COMPLETE"},
+    {"stage": "RAW_ACQUISITION", "status": "FAILED"},
+    {"stage": "CONTENT_VALIDATION", "status": "BLOCKED_BY_RAW_ACQUISITION"},
+    {"stage": "PARSER_STAGING", "status": "BLOCKED_BY_CONTENT_VALIDATION"},
+    {"stage": "SEMANTIC_DIFF", "status": "BLOCKED_BY_CONTENT_VALIDATION"},
+    {"stage": "QUALIFICATION", "status": "BLOCKED_BY_CONTENT_VALIDATION"},
+    {"stage": "MATERIALIZATION_PREVIEW", "status": "NOT_RUN"},
+    {"stage": "APPROVED_SUBMISSION", "status": "NOT_RUN"}
+  ],
+  "candidateState": {
+    "stagedCandidates": 0,
+    "semanticDiffs": 0,
+    "approval": null,
+    "submission": null,
+    "verificationStatus": "UNVERIFIED"
+  },
+  "publicationEffect": "NONE",
+  "knowledgeBaseEffect": "NONE",
+  "dashboardEffect": "NONE",
+  "retry": "NOT_ATTEMPTED"
+}

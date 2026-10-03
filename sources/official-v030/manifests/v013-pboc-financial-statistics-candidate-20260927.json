@@ -1,0 +1,80 @@
+{
+  "manifestVersion": "1.0.0",
+  "runId": "v013_pboc_financial_statistics_candidate_20260927",
+  "immutable": true,
+  "mode": "ACQUIRE_AND_STAGE",
+  "asOf": "2026-09-27",
+  "createdAt": "2026-09-27T02:29:28Z",
+  "registryVersion": "1.0.0",
+  "qualificationRulesVersion": "v0.13.0",
+  "pipeline": [
+    {
+      "stage": "RELEASE_DISCOVERY",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "ROUTE_RESOLUTION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "RAW_ACQUISITION",
+      "status": "FAILED"
+    },
+    {
+      "stage": "CONTENT_VALIDATION",
+      "status": "BLOCKED_BY_RAW_ACQUISITION"
+    },
+    {
+      "stage": "PARSER_STAGING",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "SEMANTIC_DIFF",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "QUALIFICATION",
+      "status": "BLOCKED_BY_CONTENT_VALIDATION"
+    },
+    {
+      "stage": "MATERIALIZATION_PREVIEW",
+      "status": "NOT_RUN"
+    },
+    {
+      "stage": "APPROVED_SUBMISSION",
+      "status": "NOT_RUN"
+    }
+  ],
+  "families": [
+    {
+      "id": "PBOC_FINANCIAL_STATISTICS",
+      "provider": "PBOC",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "DEGRADED"
+    }
+  ],
+  "routes": [
+    {
+      "provider": "PBOC",
+      "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/index.html",
+      "requestTime": "2026-09-27T02:29:28Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)",
+      "sourceHealth": "DEGRADED"
+    }
+  ],
+  "stagedCandidates": [],
+  "semanticDiffs": [],
+  "approval": null,
+  "submission": null,
+  "fixtureCounted": 0,
+  "networkUsed": true,
+  "verificationStatus": "UNVERIFIED",
+  "completedAt": "2026-09-27T02:29:30Z",
+  "manifestFingerprint": "9FAAC81437EC0A7744AFDA7C411A2123A6EEC1F85DAFD64AE65B395306249F8F"
+}

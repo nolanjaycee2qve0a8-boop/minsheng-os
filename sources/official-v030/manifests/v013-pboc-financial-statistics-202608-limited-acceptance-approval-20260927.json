@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "LIMITED_OFFICIAL_OBSERVATION_ACCEPTANCE_APPROVAL",
+  "immutable": true,
+  "approvalId": "approval_pboc_financial_statistics_202608_limited_20260927",
+  "approvalStatus": "APPROVED",
+  "approvalMethod": "EXPLICIT_USER_INSTRUCTION",
+  "approvalSignal": "批准六项入库",
+  "approvedAt": "2026-09-27",
+  "scope": {
+    "provider": "PBOC",
+    "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+    "period": "2026-08",
+    "approvedCandidateIds": [
+      "candidate_b47ceca8192ff24b_money_m0",
+      "candidate_b47ceca8192ff24b_money_m0_yoy",
+      "candidate_b47ceca8192ff24b_money_m2",
+      "candidate_b47ceca8192ff24b_money_m2_yoy",
+      "candidate_b47ceca8192ff24b_rmb_deposit_balance",
+      "candidate_b47ceca8192ff24b_social_financing_stock"
+    ],
+    "approvedCandidateCount": 6,
+    "dashboardEffect": "NONE",
+    "noInferenceUpgrade": true
+  },
+  "requiredBindings": {
+    "proposalSha256": "EFD9CBEEB2E2C8B08BC684848F93AD2583A25D04FF857EC833929BE90C79A9C4",
+    "candidateStagingAuditSha256": "DE55704152ABAFCC91430EE45B9967E01A62F8AE314AC3105542C16041F602E3",
+    "manualReviewAuditSha256": "0018FBAC145D791364130147C40218B4B42B0EE70B0DDCF7426FFB47857A7BDC",
+    "officialReportRawSha256": "B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61"
+  },
+  "continuingBlocks": [
+    "money_m1",
+    "money_m1_yoy",
+    "household_loan_change",
+    "household_deposit_change",
+    "rmb_loan_balance",
+    "rmb_loan_change",
+    "rmb_deposit_change",
+    "social_financing_flow"
+  ],
+  "prohibitions": [
+    "Do not overwrite MOCK/demo indicators or observations.",
+    "Do not update data/v013-evidence-dashboard.js from this acceptance.",
+    "Do not derive a trend, causal claim, property-sector exposure, mortgage balance, or household debt-service metric from these six observations."
+  ]
+}

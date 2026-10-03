@@ -1,0 +1,373 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "OFFICIAL_CANDIDATE_STAGING_AUDIT",
+  "immutable": true,
+  "runId": "v013_pboc_financial_statistics_202608_candidate_20260927_candidate_staging",
+  "generatedAt": "2026-09-27T00:00:00Z",
+  "source": {
+    "provider": "PBOC",
+    "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+    "title": "2026年8月金融统计数据报告",
+    "route": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html",
+    "rawSha256": "B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61",
+    "rawRelativePath": "sources/official-v030/raw/B4/B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61.html",
+    "parentDiscoveryArtifactSha256": "12CCE95BE65F5D00B8E2B4FF0223AAB49E2F5B6F76984DFD3B42A0FE9AC8A689",
+    "acquisitionManifestFingerprint": "2CB404DCCFB00D2BA4285E8140E4E4291040634CD0C966F375D34411C2018C5C"
+  },
+  "parser": {
+    "id": "MinshengPbocStatisticalReportParser",
+    "version": "pboc-stat-report-1.0.0",
+    "rulesVersion": "pboc-stat-report-1.0.0",
+    "ruleCount": 11,
+    "incompatibleRuleFixesLoaded": false
+  },
+  "observation": {
+    "period": "2026-08",
+    "frequency": "monthly",
+    "diagnostics": {
+      "rulesMatched": 7,
+      "candidates": 7,
+      "unmatched": 0,
+      "ambiguous": 4,
+      "methodologyHints": 1
+    },
+    "methodologyHints": [
+      {
+        "id": "method_hint_1790480291526_76",
+        "type": "METHODOLOGY_CHANGE_HINT",
+        "indicatorId": "money_m1",
+        "confidence": 1,
+        "status": "REVIEW_REQUIRED",
+        "locator": {
+          "locatorType": "text",
+          "paragraphIndex": 76,
+          "sectionTitle": "中国人民银行金融统计数据报告",
+          "period": "2026-08"
+        }
+      }
+    ]
+  },
+  "candidates": [
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m0",
+      "sourceField": "M0",
+      "indicatorId": "money_m0",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m0_balance",
+      "value": 14.83,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "POINT",
+      "observationType": "stock",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m0_yoy",
+      "sourceField": "M0同比增长",
+      "indicatorId": "money_m0_yoy",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m0_balance_yoy",
+      "value": 7.5,
+      "unit": "%",
+      "frequency": "monthly",
+      "aggregation": "PERIOD",
+      "observationType": "growth_rate",
+      "transformation": "yoy"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m1",
+      "sourceField": "M1",
+      "indicatorId": "money_m1",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m1_balance",
+      "value": 115.77,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "POINT",
+      "observationType": "stock",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m1_yoy",
+      "sourceField": "M1同比增长",
+      "indicatorId": "money_m1_yoy",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m1_balance_yoy",
+      "value": 7.5,
+      "unit": "%",
+      "frequency": "monthly",
+      "aggregation": "PERIOD",
+      "observationType": "growth_rate",
+      "transformation": "yoy"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m2",
+      "sourceField": "M2",
+      "indicatorId": "money_m2",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m2_balance",
+      "value": 356.81,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "POINT",
+      "observationType": "stock",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_money_m2_yoy",
+      "sourceField": "M2同比增长",
+      "indicatorId": "money_m2_yoy",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 58,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_m2_balance_yoy",
+      "value": 7.5,
+      "unit": "%",
+      "frequency": "monthly",
+      "aggregation": "PERIOD",
+      "observationType": "growth_rate",
+      "transformation": "yoy"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_rmb_loan_balance",
+      "sourceField": "人民币贷款余额",
+      "indicatorId": "rmb_loan_balance",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 53,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [
+        "AMBIGUOUS: multiple explicit values matched the same rule."
+      ],
+      "status": "BLOCKED_AMBIGUOUS",
+      "blocker": "MANUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_rmb_deposit_balance",
+      "sourceField": "人民币存款余额",
+      "indicatorId": "rmb_deposit_balance",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 60,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_rmb_deposit_balance",
+      "value": 347.67,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "POINT",
+      "observationType": "stock",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_household_loan_change",
+      "sourceField": "住户贷款增加",
+      "indicatorId": "household_loan_change",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 65,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_household_loan_change",
+      "value": -1.03,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "UNKNOWN",
+      "observationType": "flow",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_household_deposit_change",
+      "sourceField": "住户存款增加",
+      "indicatorId": "household_deposit_change",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 61,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_household_deposit_change",
+      "value": 6.99,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "UNKNOWN",
+      "observationType": "flow",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_rmb_loan_change",
+      "sourceField": "人民币贷款增加",
+      "indicatorId": "rmb_loan_change",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 56,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [
+        "AMBIGUOUS: multiple explicit values matched the same rule."
+      ],
+      "status": "BLOCKED_AMBIGUOUS",
+      "blocker": "MANUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_rmb_deposit_change",
+      "sourceField": "人民币存款增加",
+      "indicatorId": "rmb_deposit_change",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 59,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [
+        "AMBIGUOUS: multiple explicit values matched the same rule."
+      ],
+      "status": "BLOCKED_AMBIGUOUS",
+      "blocker": "MANUAL_REVIEW_REQUIRED"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_social_financing_stock",
+      "sourceField": "社会融资规模存量",
+      "indicatorId": "social_financing_stock",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 53,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [],
+      "status": "CANDIDATE_PARSED",
+      "ruleId": "pboc_social_financing_stock",
+      "value": 464.8,
+      "unit": "万亿元",
+      "frequency": "monthly",
+      "aggregation": "POINT",
+      "observationType": "stock",
+      "transformation": "raw"
+    },
+    {
+      "id": "candidate_b47ceca8192ff24b_social_financing_flow",
+      "sourceField": "社会融资规模增量",
+      "indicatorId": "social_financing_flow",
+      "period": "2026-08",
+      "parserConfidence": 1,
+      "publicationEligible": false,
+      "locator": {
+        "locatorType": "text",
+        "paragraphIndex": 55,
+        "sectionTitle": "中国人民银行金融统计数据报告",
+        "period": "2026-08"
+      },
+      "errors": [
+        "AMBIGUOUS: multiple explicit values matched the same rule."
+      ],
+      "status": "BLOCKED_AMBIGUOUS",
+      "blocker": "MANUAL_REVIEW_REQUIRED"
+    }
+  ],
+  "candidateSummary": {
+    "parsed": 10,
+    "blockedAmbiguous": 4,
+    "blockedValidation": 0
+  },
+  "controls": {
+    "knowledgeBaseEffect": "NONE",
+    "dashboardEffect": "NONE",
+    "qualificationEffect": "NONE",
+    "submission": null,
+    "reviewerApproval": null,
+    "publicationEligible": false,
+    "reviewRequired": true,
+    "blockedCandidateValuesOmitted": true
+  }
+}

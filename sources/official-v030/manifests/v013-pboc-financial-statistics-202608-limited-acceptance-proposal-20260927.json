@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "LIMITED_OFFICIAL_OBSERVATION_ACCEPTANCE_PROPOSAL",
+  "immutable": true,
+  "proposalStatus": "PENDING_HUMAN_ACCEPTANCE",
+  "scope": {
+    "provider": "PBOC",
+    "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+    "period": "2026-08",
+    "maximumCandidateCount": 6,
+    "automaticMaterialization": "PROHIBITED",
+    "dashboardEffect": "NONE",
+    "knowledgeBaseEffect": "NONE"
+  },
+  "evidenceBinding": {
+    "officialReportRawSha256": "B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61",
+    "discoveryIndexRawSha256": "12CCE95BE65F5D00B8E2B4FF0223AAB49E2F5B6F76984DFD3B42A0FE9AC8A689",
+    "candidateStagingAuditSha256": "DE55704152ABAFCC91430EE45B9967E01A62F8AE314AC3105542C16041F602E3",
+    "manualReviewAuditSha256": "0018FBAC145D791364130147C40218B4B42B0EE70B0DDCF7426FFB47857A7BDC",
+    "sourceUrl": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html"
+  },
+  "allowedCandidateMappings": [
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m0",
+      "indicatorId": "money_m0",
+      "targetUnit": "亿元",
+      "unitTransform": "SOURCE_VALUE_X_10000",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "POINT"
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m0_yoy",
+      "indicatorId": "money_m0_yoy",
+      "targetUnit": "%",
+      "unitTransform": "IDENTITY",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "PERIOD"
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m2",
+      "indicatorId": "money_m2",
+      "targetUnit": "亿元",
+      "unitTransform": "SOURCE_VALUE_X_10000",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "POINT"
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m2_yoy",
+      "indicatorId": "money_m2_yoy",
+      "targetUnit": "%",
+      "unitTransform": "IDENTITY",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "PERIOD"
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_rmb_deposit_balance",
+      "indicatorId": "rmb_deposit_balance",
+      "targetUnit": "亿元",
+      "unitTransform": "SOURCE_VALUE_X_10000",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "POINT"
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_social_financing_stock",
+      "indicatorId": "social_financing_stock",
+      "targetUnit": "亿元",
+      "unitTransform": "SOURCE_VALUE_X_10000",
+      "expectedFrequency": "monthly",
+      "expectedAggregation": "POINT"
+    }
+  ],
+  "requiredAcceptanceChecks": [
+    "Re-hash the official report and both upstream audits exactly as bound above.",
+    "Re-run the base PBOC parser without the H1-only compatibility patch and verify the six candidate identifiers, units, periods, frequencies, and aggregations.",
+    "Record each accepted observation independently; do not overwrite, relabel, or merge existing MOCK/demo indicator metadata or observations.",
+    "Apply only the declared unit transform and preserve the original source unit in provenance.",
+    "Reject if a non-MOCK REAL observation already exists for the same indicator, period, and official raw hash, unless an explicit revision workflow is used.",
+    "Require a named human reviewer, timestamp, exact candidate-id set, and an atomic approval artifact before any materialization."
+  ],
+  "excludedCandidates": [
+    {
+      "indicatorId": "money_m1",
+      "reason": "METHODOLOGY_CHANGE_REVIEW_REQUIRED"
+    },
+    {
+      "indicatorId": "money_m1_yoy",
+      "reason": "METHODOLOGY_CHANGE_REVIEW_REQUIRED"
+    },
+    {
+      "indicatorId": "household_loan_change",
+      "reason": "AGGREGATION_UNRESOLVED_AND_FREQUENCY_RECONCILIATION_REQUIRED"
+    },
+    {
+      "indicatorId": "household_deposit_change",
+      "reason": "AGGREGATION_UNRESOLVED_AND_FREQUENCY_RECONCILIATION_REQUIRED"
+    },
+    {
+      "indicatorId": "rmb_loan_balance",
+      "reason": "AMBIGUOUS_SOURCE_VALUE"
+    },
+    {
+      "indicatorId": "rmb_loan_change",
+      "reason": "AMBIGUOUS_SOURCE_VALUE"
+    },
+    {
+      "indicatorId": "rmb_deposit_change",
+      "reason": "AMBIGUOUS_SOURCE_VALUE"
+    },
+    {
+      "indicatorId": "social_financing_flow",
+      "reason": "AMBIGUOUS_SOURCE_VALUE"
+    }
+  ],
+  "prohibitions": [
+    "No automatic acceptance, submission, dashboard update, model prompt expansion, or trend/causal inference.",
+    "No substitution of household flows for mortgage balances or of aggregate monetary indicators for property-sector exposure.",
+    "No use of this proposal as an approval artifact."
+  ]
+}

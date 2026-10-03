@@ -1,0 +1,24 @@
+{
+  "id": "synthetic-offline-aggregate-v1",
+  "fixture": true,
+  "candidateStatus": "CANDIDATE_ONLY",
+  "publicationEligible": false,
+  "purpose": "Offline admission-gate drill only. This is fictional data, not an official release and not a knowledge-base record.",
+  "provider": "SYNTHETIC_OFFLINE_ONLY",
+  "releaseFamily": "OFFLINE_ADMISSION_DRILL",
+  "publicationDate": "2026-09-27",
+  "statisticalPeriod": "SYNTHETIC",
+  "sourceDocumentId": "synthetic://offline-admission-drill/v1",
+  "upstreamVintage": "fixture-v1",
+  "value": 123.45,
+  "unit": "synthetic-index",
+  "period": "SYNTHETIC",
+  "geography": "SYNTHETIC",
+  "scope": "SYNTHETIC",
+  "aggregation": "NATIONAL_AGGREGATE_SIMULATION",
+  "dataNature": "SYNTHETIC",
+  "provenance": {
+    "fixture": true,
+    "rawArtifactSha256": "SYNTHETIC_NO_RAW_ARTIFACT"
+  }
+}
