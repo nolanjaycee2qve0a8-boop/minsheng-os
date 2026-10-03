@@ -32,6 +32,7 @@ ok(!api.canSubmit(run,{...approval,candidateIds:['a','other']},[candidateA,candi
 ok(!api.canSubmit(run,{...approval,candidateIds:[' ']},[{...candidateA,id:' '}]),'blank approval and candidate identifiers cannot submit');
 ok(!api.canSubmit(run,{...approval,candidateIds:[' a']},[{...candidateA,id:' a'}]),'identifiers with surrounding whitespace cannot submit');
 ok(!api.canSubmit(run,{...approval,candidateIds:[1]},[{...candidateA,id:1}]),'non-string approval and candidate identifiers cannot submit');
+ok(!api.canSubmit(run,{...approval,candidateSnapshots:[{},{}]},[candidateA,candidateB]),'malformed approval snapshots fail closed without throwing');
 ok(!api.canSubmit(run,{...approval,diffFingerprint:undefined},[candidateA,candidateB]),'approval requires a canonical candidate-diff binding');
 ok(!api.canSubmit(run,approval,[candidateA,{...candidateB,diffFingerprint:api.fingerprint('tampered')}]),'same candidate identifiers cannot bypass a changed diff fingerprint');
 ok(!api.canSubmit(run,approval,[{...candidateA,value:99},candidateB]),'approval snapshot binds candidate content rather than trusting its self-reported diff fingerprint');
