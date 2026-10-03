@@ -35,6 +35,8 @@ ok(!api.canSubmit(run,{...approval,candidateIds:[1]},[{...candidateA,id:1}]),'no
 ok(!api.canSubmit(run,{...approval,diffFingerprint:undefined},[candidateA,candidateB]),'approval requires a canonical candidate-diff binding');
 ok(!api.canSubmit(run,approval,[candidateA,{...candidateB,diffFingerprint:api.fingerprint('tampered')}]),'same candidate identifiers cannot bypass a changed diff fingerprint');
 ok(!api.canSubmit(run,approval,[{...candidateA,value:99},candidateB]),'approval snapshot binds candidate content rather than trusting its self-reported diff fingerprint');
+const orderedCandidate={...candidateA,transformationHistory:['FIRST','SECOND']};
+ok(!api.canSubmit(run,approve([orderedCandidate]),[{...orderedCandidate,transformationHistory:['SECOND','FIRST']}]),'approval preserves ordering inside candidate arrays while candidate-set order remains irrelevant');
 const collisionA={...candidateA,diffFingerprint:'1725086c'},collisionB={...candidateA,diffFingerprint:'88545a18'};
 ok(api.fingerprint([{id:'a',diffFingerprint:collisionA.diffFingerprint}])===api.fingerprint([{id:'a',diffFingerprint:collisionB.diffFingerprint}]),'regression fixture demonstrates the short-hash collision');
 ok(!api.canSubmit(run,approve([collisionA]),[collisionB]),'short-hash collision cannot authorize a different candidate snapshot');
@@ -49,6 +51,7 @@ ok(!api.canSubmit(run,{...approval,actor:{}},[candidateA,candidateB]),'approval 
 ok(!api.canSubmit(run,{...approval,approvedAt:''},[candidateA,candidateB]),'approval requires a timestamp');
 ok(!api.canSubmit(run,{...approval,approvedAt:{}},[candidateA,candidateB]),'approval timestamp must be a string');
 ok(!api.canSubmit(run,{...approval,approvedAt:'2026-08-22'},[candidateA,candidateB]),'approval requires a full timezone-qualified timestamp');
+ok(!api.canSubmit(run,{...approval,approvedAt:'2026-02-30T00:00:00Z'},[candidateA,candidateB]),'approval rejects nonexistent calendar dates');
 ok(!api.canSubmit(run,approval,[{...candidateA,qualification:'BLOCKED'},candidateB]),'blocked candidate cannot submit');
 ok(!api.canSubmit(run,approval,[{...candidateA,diffFingerprint:''},candidateB]),'candidate without a diff fingerprint cannot submit');
 ok(!api.canSubmit(run,approval,null),'non-array candidate input is rejected without throwing');
