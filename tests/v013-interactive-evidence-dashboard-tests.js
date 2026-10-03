@@ -454,6 +454,7 @@ for (const year of ['2017','2019','2021']) {
     const answer = qaScope.qa.answer(question, year, dashboard);
     const isPbocQuestion = question === qaScope.qa.questions[4];
     expect(answer.year === (isPbocQuestion ? '2026-08' : year) && answer.mode.includes(isPbocQuestion ? '本地边界说明' : '本地演示') && answer.boundary.includes('不可跨年比较') && answer.sources.length > 0, `local answer retains ${year} context, explicit demo mode, boundaries and sources`);
+    if (isPbocQuestion) expect(answer.status.includes('审批证据不完整') && answer.boundary.includes('具名复核人') && answer.boundary.includes('完整时间戳'), `${year} PBOC fallback exposes incomplete approval evidence without presenting observations`);
   }
   const financialAnswer = qaScope.qa.answer(qaScope.qa.questions[1], year, dashboard);
   expect(financialAnswer.sources[0].sha256 === dashboard.sourceRefs.chfs2021FinancialResilienceDescriptor.sha256, `${year} financial explanation cites the exact accepted descriptor`);

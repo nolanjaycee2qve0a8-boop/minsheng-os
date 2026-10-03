@@ -66,7 +66,7 @@ function v013MockAnswer(question,requestedYear,d){
   if(!Array.isArray(d.blocked)||!d.blocked.length)throw new Error('EVIDENCE_UNAVAILABLE');
   answer.status='BLOCKED';answer.paragraphs=d.blocked.map(item=>`${item.label} · ${item.status}：${item.reason}`);answer.sources=[{label:'仪表盘已封锁的研究边界',artifact:'data/v013-evidence-dashboard.js · blocked / notice',sha256:null}];break;
  case v013Questions[4]:
-  answer.mode='本地边界说明 · 未调用模型';answer.year='2026-08';answer.status='需要本机受控分析服务';answer.paragraphs=['已批准的六项央行全国聚合观测只会由本机受控分析服务按固定白名单读取与呈现。当前本地演示不显示数值，也不把它们与 CHFS 年份拼接。'];answer.boundary='这是与 CHFS 单年描述相互独立的 2026 年 8 月全国聚合金融统计快照；不可跨年比较，不构成趋势、因果、预测、代表性、风险、政策、房地产、按揭或居民偿债结论。';answer.sources=[{label:'中国人民银行：2026年8月金融统计数据报告（六项有限验收）',artifact:'v013-pboc-financial-statistics-202608-limited-acceptance-approval-20260927.json',sha256:'D83B51CB7A35A7D52E1E34CF87C291E2C720F2971C2711CDEEE18993432A8D40'}];break;
+  answer.mode='本地边界说明 · 未调用模型';answer.year='2026-08';answer.status='BLOCKED · 审批证据不完整 · 需要本机受控分析服务';answer.paragraphs=['六项央行全国聚合观测已有有限验收记录，但审批证据仍缺具名复核人和完整时间戳。当前回退视图不显示数值，也不把它们与 CHFS 年份拼接。'];answer.boundary='这是与 CHFS 单年描述相互独立的 2026 年 8 月全国聚合金融统计快照；审批证据仍缺具名复核人和完整时间戳；不可跨年比较，不构成趋势、因果、预测、代表性、风险、政策、房地产、按揭或居民偿债结论。';answer.sources=[{label:'中国人民银行：2026年8月金融统计数据报告（六项有限验收）',artifact:'v013-pboc-financial-statistics-202608-limited-acceptance-approval-20260927.json',sha256:'D83B51CB7A35A7D52E1E34CF87C291E2C720F2971C2711CDEEE18993432A8D40'}];break;
  default:
   answer.status='未匹配 · 未调用模型';answer.paragraphs=['该问题无法在本机服务中映射为已批准证据主题。受限自由问答只支持当前单年证据、家庭财务承压、跨年边界、已阻断结论和 2026 年 8 月央行六项观测；不会把自由输入交给模型。'];answer.sources=[{label:'本地问答的受限范围',artifact:'功能说明；未检索外部资料',sha256:null}];
  }
