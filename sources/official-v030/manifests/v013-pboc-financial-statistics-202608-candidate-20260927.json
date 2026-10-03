@@ -1,0 +1,116 @@
+{
+  "manifestVersion": "1.0.0",
+  "runId": "v013_pboc_financial_statistics_202608_candidate_20260927",
+  "immutable": true,
+  "mode": "ACQUIRE_AND_STAGE",
+  "asOf": "2026-09-27",
+  "createdAt": "2026-09-27T03:31:52Z",
+  "registryVersion": "1.0.0",
+  "qualificationRulesVersion": "v0.13.0",
+  "pipeline": [
+    {
+      "stage": "RELEASE_DISCOVERY",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "ROUTE_RESOLUTION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "RAW_ACQUISITION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "CONTENT_VALIDATION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "PARSER_STAGING",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "SEMANTIC_DIFF",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "QUALIFICATION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "MATERIALIZATION_PREVIEW",
+      "status": "NOT_RUN"
+    },
+    {
+      "stage": "APPROVED_SUBMISSION",
+      "status": "NOT_RUN"
+    }
+  ],
+  "families": [
+    {
+      "id": "PBOC_FINANCIAL_STATISTICS",
+      "provider": "PBOC",
+      "expectedFrequency": "MONTHLY",
+      "sourceHealth": "UNKNOWN"
+    }
+  ],
+  "routes": [
+    {
+      "provider": "PBOC",
+      "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+      "url": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html",
+      "requestTime": "2026-09-27T03:31:52Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [
+        "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html"
+      ],
+      "routeType": "DISCOVERED_OFFICIAL_CANDIDATE",
+      "transport": "CURL_TLS_FALLBACK",
+      "httpStatus": 200,
+      "finalRoute": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html",
+      "responseHeaders": {
+        "Date": "Sun, 27 Sep 2026 03:31:51 GMT",
+        "Content-Type": "text/html",
+        "Content-Length": "41477",
+        "Connection": "keep-alive",
+        "Server": "nginx",
+        "Last-Modified": "Mon, 14 Sep 2026 09:00:09 GMT",
+        "ETag": "\"6aa7b799-a205\"",
+        "Accept-Ranges": "bytes",
+        "Guomissl": "type=2",
+        "x-via": "1.1 PS-HFE-01OU051:12 (Cdn Cache Server V2.0), 1.1 PS-NTG-01kWR57:11 (Cdn Cache Server V2.0), 1.1 PS-000-01LNl30:0 (Cdn Cache Server V2.0)",
+        "x-ws-request-id": "6ab88e27_PS-000-01LNl30_9321-36324"
+      },
+      "mime": "text/html",
+      "contentLength": 41477,
+      "eligible": true,
+      "reason": "VALID",
+      "magic": "HTML",
+      "sha256": "B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61",
+      "relativePath": "sources/official-v030/raw/B4/B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61.html",
+      "storage": "STORED",
+      "acquiredAt": "2026-09-27T03:31:53Z",
+      "publicationDate": "UNKNOWN",
+      "releaseIdentity": {
+        "provider": "PBOC",
+        "releaseFamily": "PBOC_FINANCIAL_STATISTICS",
+        "publicationDate": "UNKNOWN",
+        "statisticalPeriod": "UNKNOWN",
+        "title": "UNKNOWN",
+        "officialDocumentId": "https://www.pbc.gov.cn/goutongjiaoliu/113456/113469/2026091414593871200/index.html",
+        "upstreamVintage": "UNKNOWN"
+      },
+      "status": "ACQUIRED",
+      "discoveryArtifactSha256": "12CCE95BE65F5D00B8E2B4FF0223AAB49E2F5B6F76984DFD3B42A0FE9AC8A689"
+    }
+  ],
+  "stagedCandidates": [],
+  "semanticDiffs": [],
+  "approval": null,
+  "submission": null,
+  "fixtureCounted": 0,
+  "networkUsed": true,
+  "verificationStatus": "VERIFIED",
+  "completedAt": "2026-09-27T03:31:53Z",
+  "manifestFingerprint": "2CB404DCCFB00D2BA4285E8140E4E4291040634CD0C966F375D34411C2018C5C"
+}

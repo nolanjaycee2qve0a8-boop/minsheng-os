@@ -1,0 +1,352 @@
+{
+  "schemaVersion": "1.0.0",
+  "artifactType": "OFFICIAL_CANDIDATE_MANUAL_REVIEW_AUDIT",
+  "immutable": true,
+  "sourceAudit": {
+    "runId": "v013_pboc_financial_statistics_202608_candidate_20260927_candidate_staging",
+    "sourceRawSha256": "B47CECA8192FF24B28E56ABD420F95988A42FB2362799C7BE58E886DC8CE8F61",
+    "sourceAuditSha256": "DE55704152ABAFCC91430EE45B9967E01A62F8AE314AC3105542C16041F602E3",
+    "period": "2026-08",
+    "releaseFamily": "PBOC_FINANCIAL_STATISTICS"
+  },
+  "reviewPolicy": {
+    "automaticMaterialization": "PROHIBITED",
+    "automaticQualification": "PROHIBITED",
+    "automaticSubmission": "PROHIBITED",
+    "valuesIncluded": false,
+    "decisionAuthority": "HUMAN_REVIEW_REQUIRED"
+  },
+  "reviews": [
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m0",
+      "indicatorId": "money_m0",
+      "sourceField": "M0",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m0",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m0_yoy",
+      "indicatorId": "money_m0_yoy",
+      "sourceField": "M0同比增长",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m0_yoy",
+        "sourceId": "pboc",
+        "preferredUnit": "%",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m1",
+      "indicatorId": "money_m1",
+      "sourceField": "M1",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m1",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED",
+        "METHODOLOGY_CHANGE_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m1_yoy",
+      "indicatorId": "money_m1_yoy",
+      "sourceField": "M1同比增长",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m1_yoy",
+        "sourceId": "pboc",
+        "preferredUnit": "%",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "METHODOLOGY_CHANGE_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m2",
+      "indicatorId": "money_m2",
+      "sourceField": "M2",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m2",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_money_m2_yoy",
+      "indicatorId": "money_m2_yoy",
+      "sourceField": "M2同比增长",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "money_m2_yoy",
+        "sourceId": "pboc",
+        "preferredUnit": "%",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_rmb_loan_balance",
+      "indicatorId": "rmb_loan_balance",
+      "sourceField": "人民币贷款余额",
+      "period": "2026-08",
+      "candidateStatus": "BLOCKED_AMBIGUOUS",
+      "target": {
+        "id": "rmb_loan_balance",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "AMBIGUOUS_SOURCE_VALUE",
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_rmb_deposit_balance",
+      "indicatorId": "rmb_deposit_balance",
+      "sourceField": "人民币存款余额",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "rmb_deposit_balance",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_household_loan_change",
+      "indicatorId": "household_loan_change",
+      "sourceField": "住户贷款增加",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "household_loan_change",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "irregular",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED",
+        "AGGREGATION_UNRESOLVED",
+        "FREQUENCY_RECONCILIATION_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_household_deposit_change",
+      "indicatorId": "household_deposit_change",
+      "sourceField": "住户存款增加",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "household_deposit_change",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "irregular",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED",
+        "AGGREGATION_UNRESOLVED",
+        "FREQUENCY_RECONCILIATION_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_rmb_loan_change",
+      "indicatorId": "rmb_loan_change",
+      "sourceField": "人民币贷款增加",
+      "period": "2026-08",
+      "candidateStatus": "BLOCKED_AMBIGUOUS",
+      "target": {
+        "id": "rmb_loan_change",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "irregular",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "AMBIGUOUS_SOURCE_VALUE",
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_rmb_deposit_change",
+      "indicatorId": "rmb_deposit_change",
+      "sourceField": "人民币存款增加",
+      "period": "2026-08",
+      "candidateStatus": "BLOCKED_AMBIGUOUS",
+      "target": {
+        "id": "rmb_deposit_change",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "irregular",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "AMBIGUOUS_SOURCE_VALUE",
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_social_financing_stock",
+      "indicatorId": "social_financing_stock",
+      "sourceField": "社会融资规模存量",
+      "period": "2026-08",
+      "candidateStatus": "CANDIDATE_PARSED",
+      "target": {
+        "id": "social_financing_stock",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "monthly",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION",
+        "UNIT_CONVERSION_REVIEW_REQUIRED"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    },
+    {
+      "candidateId": "candidate_b47ceca8192ff24b_social_financing_flow",
+      "indicatorId": "social_financing_flow",
+      "sourceField": "社会融资规模增量",
+      "period": "2026-08",
+      "candidateStatus": "BLOCKED_AMBIGUOUS",
+      "target": {
+        "id": "social_financing_flow",
+        "sourceId": "pboc",
+        "preferredUnit": "亿元",
+        "frequency": "irregular",
+        "status": "SCHEMA",
+        "methodologyNotes": "MOCK 指标元数据；真实接入时必须登记统计口径。"
+      },
+      "reviewStatus": "BLOCKED_PENDING_HUMAN_REVIEW",
+      "blockers": [
+        "AMBIGUOUS_SOURCE_VALUE",
+        "TARGET_METADATA_SCHEMA_ONLY",
+        "TARGET_METADATA_MOCK_ISOLATION"
+      ],
+      "materialization": "PROHIBITED",
+      "valueIncluded": false
+    }
+  ],
+  "summary": {
+    "total": 14,
+    "blocked": 14,
+    "reviewRequired": 0,
+    "materializationEligible": 0
+  }
+}

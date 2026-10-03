@@ -1,0 +1,80 @@
+{
+  "manifestVersion": "1.0.0",
+  "runId": "v013_nbs_gdp_candidate_20260927",
+  "immutable": true,
+  "mode": "ACQUIRE_AND_STAGE",
+  "asOf": "2026-09-27",
+  "createdAt": "2026-09-27T02:17:00Z",
+  "registryVersion": "1.0.0",
+  "qualificationRulesVersion": "v0.13.0",
+  "pipeline": [
+    {
+      "stage": "RELEASE_DISCOVERY",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "ROUTE_RESOLUTION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "RAW_ACQUISITION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "CONTENT_VALIDATION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "PARSER_STAGING",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "SEMANTIC_DIFF",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "QUALIFICATION",
+      "status": "COMPLETE"
+    },
+    {
+      "stage": "MATERIALIZATION_PREVIEW",
+      "status": "NOT_RUN"
+    },
+    {
+      "stage": "APPROVED_SUBMISSION",
+      "status": "NOT_RUN"
+    }
+  ],
+  "families": [
+    {
+      "id": "NBS_GDP_ACTUAL",
+      "provider": "NBS",
+      "expectedFrequency": "QUARTERLY",
+      "sourceHealth": "DEGRADED"
+    }
+  ],
+  "routes": [
+    {
+      "provider": "NBS",
+      "releaseFamily": "NBS_GDP_ACTUAL",
+      "url": "https://www.stats.gov.cn/sj/zxfb/",
+      "requestTime": "2026-09-27T02:17:00Z",
+      "attempt": 1,
+      "fixture": false,
+      "redirectChain": [],
+      "routeType": "OFFICIAL_INDEX",
+      "status": "NETWORK_FAILED",
+      "error": "[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1082)",
+      "sourceHealth": "DEGRADED"
+    }
+  ],
+  "stagedCandidates": [],
+  "semanticDiffs": [],
+  "approval": null,
+  "submission": null,
+  "fixtureCounted": 0,
+  "networkUsed": true,
+  "verificationStatus": "UNVERIFIED",
+  "completedAt": "2026-09-27T02:17:01Z",
+  "manifestFingerprint": "237E22045534DCD5CD9A4B625CB88A6870F86423A6A00E764774F48CFD98C115"
+}
