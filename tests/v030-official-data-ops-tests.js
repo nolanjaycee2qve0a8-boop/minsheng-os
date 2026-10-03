@@ -18,9 +18,9 @@ ok(api.qualificationGate({...offlineFixture,fixture:'true',provenance:{rawArtifa
 
 const run={id:'r',immutable:true,verificationStatus:'VERIFIED'};
 const candidateA={id:'a',qualification:'QUALIFIED',diffFingerprint:api.fingerprint('candidate-a')},candidateB={id:'b',qualification:'QUALIFIED',diffFingerprint:api.fingerprint('candidate-b')};
-const binding=candidates=>api.fingerprint(candidates.map(({id,diffFingerprint})=>({id,diffFingerprint})));
-const approval={approvedRunId:'r',actor:'reviewer',approvedAt:'2026-08-22',candidateIds:['b','a'],diffFingerprint:binding([candidateB,candidateA])};
-const singleApproval={...approval,candidateIds:['a'],diffFingerprint:binding([candidateA])};
+const approve=candidates=>({approvedRunId:'r',actor:'reviewer',approvedAt:'2026-08-22T00:00:00Z',candidateIds:candidates.map(x=>x.id).reverse(),candidateSnapshots:candidates.map(x=>JSON.parse(JSON.stringify(x))),diffFingerprint:api.fingerprint(candidates)});
+const approval=approve([candidateA,candidateB]);
+const singleApproval=approve([candidateA]);
 ok(api.canSubmit(run,approval,[candidateA,candidateB]),'approval accepts the same non-empty candidate set regardless of order');
 ok(api.atomicSubmit({},run,approval,[candidateA,candidateB]).submitted,'valid approved batch submits normally');
 ok(!api.canSubmit(run,{...approval,candidateIds:[]},[]),'empty approval and candidate sets cannot submit');
@@ -33,8 +33,11 @@ ok(!api.canSubmit(run,{...approval,candidateIds:[' ']},[{...candidateA,id:' '}])
 ok(!api.canSubmit(run,{...approval,candidateIds:[' a']},[{...candidateA,id:' a'}]),'identifiers with surrounding whitespace cannot submit');
 ok(!api.canSubmit(run,{...approval,candidateIds:[1]},[{...candidateA,id:1}]),'non-string approval and candidate identifiers cannot submit');
 ok(!api.canSubmit(run,{...approval,diffFingerprint:undefined},[candidateA,candidateB]),'approval requires a canonical candidate-diff binding');
-ok(!api.canSubmit(run,{...approval,diffFingerprint:api.fingerprint('other-batch')},[candidateA,candidateB]),'approval cannot authorize different candidate diffs');
 ok(!api.canSubmit(run,approval,[candidateA,{...candidateB,diffFingerprint:api.fingerprint('tampered')}]),'same candidate identifiers cannot bypass a changed diff fingerprint');
+ok(!api.canSubmit(run,approval,[{...candidateA,value:99},candidateB]),'approval snapshot binds candidate content rather than trusting its self-reported diff fingerprint');
+const collisionA={...candidateA,diffFingerprint:'1725086c'},collisionB={...candidateA,diffFingerprint:'88545a18'};
+ok(api.fingerprint([{id:'a',diffFingerprint:collisionA.diffFingerprint}])===api.fingerprint([{id:'a',diffFingerprint:collisionB.diffFingerprint}]),'regression fixture demonstrates the short-hash collision');
+ok(!api.canSubmit(run,approve([collisionA]),[collisionB]),'short-hash collision cannot authorize a different candidate snapshot');
 ok(!api.canSubmit(run,singleApproval,[{...candidateA,fixture:true}]),'top-level fixture cannot bypass submit gate when manually marked qualified');
 ok(!api.canSubmit(run,singleApproval,[{...candidateA,provenance:{fixture:true}}]),'provenance fixture cannot bypass submit gate when manually marked qualified');
 ok(!api.canSubmit(run,singleApproval,[{...candidateA,fixture:'true'}]),'non-boolean fixture marker cannot bypass submit gate');
@@ -42,11 +45,14 @@ ok(!api.canSubmit({...run,immutable:false},approval,[candidateA,candidateB]),'mu
 ok(!api.canSubmit({...run,verificationStatus:'PENDING'},approval,[candidateA,candidateB]),'unverified run cannot submit');
 ok(!api.canSubmit(run,{...approval,approvedRunId:'other'},[candidateA,candidateB]),'approval cannot authorize another run');
 ok(!api.canSubmit(run,{...approval,actor:''},[candidateA,candidateB]),'approval requires an actor');
+ok(!api.canSubmit(run,{...approval,actor:{}},[candidateA,candidateB]),'approval actor must be a non-empty string');
 ok(!api.canSubmit(run,{...approval,approvedAt:''},[candidateA,candidateB]),'approval requires a timestamp');
+ok(!api.canSubmit(run,{...approval,approvedAt:{}},[candidateA,candidateB]),'approval timestamp must be a string');
+ok(!api.canSubmit(run,{...approval,approvedAt:'2026-08-22'},[candidateA,candidateB]),'approval requires a full timezone-qualified timestamp');
 ok(!api.canSubmit(run,approval,[{...candidateA,qualification:'BLOCKED'},candidateB]),'blocked candidate cannot submit');
 ok(!api.canSubmit(run,approval,[{...candidateA,diffFingerprint:''},candidateB]),'candidate without a diff fingerprint cannot submit');
 ok(!api.canSubmit(run,approval,null),'non-array candidate input is rejected without throwing');
-const failed=api.atomicSubmit({},run,approval,[candidateA,{...candidateB,forceFailure:true}]);
+const failingCandidates=[candidateA,{...candidateB,forceFailure:true}],failed=api.atomicSubmit({},run,approve(failingCandidates),failingCandidates);
 ok(!failed.submitted&&failed.reason==='ATOMIC_BATCH_ABORTED','atomic batch aborts before partial submission');
 const replay=api.atomicSubmit({approvedSubmissionIds:['a','b']},run,approval,[candidateA,candidateB]);
 ok(!replay.submitted&&replay.idempotent&&replay.reason==='ALREADY_SUBMITTED','approved replay is idempotent');

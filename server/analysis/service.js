@@ -177,7 +177,7 @@ function createAnalysisService({ env = process.env, provider, now = Date.now } =
       try {
         const ids = await selectedProvider.select(statements.map(({ id, text }) => ({ id, text })));
         if (!Array.isArray(ids) || !ids.length || ids.length > 8 || new Set(ids).size !== ids.length || ids.some(id => !statements.some(s => s.id === id))) throw new Error('PROVIDER_FAILED');
-        return { httpStatus: 200, body: { ...answer, mode: 'AI_EVIDENCE_SELECTION', paragraphs: ids.map(id => statements.find(s => s.id === id).text) } };
+        return { httpStatus: 200, body: { ...answer, mode: 'AI_EVIDENCE_SELECTION', selectedEvidenceIds: ids, paragraphs: ids.map(id => statements.find(s => s.id === id).text) } };
       } catch { return { httpStatus: 502, body: { ...answer, status: 'PROVIDER_FAILED', evidenceStatus: contract.status } }; }
     }
   });

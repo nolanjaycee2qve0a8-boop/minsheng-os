@@ -116,6 +116,7 @@ function route(server, options = {}) {
     const allowed = await service.analyze(request());
     eq(allowed.httpStatus, 200); eq(calls, 1);
     ok(received.every(s => Object.keys(s).sort().join() === 'id,text'));
+    eq(allowed.body.selectedEvidenceIds, [allowed.body.evidence[0].id]);
     eq(allowed.body.paragraphs, [allowed.body.evidence[0].text]);
     ok(allowed.body.boundary.includes('风险'));
     const ratio = await service.analyze(request(QUESTIONS[1]));
