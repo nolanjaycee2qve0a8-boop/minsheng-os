@@ -14,10 +14,13 @@ ok(api.qualificationGate({provenance:{rawArtifactSha256:'sha'},sourceDocumentId:
 ok(offlineFixture.fixture===true&&offlineFixture.provenance.fixture===true&&offlineFixture.candidateStatus==='CANDIDATE_ONLY'&&offlineFixture.publicationEligible===false,'offline fixture declares that it is fictional and cannot publish');
 ok(api.qualificationGate({...offlineFixture,provenance:{rawArtifactSha256:'sha'}}).flags.includes('FIXTURE_NOT_SUBMITTABLE'),'top-level fixture is blocked before qualification');
 ok(api.qualificationGate({...offlineFixture,fixture:false}).flags.includes('FIXTURE_NOT_SUBMITTABLE'),'provenance fixture is blocked before qualification');
+ok(api.qualificationGate({...offlineFixture,fixture:'true',provenance:{rawArtifactSha256:'sha',fixture:false}}).flags.includes('FIXTURE_NOT_SUBMITTABLE'),'non-boolean fixture markers fail closed during qualification');
 
 const run={id:'r',immutable:true,verificationStatus:'VERIFIED'};
-const candidateA={id:'a',qualification:'QUALIFIED',diffFingerprint:'da'},candidateB={id:'b',qualification:'QUALIFIED',diffFingerprint:'db'};
-const approval={approvedRunId:'r',actor:'reviewer',approvedAt:'2026-08-22',candidateIds:['b','a'],diffFingerprint:'d'};
+const candidateA={id:'a',qualification:'QUALIFIED',diffFingerprint:api.fingerprint('candidate-a')},candidateB={id:'b',qualification:'QUALIFIED',diffFingerprint:api.fingerprint('candidate-b')};
+const binding=candidates=>api.fingerprint(candidates.map(({id,diffFingerprint})=>({id,diffFingerprint})));
+const approval={approvedRunId:'r',actor:'reviewer',approvedAt:'2026-08-22',candidateIds:['b','a'],diffFingerprint:binding([candidateB,candidateA])};
+const singleApproval={...approval,candidateIds:['a'],diffFingerprint:binding([candidateA])};
 ok(api.canSubmit(run,approval,[candidateA,candidateB]),'approval accepts the same non-empty candidate set regardless of order');
 ok(api.atomicSubmit({},run,approval,[candidateA,candidateB]).submitted,'valid approved batch submits normally');
 ok(!api.canSubmit(run,{...approval,candidateIds:[]},[]),'empty approval and candidate sets cannot submit');
@@ -29,8 +32,12 @@ ok(!api.canSubmit(run,{...approval,candidateIds:['a','other']},[candidateA,candi
 ok(!api.canSubmit(run,{...approval,candidateIds:[' ']},[{...candidateA,id:' '}]),'blank approval and candidate identifiers cannot submit');
 ok(!api.canSubmit(run,{...approval,candidateIds:[' a']},[{...candidateA,id:' a'}]),'identifiers with surrounding whitespace cannot submit');
 ok(!api.canSubmit(run,{...approval,candidateIds:[1]},[{...candidateA,id:1}]),'non-string approval and candidate identifiers cannot submit');
-ok(!api.canSubmit(run,{...approval,candidateIds:['a']},[{...candidateA,fixture:true}]),'top-level fixture cannot bypass submit gate when manually marked qualified');
-ok(!api.canSubmit(run,{...approval,candidateIds:['a']},[{...candidateA,provenance:{fixture:true}}]),'provenance fixture cannot bypass submit gate when manually marked qualified');
+ok(!api.canSubmit(run,{...approval,diffFingerprint:undefined},[candidateA,candidateB]),'approval requires a canonical candidate-diff binding');
+ok(!api.canSubmit(run,{...approval,diffFingerprint:api.fingerprint('other-batch')},[candidateA,candidateB]),'approval cannot authorize different candidate diffs');
+ok(!api.canSubmit(run,approval,[candidateA,{...candidateB,diffFingerprint:api.fingerprint('tampered')}]),'same candidate identifiers cannot bypass a changed diff fingerprint');
+ok(!api.canSubmit(run,singleApproval,[{...candidateA,fixture:true}]),'top-level fixture cannot bypass submit gate when manually marked qualified');
+ok(!api.canSubmit(run,singleApproval,[{...candidateA,provenance:{fixture:true}}]),'provenance fixture cannot bypass submit gate when manually marked qualified');
+ok(!api.canSubmit(run,singleApproval,[{...candidateA,fixture:'true'}]),'non-boolean fixture marker cannot bypass submit gate');
 ok(!api.canSubmit({...run,immutable:false},approval,[candidateA,candidateB]),'mutable run cannot submit');
 ok(!api.canSubmit({...run,verificationStatus:'PENDING'},approval,[candidateA,candidateB]),'unverified run cannot submit');
 ok(!api.canSubmit(run,{...approval,approvedRunId:'other'},[candidateA,candidateB]),'approval cannot authorize another run');

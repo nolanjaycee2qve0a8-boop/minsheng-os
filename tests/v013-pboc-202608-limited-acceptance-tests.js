@@ -20,8 +20,14 @@ const records = accepted.records;
 const approvalPath = path.join(root, 'sources', 'official-v030', 'manifests', 'v013-pboc-financial-statistics-202608-limited-acceptance-approval-20260927.json');
 const approvalBytes = fs.readFileSync(approvalPath);
 const approval = JSON.parse(approvalBytes.toString('utf8'));
+const boundArtifacts = {
+  proposalSha256: 'v013-pboc-financial-statistics-202608-limited-acceptance-proposal-20260927.json',
+  candidateStagingAuditSha256: 'v013-pboc-financial-statistics-202608-staging-20260927.json',
+  manualReviewAuditSha256: 'v013-pboc-financial-statistics-202608-manual-review-20260927.json'
+};
 must(accepted.approval.id === 'approval_pboc_financial_statistics_202608_limited_20260927' && accepted.approval.artifactSha256 === 'D83B51CB7A35A7D52E1E34CF87C291E2C720F2971C2711CDEEE18993432A8D40' && accepted.dashboardEffect === 'NONE', 'acceptance requires the exact limited approval and must not update the dashboard');
 must(crypto.createHash('sha256').update(approvalBytes).digest('hex').toUpperCase() === accepted.approval.artifactSha256 && approval.approvalStatus === 'APPROVED', 'acceptance must bind the actual explicit approval artifact');
+must(Object.entries(boundArtifacts).every(([binding,file]) => { const actual=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'sources','official-v030','manifests',file))).digest('hex').toUpperCase(); return approval.requiredBindings[binding]===actual&&accepted.approval[{proposalSha256:'proposalSha256',candidateStagingAuditSha256:'stagingSha256',manualReviewAuditSha256:'reviewSha256'}[binding]]===actual; }), 'approval and acceptance must bind the exact proposal, staging and manual-review artifact bytes');
 must(records.length === 6 && new Set(records.map(item => item.id)).size === 6, 'exactly six unique approved REAL records must be created');
 must(approval.scope.approvedCandidateIds.length === 6 && records.every(item => approval.scope.approvedCandidateIds.includes(item.provenance.acceptedCandidateId)), 'materialization must use exactly the approved candidate-id set');
 must(records.every(item => item.status === 'REAL' && item.period === '2026-08' && item.sourceId === 'pboc'), 'accepted records must be real, monthly PBOC observations');

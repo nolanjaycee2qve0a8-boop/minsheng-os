@@ -34,7 +34,9 @@ const manifest = {
 };
 
 const staged = stageAcquiredReport({ manifest, raw, expectedParentSha256: parentSha });
+const stagedAgain = stageAcquiredReport({ manifest, raw, expectedParentSha256: parentSha });
 must(staged.artifactType === 'OFFICIAL_CANDIDATE_STAGING_AUDIT', 'staging artifact type must be explicit');
+must(JSON.stringify(stagedAgain) === JSON.stringify(staged), 'identical staging inputs must produce byte-stable audit content');
 must(staged.source.title === '2026年8月金融统计数据报告', 'report title must come from acquired content');
 must(staged.observation.period === '2026-08', 'monthly report period must be deterministic');
 must(staged.parser.incompatibleRuleFixesLoaded === false, 'H1 compatibility fix must not be loaded for a monthly report');
@@ -46,6 +48,7 @@ const ambiguous = staged.candidates.find(item => item.status === 'BLOCKED_AMBIGU
 must(ambiguous?.indicatorId === 'rmb_loan_balance', 'duplicate explicit values must remain ambiguous');
 must(!Object.hasOwn(ambiguous, 'value') && !Object.hasOwn(ambiguous, 'originalText'), 'blocked candidates must omit values and copied report text');
 must(staged.observation.methodologyHints.length === 1, 'methodology hints must remain review-only diagnostics');
+must(staged.observation.methodologyHints[0].id === `method_hint_${staged.observation.period}_${staged.observation.methodologyHints[0].locator.paragraphIndex}`, 'methodology hint identifier must derive from stable report coordinates');
 throws(() => stageAcquiredReport({ manifest, raw, expectedParentSha256: 'A'.repeat(64) }), 'PARENT_DISCOVERY_HASH_MISMATCH');
 throws(() => stageAcquiredReport({ manifest: { ...manifest, routes: [{ ...manifest.routes[0], sha256: 'B'.repeat(64) }] }, raw, expectedParentSha256: parentSha }), 'RAW_SHA256_MISMATCH');
 
