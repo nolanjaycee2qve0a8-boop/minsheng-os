@@ -6,7 +6,7 @@ const crypto = require('node:crypto');
 const http = require('node:http');
 const { createProvider } = require('./provider');
 const EVIDENCE_SHA256 = '3DC3AF2502736FF41534960011B68572D6C12AF711691A7600516F847B608691';
-const PBOC_ACCEPTANCE_SHA256 = '7CF77B0DB7655D15A171752D12716D08044471195BE3D270734754EFD3BC9F71';
+const PBOC_ACCEPTANCE_SHA256 = 'BA19102AC2220A1A6F42DFD273FED777D151F8DBBD5F2EF6B3D7E1BB857BE5EE';
 const PBOC_APPROVAL_SHA256 = 'D83B51CB7A35A7D52E1E34CF87C291E2C720F2971C2711CDEEE18993432A8D40';
 const PBOC_APPROVAL_ARTIFACT = 'v013-pboc-financial-statistics-202608-limited-acceptance-approval-20260927.json';
 const QUESTIONS = Object.freeze(['当前年份能看哪些证据？', '家庭财务承压能说明什么？', '为什么不能跨年比较？', '哪些研究结论仍被阻断？', '已入库的 2026 年 8 月央行统计能说明什么？']);
@@ -47,7 +47,8 @@ function loadPboc202608Snapshot() {
     ['rmb_deposit_balance', { label: '人民币存款余额', unit: '亿元', measure: '期末余额' }],
     ['social_financing_stock', { label: '社会融资规模存量', unit: '亿元', measure: '期末余额' }]
   ]);
-  if (!accepted || accepted.knowledgeBaseEffect !== 'LIMITED_REAL_OBSERVATIONS_ONLY' || accepted.dashboardEffect !== 'NONE' ||
+  if (!accepted || accepted.knowledgeBaseEffect !== 'LIMITED_REAL_OBSERVATIONS_ONLY' || accepted.dashboardEffect !== 'NONE' || accepted.governanceStatus !== 'LIMITED_ACCEPTANCE_WITH_INCOMPLETE_APPROVAL_EVIDENCE' ||
+      accepted.approval?.evidenceCompleteness !== 'INCOMPLETE' || accepted.approval?.evidenceGaps?.join() !== 'NAMED_REVIEWER_MISSING,FULL_TIMESTAMP_MISSING' ||
       accepted.approval?.artifactSha256 !== PBOC_APPROVAL_SHA256 || !Array.isArray(accepted.records) || accepted.records.length !== required.size ||
       !Array.isArray(accepted.excludedIndicatorIds) || accepted.excludedIndicatorIds.some(id => required.has(id))) throw new Error('EVIDENCE_UNAVAILABLE');
   const records = accepted.records.map(record => {
@@ -92,7 +93,7 @@ function retrieve(question, year, data, pbocSnapshot = loadPboc202608Snapshot())
     evidenceFileSha256: EVIDENCE_SHA256, sources: [citation(data, entry.sourceId)], providerAllowed: false,
     statements: [{ id: 'policy', sourceId: entry.sourceId, text: '该问题未能在本机匹配到已批准证据主题，未调用模型，也未生成分析。可询问当前单年证据、家庭财务承压、跨年比较边界、已阻断结论或 2026 年 8 月央行六项观测。' }] }, match);
   if (topic.id === 'pboc202608') {
-    const boundary = '这是 2026 年 8 月中国人民银行发布的六项全国聚合金融统计观测，不是抽样调查，不提供有效样本量或缺失率。它与当前选择的 CHFS 单年描述相互独立；不可跨年比较，不构成趋势、因果、预测、代表性、风险或政策结论；也不得推断房地产、按揭或居民偿债。';
+    const boundary = '这是 2026 年 8 月中国人民银行发布的六项全国聚合金融统计观测，不是抽样调查，不提供有效样本量或缺失率。审批证据仍缺具名复核人和完整时间戳。它与当前选择的 CHFS 单年描述相互独立；不可跨年比较，不构成趋势、因果、预测、代表性、风险或政策结论；也不得推断房地产、按揭或居民偿债。';
     const result = { year: '2026-08', selectedChfsYear: year, status: 'LIMITED_OFFICIAL_OBSERVATIONS', boundary,
       evidenceFileSha256: EVIDENCE_SHA256, sources: [pbocSnapshot.source], providerAllowed: true,
       statements: [{ id: 'pbocScope', text: boundary, sourceId: pbocSnapshot.source.sourceId }, ...pbocSnapshot.statements.map(statement => ({ ...statement, sourceId: pbocSnapshot.source.sourceId }))] };

@@ -6,6 +6,8 @@
   id:'approval_pboc_financial_statistics_202608_limited_20260927',
   artifact:'sources/official-v030/manifests/v013-pboc-financial-statistics-202608-limited-acceptance-approval-20260927.json',
   artifactSha256:'D83B51CB7A35A7D52E1E34CF87C291E2C720F2971C2711CDEEE18993432A8D40',
+  evidenceCompleteness:'INCOMPLETE',
+  evidenceGaps:['NAMED_REVIEWER_MISSING','FULL_TIMESTAMP_MISSING'],
   proposalSha256:'EFD9CBEEB2E2C8B08BC684848F93AD2583A25D04FF857EC833929BE90C79A9C4',
   stagingSha256:'DE55704152ABAFCC91430EE45B9967E01A62F8AE314AC3105542C16041F602E3',
   reviewSha256:'0018FBAC145D791364130147C40218B4B42B0EE70B0DDCF7426FFB47857A7BDC'
@@ -28,5 +30,5 @@
  const pushUnique=(target,items)=>items.forEach(item=>{if(!target.some(existing=>existing.id===item.id))target.push(item);});
  window.MinshengSourceDocuments??=[];window.MinshengRawPayloads??=[];window.MinshengDataRecords??=[];
  pushUnique(window.MinshengSourceDocuments,[doc]);pushUnique(window.MinshengRawPayloads,[raw]);pushUnique(window.MinshengDataRecords,records);
- window.MinshengPboc202608LimitedAcceptance={version,approval,document:doc,rawPayload:raw,records,excludedIndicatorIds:['money_m1','money_m1_yoy','household_loan_change','household_deposit_change','rmb_loan_balance','rmb_loan_change','rmb_deposit_change','social_financing_flow'],dashboardEffect:'NONE',knowledgeBaseEffect:'LIMITED_REAL_OBSERVATIONS_ONLY'};
+ window.MinshengPboc202608LimitedAcceptance={version,approval,document:doc,rawPayload:raw,records,excludedIndicatorIds:['money_m1','money_m1_yoy','household_loan_change','household_deposit_change','rmb_loan_balance','rmb_loan_change','rmb_deposit_change','social_financing_flow'],governanceStatus:'LIMITED_ACCEPTANCE_WITH_INCOMPLETE_APPROVAL_EVIDENCE',dashboardEffect:'NONE',knowledgeBaseEffect:'LIMITED_REAL_OBSERVATIONS_ONLY'};
 })();
