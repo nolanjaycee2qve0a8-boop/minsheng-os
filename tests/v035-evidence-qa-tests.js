@@ -34,6 +34,19 @@ const income=api.TOPICS[0].question,land=api.TOPICS[2].question;
  eq(api.answer('那来源和单位呢？',r.context).context.topicId,'income');eq(api.answer('那来源呢？').status,'UNSUPPORTED_QUESTION');
  eq(api.validateAnswer({claims:[{text:'invented fact',evidenceIds:['fake']}],citations:[]}),false);
  const forged=copy(r);forged.claims[0].text='REAL · invented national loss 123亿元';eq(api.validateAnswer(forged),false,'valid ID cannot authorize invented prose');
+ for(const id of ['invented','s_income_pc_h1']){const forged=copy(r);forged.citations=[{...forged.citations[0],id,text:'REAL · forged 999亿元'}];forged.claims=[{text:forged.citations[0].text,classification:'REAL',evidenceIds:[id]}];eq(api.validateAnswer(forged),false,'paired forged citation and claim rejected: '+id)}
+ for(const question of ['法国居民收入多少？','成都居民收入多少？','苏州居民收入多少？','工商银行开发贷多少？','财政支出是多少？','家庭资产是多少？','居民存款是多少？','中央政府债务是多少？','房地产贷款余额是多少？','逆变器收入是多少？']){const a=api.answer(question);eq(a.status,'UNSUPPORTED_QUESTION',question);eq(a.claims,[])}
+ for(const question of ['年末开发贷是多少？','第四季度开发贷是多少？','时间不明']){eq(api.answer(question,r.context).status,'TIME_MISMATCH',question)}
+ for(const question of ['法国','逆变器','法国来源呢？','那法国收入呢？'])eq(api.answer(question,r.context).status,'UNSUPPORTED_QUESTION','followup cannot introduce unsupported scope: '+question);
+ for(const question of ['研究缺口有哪些？','阻断项有哪些？'])ok(api.answer(question).claims.length>0,'limits topic directly selectable: '+question);
+ for(const mutate of [
+  s=>{const e=s.report.evidence.find(x=>x.statementId==='s_income_pc_h1');e.classification='SCENARIO';e.value=999},
+  s=>{const e=s.report.evidence.find(x=>x.statementId==='s_income_pc_h1');e.sourceRecordIds.push('record_mof_land_transfer_revenue_2026h1_v015');e.value=999},
+  s=>{s.report.evidence.find(x=>x.statementId==='s_lgfv_gap').value=12345},
+  s=>{delete s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').periodStart},
+  s=>{delete s.documents.find(x=>x.id==='doc_nbs_income_2026h1_live_v014').dataPeriodStart}
+ ]){const snapshot=snap();mutate(snapshot);const a=api.answer(income,null,{snapshot}),debt=api.answer(api.TOPICS[3].question,null,{snapshot});ok([...a.diagnostics,...debt.diagnostics].some(x=>x.reasons?.length),'classification, source binding and timing corruption blocked');ok(!JSON.stringify([...a.claims,...debt.claims]).includes('999')&&!JSON.stringify([...a.claims,...debt.claims]).includes('12345'),'fabricated values suppressed')}
+ const rewritten=api.createSession({respond:()=>api.answer(income)});eq((await rewritten.send('法国收入多少？')).status,'INVALID_CITATION','response cannot rewrite submitted question');eq(rewritten.history,[]);
  const session=api.createSession();await session.send(income);const followup=await session.send('那来源和单位呢？');eq(followup.context.topicId,'income');eq(session.history.length,2);session.reset();eq(session.history,[]);eq(session.context,null);
  let resolve;const deferred=api.createSession({respond:()=>new Promise(done=>resolve=done)}),first=deferred.send(income);eq((await deferred.send(income)).status,'BUSY');deferred.cancel();resolve(api.answer(income));eq((await first).status,'CANCELLED');eq(deferred.history,[]);eq(deferred.pending,false);
  let resolveOld;const race=api.createSession({respond:()=>new Promise(done=>resolveOld=done)}),old=race.send(income);race.reset();resolveOld(api.answer(income));eq((await old).status,'CANCELLED');eq(race.context,null);
