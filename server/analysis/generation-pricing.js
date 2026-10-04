@@ -3,6 +3,7 @@
 const PRICING=Object.freeze({version:'deepseek-flash-peak-20261004',checkedAt:'2026-10-04',source:'https://api-docs.deepseek.com/quick_start/pricing/',model:'deepseek-flash',documentedModelVersion:'DeepSeek-V4.1-Flash',inputHitMicroUsdPerMillion:6000,inputMissMicroUsdPerMillion:300000,outputMicroUsdPerMillion:1200000});
 const POLICY=Object.freeze({version:'proposed-pilot-20261004',priceVersion:PRICING.version,maxAttempts:20,totalMicroUsd:1000000,monthlyMicroUsd:5000000,maxInputTokens:6000,maxOutputTokens:1600,approval:'PENDING'});
 // One approved lifetime pilot. No monthly reset/renewal or monthly spending grant.
+const PILOT_ID='minsheng-deepseek-first-20-usd1';
 const LIVE_POLICY=Object.freeze({version:'approved-first-pilot-20261004',priceVersion:PRICING.version,maxAttempts:20,totalMicroUsd:1000000,maxInputTokens:6000,maxOutputTokens:1600,reservationInputTokens:1048576,approval:'FIRST_PILOT_APPROVED',autoRenew:false});
 function usageCost(usage){
  const keys=['prompt_tokens','completion_tokens','prompt_cache_hit_tokens','prompt_cache_miss_tokens','total_tokens'];
@@ -15,4 +16,4 @@ function usageCost(usage){
 }
 const reserveCost=()=>Math.ceil(POLICY.maxInputTokens*PRICING.inputMissMicroUsdPerMillion/1000000)+Math.ceil(POLICY.maxOutputTokens*PRICING.outputMicroUsdPerMillion/1000000);
 const liveReserveCost=()=>Math.ceil(LIVE_POLICY.reservationInputTokens*PRICING.inputMissMicroUsdPerMillion/1000000+LIVE_POLICY.maxOutputTokens*PRICING.outputMicroUsdPerMillion/1000000);
-module.exports={PRICING,POLICY,LIVE_POLICY,usageCost,reserveCost,liveReserveCost};
+module.exports={PRICING,POLICY,LIVE_POLICY,PILOT_ID,usageCost,reserveCost,liveReserveCost};
