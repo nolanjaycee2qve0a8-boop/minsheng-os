@@ -1,0 +1,64 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),{EventEmitter}=require('node:events');
+const {createLiveTransport,PILOT,SECRET_NAME}=require('../server/analysis/generation-transport');
+const {createGenerationAdapter,prepareGeneration,ENDPOINT,MAX_RESPONSE_BYTES}=require('../server/analysis/generation-adapter');
+const {PRICING,LIVE_POLICY,liveReserveCost}=require('../server/analysis/generation-pricing');
+const {createBudgetLedger}=require('../server/analysis/generation-budget');
+const {createStructuredSandbox,CATALOG}=require('../server/analysis/structured-claims');
+const {parseOptions,runPilot,inspect}=require('../tools/run_generation_pilot');
+let count=0;const eq=(a,b,m)=>{count++;assert.deepEqual(a,b,m)},ok=(x,m)=>{count++;assert.ok(x,m)},throws=(fn,re)=>{count++;assert.throws(fn,re)};
+const root=fs.mkdtempSync(path.join(os.tmpdir(),'minsheng-live-transport-'));let serial=0;
+const now=()=>new Date('2026-10-04T12:00:00Z'),handoff={pilot:PILOT,networkReady:true,secretReady:true,priceVersion:PRICING.version,priceCheckedAt:'2026-10-04'};
+const networkSecret={key:SECRET_NAME,domain:'api.deepseek.com',placeholder:'OFFLINE_TEST_NETWORK_SENTINEL',source:'OFFICIAL_NETWORK_SECRET_METADATA'};
+const fresh=limits=>{const file=path.join(root,`budget-${serial++}.json`);return {file,ledger:createBudgetLedger({file,policyKind:'LIVE_FIRST_PILOT',now,limits})}};
+const usage={prompt_tokens:500,completion_tokens:200,prompt_cache_hit_tokens:100,prompt_cache_miss_tokens:400,total_tokens:700};
+function raw(result){return {schemaVersion:'v037-claims-1',claims:result.claims.map(c=>{const keys=c.type==='FACT'?['id','type','evidenceId','evidenceClassification','value','unit','period','geography','scope']:c.type==='GAP'?['id','type','evidenceId']:c.type==='ASSUMPTION'?['id','type','text','evidenceIds','dependsOn']:['id','type','text','evidenceIds','dependsOn','uncertainty','causalStatus'];return Object.fromEntries(keys.map(k=>[k,c[k]]))})}}
+const envelope=claims=>({model:PRICING.model,object:'chat.completion',usage:{...usage},choices:[{finish_reason:'stop',message:{role:'assistant',content:JSON.stringify(claims)}}]});
+function fakeHttps(responseFactory,inspectRequest=()=>{}){
+ const state={calls:0,destroyed:0,bodies:[]};
+ state.request=(options,callback)=>{state.calls++;inspectRequest(options);const req=new EventEmitter();req.destroy=()=>{state.destroyed++};req.end=body=>{state.bodies.push(body);queueMicrotask(()=>{const p=responseFactory(body),response=new EventEmitter();response.destroy=()=>{state.destroyed++};response.statusCode=p.status??200;response.headers=p.headers??{};callback(response);if(p.never)return;if(p.error){response.emit(p.error);return}for(const chunk of p.chunks??[Buffer.from(p.body??'')])response.emit('data',chunk);response.emit('end');response.emit('close')})};return req};return state;
+}
+const live=(state,extra={})=>createLiveTransport({handoff,networkSecret,requestImpl:state.request,now,...extra});
+const request=body=>({url:ENDPOINT,method:'POST',body,redirect:'error',credentials:'omit',networkAllowed:true,signal:new AbortController().signal,maxResponseBytes:MAX_RESPONSE_BYTES});
+(async()=>{
+ const http=require('node:http'),https=require('node:https'),net=require('node:net');
+ const saved={fetch:globalThis.fetch,http:http.request,https:https.request,connect:net.Socket.prototype.connect,env:process.env};let network=0,secretReads=0;
+ const deny=()=>{network++;throw Error('REAL_NETWORK_FORBIDDEN')};globalThis.fetch=deny;http.request=deny;https.request=deny;net.Socket.prototype.connect=deny;
+ process.env=new Proxy({}, {get:(_,key)=>{if(String(key).includes('KEY')){secretReads++;throw Error('SECRET_READ_FORBIDDEN')}return undefined}});
+ try{
+  eq(liveReserveCost(),316493);eq(LIVE_POLICY.maxAttempts,20);eq(LIVE_POLICY.totalMicroUsd,1000000);eq(LIVE_POLICY.autoRenew,false);ok(!Object.hasOwn(LIVE_POLICY,'monthlyMicroUsd'));
+  const check=await inspect();eq(check.externalRequests,0);eq(check.secretReads,0);eq(check.inputs.length,20);eq(Math.max(...check.inputs.map(x=>x.inputEnvelopeBytes)),5862);eq(check.placeholderSyntaxConfirmed,false);
+  eq((await runPilot(parseOptions(['--check']))).status,'OFFLINE_LAUNCH_CHECK');
+  for(const args of [[],['--live'],['--check','--live'],['--topic','q01','--topic','q02'],['--endpoint','https://evil.example']])throws(()=>parseOptions(args),/PILOT_/);
+  for(const change of [{networkReady:false},{secretReady:false},{priceVersion:'wrong'},{priceCheckedAt:'2026-10-03'},{pilot:'wrong'}])throws(()=>createLiveTransport({handoff:{...handoff,...change},networkSecret,now}),/LIVE_HANDOFF/);
+  throws(()=>createLiveTransport({handoff,networkSecret,now:()=>new Date('2026-10-05')}),/LIVE_HANDOFF/);
+  for(const metadata of [undefined,{...networkSecret,domain:'evil.example'},{...networkSecret,key:'OTHER_KEY'},{...networkSecret,source:'ENV_SECRET'},{...networkSecret,placeholder:'bad\r\nheader'}])throws(()=>createLiveTransport({handoff,networkSecret:metadata,now}),/NETWORK_SECRET/);
+  throws(()=>createGenerationAdapter({ledger:fresh().ledger,liveEnabled:true,transport:{mode:'LIVE',send:deny}}),/LIVE_REQUIRES/);
+  const sandbox=createStructuredSandbox(),responses=new Map();for(const topic of CATALOG)responses.set(JSON.stringify(topic.summary),raw(await sandbox.run(topic.summary)));
+  const batch=fresh(),state=fakeHttps(body=>({body:JSON.stringify(envelope(responses.get(JSON.stringify(JSON.parse(JSON.parse(body).messages[1].content).questionSummary))))}),options=>{
+   eq(options.hostname,'api.deepseek.com');eq(options.path,'/chat/completions');eq(options.protocol,'https:');eq(options.port,443);eq(options.method,'POST');eq(options.rejectUnauthorized,true);eq(options.servername,'api.deepseek.com');eq(options.minVersion,'TLSv1.2');eq(options.agent,false);eq(options.headers.Authorization,'Bearer OFFLINE_TEST_NETWORK_SENTINEL');eq(options.headers['Accept-Encoding'],'identity');ok(!Object.hasOwn(options,'proxy'));
+  });
+  const transport=live(state),adapter=createGenerationAdapter({ledger:batch.ledger,transport,liveEnabled:true});
+  for(const topic of CATALOG){const r=await adapter.generate({requestId:topic.id,summary:topic.summary});eq(r.status,'HUMAN_REVIEW_REQUIRED');eq(r.mode,'LIVE_CONTROLLED_GENERATION');eq(r.externalRequests,1);eq(r.actualCostMicroUsd,null);eq(r.applicationAccountedMicroUsd,361);ok(r.claims.every(c=>c.semanticTruthVerified===false));const sent=state.bodies.at(-1);ok(!CATALOG.some(q=>sent.includes(q.question)));ok(!/history|rawText|private|DEEPSEEK_API_KEY|OFFLINE_TEST_NETWORK_SENTINEL/.test(JSON.parse(sent).messages[1].content))}
+  eq(state.calls,20);eq(Object.keys(batch.ledger.snapshot().requests).length,20);eq((await adapter.generate({requestId:'twenty_one',summary:CATALOG[0].summary})).reason,'BUDGET_LIMIT_REACHED');eq(state.calls,20);
+  const replay=await createGenerationAdapter({ledger:createBudgetLedger({file:batch.file,policyKind:'LIVE_FIRST_PILOT',now}),transport,liveEnabled:true}).generate({requestId:'q01',summary:CATALOG[0].summary});eq(replay.status,'HUMAN_REVIEW_REQUIRED');eq(replay.externalRequests,0);eq(replay.replayed,true);eq(state.calls,20);
+  throws(()=>createBudgetLedger({file:batch.file,policyKind:'LIVE_FIRST_PILOT',limits:{monthlyMicroUsd:5000000}}),/BUDGET_LIMITS/);
+  const tiny=fresh({totalMicroUsd:316492}),tinyState=fakeHttps(()=>{throw Error('MUST_NOT_SEND')});eq((await createGenerationAdapter({ledger:tiny.ledger,transport:live(tinyState),liveEnabled:true}).generate({requestId:'tiny',summary:CATALOG[0].summary})).reason,'BUDGET_LIMIT_REACHED');eq(tinyState.calls,0);
+  const prepared=await prepareGeneration(CATALOG[0].summary),body=JSON.stringify(prepared.body);
+  for(const patch of [{url:'https://evil.example/chat/completions'},{url:'https://api.deepseek.com/beta/chat/completions'},{url:'http://api.deepseek.com/chat/completions'},{url:ENDPOINT+'?key=foo'},{method:'GET'},{redirect:'follow'},{networkAllowed:false},{maxResponseBytes:999999},{headers:{Authorization:'bad'}},{body:'x'.repeat(6001)}]){
+   const invalid={...request(body),...patch};const stub=fakeHttps(()=>({body:'{}'}));throws(()=>live(stub).send(invalid),/LIVE_REQUEST/);eq(stub.calls,0);
+  }
+  for(const response of [{status:302,headers:{location:'https://evil.example'}},{headers:{'content-length':'65537'}},{headers:{'content-encoding':'gzip'}},{chunks:[Buffer.alloc(65536),Buffer.alloc(1)]},{error:'aborted'},{error:'close'}]){
+   const item=fresh(),stub=fakeHttps(()=>response);const fail=await createGenerationAdapter({ledger:item.ledger,transport:live(stub),liveEnabled:true}).generate({requestId:'failed',summary:CATALOG[0].summary});eq(fail.status,'LIVE_PROVIDER_FAILED_COST_HELD');eq(stub.calls,1);eq(item.ledger.snapshot().requests.failed.heldMicroUsd,316493);eq(item.ledger.snapshot().requests.failed.state,'UNKNOWN');eq((await createGenerationAdapter({ledger:item.ledger,transport:live(stub),liveEnabled:true}).generate({requestId:'next',summary:CATALOG[1].summary})).reason,'PILOT_UNRESOLVED_REQUEST');eq(stub.calls,1);eq((await createGenerationAdapter({ledger:createBudgetLedger({file:item.file,policyKind:'LIVE_FIRST_PILOT',now}),transport:live(stub),liveEnabled:true}).generate({requestId:'failed',summary:CATALOG[0].summary})).status,'REQUEST_HELD_NO_RETRY');eq(stub.calls,1);
+  }
+  const timeout=fresh(),hanging=fakeHttps(()=>({never:true}));eq((await createGenerationAdapter({ledger:timeout.ledger,transport:live(hanging),liveEnabled:true,timeoutMs:1}).generate({requestId:'timeout',summary:CATALOG[0].summary})).status,'LIVE_PROVIDER_FAILED_COST_HELD');ok(hanging.destroyed>0);eq(timeout.ledger.snapshot().requests.timeout.heldMicroUsd,316493);
+  for(const mutation of [p=>delete p.usage,p=>p.usage.total_tokens++,p=>p.model='deepseek-v4-pro',p=>p.choices[0].message.content='{}',p=>p.choices[0].finish_reason='length']){
+   const item=fresh(),p=envelope(responses.get(JSON.stringify(CATALOG[0].summary)));mutation(p);const stub=fakeHttps(()=>({body:JSON.stringify(p)})),r=await createGenerationAdapter({ledger:item.ledger,transport:live(stub),liveEnabled:true}).generate({requestId:'bad',summary:CATALOG[0].summary});eq(stub.calls,1);ok(['LIVE_RESPONSE_REJECTED','LIVE_PROVIDER_FAILED_COST_HELD'].includes(r.status));eq(Object.keys(item.ledger.snapshot().requests).length,1);eq(item.ledger.snapshot().requests.bad.heldMicroUsd,r.status==='LIVE_RESPONSE_REJECTED'?361:316493);
+  }
+  const future=fresh(),futureStub=fakeHttps(()=>({body:JSON.stringify(envelope(responses.get(JSON.stringify(CATALOG[0].summary))))}));let today=new Date('2026-10-04');const expiring=live(futureStub,{now:()=>today}),expires=createGenerationAdapter({ledger:future.ledger,transport:expiring,liveEnabled:true});today=new Date('2026-10-05');eq((await expires.generate({requestId:'expired',summary:CATALOG[0].summary})).status,'PREFLIGHT_REJECTED');eq(futureStub.calls,0);eq(Object.keys(future.ledger.snapshot().requests).length,0);
+  const options=parseOptions(['--live','--handoff-ready','--topic','q01','--price-version',PRICING.version,'--price-checked','2026-10-04','--network-secret-placeholder',networkSecret.placeholder]),file=path.join(root,'launcher.json'),launchState=fakeHttps(()=>({body:JSON.stringify(envelope(responses.get(JSON.stringify(CATALOG[0].summary))))}));eq((await runPilot(options,{ledgerFile:file,requestImpl:launchState.request,now})).status,'HUMAN_REVIEW_REQUIRED');eq(launchState.calls,1);eq((await runPilot(options,{ledgerFile:file,requestImpl:launchState.request,now})).replayed,true);eq(launchState.calls,1);ok(!fs.existsSync(path.join(root,'pilot-run.lock')));
+  fs.writeFileSync(path.join(root,'pilot-run.lock'),'stale');count++;await assert.rejects(runPilot(options,{ledgerFile:file,requestImpl:launchState.request,now}),/PILOT_ALREADY_RUNNING/);eq(launchState.calls,1);fs.unlinkSync(path.join(root,'pilot-run.lock'));
+  const disk=fs.readFileSync(file,'utf8');ok(!disk.includes(networkSecret.placeholder));ok(!disk.includes('Authorization'));eq(fs.statSync(file).mode&0o777,0o600);eq(network,0);eq(secretReads,0);
+ }finally{globalThis.fetch=saved.fetch;http.request=saved.http;https.request=saved.https;net.Socket.prototype.connect=saved.connect;process.env=saved.env;fs.rmSync(root,{recursive:true,force:true})}
+ process.stdout.write(`v0.39 LIVE transport offline PASS (${count} substantive assertions; synthetic HTTP only; zero real network/secret reads)\n`);
+})().catch(()=>{process.stderr.write('v0.39 LIVE transport offline FAIL\n');process.exitCode=1});
