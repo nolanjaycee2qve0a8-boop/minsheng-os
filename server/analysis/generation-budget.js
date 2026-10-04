@@ -22,6 +22,7 @@ function createBudgetLedger({file,now=()=>new Date(),limits={}}={}){
   try{fd=fs.openSync(tmp,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600);fs.writeFileSync(fd,JSON.stringify(state));fs.fsyncSync(fd);fs.closeSync(fd);fd=undefined;fs.renameSync(tmp,target);const parent=fs.openSync(directory,fs.constants.O_RDONLY);try{fs.fsyncSync(parent)}finally{fs.closeSync(parent)}}finally{if(fd!==undefined)fs.closeSync(fd);if(fs.existsSync(tmp))fs.unlinkSync(tmp)}
  }
  function transaction(fn){
+  if(!fs.lstatSync(directory).isDirectory()||(fs.statSync(directory).mode&0o077)!==0)throw Error('LEDGER_DIRECTORY_NOT_PRIVATE');
   let fd;try{fd=fs.openSync(lock,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600)}catch{throw Error('LEDGER_LOCKED')}
   try{fs.writeFileSync(fd,JSON.stringify({pid:process.pid}));fs.fsyncSync(fd);assertRegular();let state=blank();if(fs.existsSync(target)){const input=fs.openSync(target,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW);try{let parsed;try{parsed=JSON.parse(fs.readFileSync(input,'utf8'))}catch{throw Error('LEDGER_CORRUPT_OR_POLICY_CHANGED')}state=validate(parsed)}finally{fs.closeSync(input)}}const result=fn(state);persist(validate(state));return copy(result)}finally{fs.closeSync(fd);fs.unlinkSync(lock)}
  }

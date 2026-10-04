@@ -7,6 +7,7 @@ const SYSTEM='Return JSON only, {"schemaVersion":"v037-claims-1","claims":[...]}
 function createGenerationAdapter({ledger,transport=null,liveEnabled=false,timeoutMs=8000}={}){
  if(liveEnabled||transport?.mode==='LIVE')throw Error('LIVE_REQUIRES_SEPARATE_APPROVAL');
  if(transport&&(transport.mode!=='OFFLINE_MOCK'||typeof transport.send!=='function'))throw Error('OFFLINE_TRANSPORT_REQUIRED');
+ const transportSend=transport?.send,transportUnchanged=()=>transport?.mode==='OFFLINE_MOCK'&&transport.send===transportSend;
  if(!ledger||typeof ledger.reserve!=='function'||!Number.isInteger(timeoutMs)||timeoutMs<1||timeoutMs>30000)throw Error('ADAPTER_CONFIGURATION_INVALID');
  const sandbox=createStructuredSandbox(),pending=new Map();
  const meta={mode:'OFFLINE_INJECTED_GENERATION',providerUsed:false,externalRequests:0,actualCostMicroUsd:0};
@@ -16,11 +17,12 @@ function createGenerationAdapter({ledger,transport=null,liveEnabled=false,timeou
   if(!request||typeof request!=='object'||Array.isArray(request)||Object.keys(request).sort().join('|')!=='requestId|summary')return {...meta,status:'PREFLIGHT_REJECTED'};
   const {requestId,summary}=request;
   if(!transport)return {...meta,status:'OFFLINE_NO_TRANSPORT'};
+  if(!transportUnchanged())return {...meta,status:'PREFLIGHT_REJECTED'};
   let prepared,body,digest;
   try{
    prepared=await sandbox.prepare(summary);body={model:PRICING.model,thinking:{type:'disabled'},temperature:0,max_tokens:POLICY.maxOutputTokens,stream:false,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM},{role:'user',content:JSON.stringify(prepared.payload)}]};
    if(Buffer.byteLength(JSON.stringify(body),'utf8')+1024>POLICY.maxInputTokens)throw Error('INPUT_ENVELOPE_EXCEEDED');
-   digest=crypto.createHash('sha256').update(JSON.stringify({body,priceVersion:PRICING.version,policyVersion:POLICY.version})).digest('hex');
+   digest=crypto.createHash('sha256').update(JSON.stringify({body,priceVersion:PRICING.version,policyVersion:POLICY.version})).digest('hex');if(!transportUnchanged())throw Error('TRANSPORT_CHANGED');
   }catch{return {...meta,status:'PREFLIGHT_REJECTED'}}
   const previous=pending.get(requestId);if(previous){if(previous.digest!==digest)return {...meta,status:'REQUEST_ID_REUSED_FOR_DIFFERENT_PAYLOAD'};return previous.promise}
   let reservation;try{reservation=ledger.reserve({requestId,digest})}catch(e){return {...meta,status:'PREFLIGHT_REJECTED',reason:['BUDGET_FROZEN','BUDGET_LIMIT_REACHED','LEDGER_LOCKED','LEDGER_PATH_UNSAFE','LEDGER_CORRUPT_OR_POLICY_CHANGED','REQUEST_ID_OR_DIGEST_INVALID','REQUEST_ID_REUSED_FOR_DIFFERENT_PAYLOAD'].includes(e.message)?e.message:'LEDGER_UNAVAILABLE'}}
@@ -32,7 +34,7 @@ function createGenerationAdapter({ledger,transport=null,liveEnabled=false,timeou
   const promise=(async()=>{
    let timer;const controller=new AbortController();
    try{
-    const response=await Promise.race([Promise.resolve().then(()=>transport.send(Object.freeze({url:ENDPOINT,method:'POST',body:JSON.stringify(body),redirect:'error',credentials:'omit',signal:controller.signal,maxResponseBytes:MAX_RESPONSE_BYTES,networkAllowed:false}))),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TRANSPORT_TIMEOUT'))},timeoutMs)})]);
+    const response=await Promise.race([Promise.resolve().then(()=>{if(!transportUnchanged())throw Error('TRANSPORT_CHANGED');return transportSend.call(transport,Object.freeze({url:ENDPOINT,method:'POST',body:JSON.stringify(body),redirect:'error',credentials:'omit',signal:controller.signal,maxResponseBytes:MAX_RESPONSE_BYTES,networkAllowed:false}))}),new Promise((_,reject)=>{timer=setTimeout(()=>{controller.abort();reject(Error('TRANSPORT_TIMEOUT'))},timeoutMs)})]);
     if(!response||response.status!==200||typeof response.body!=='string'||Buffer.byteLength(response.body,'utf8')>MAX_RESPONSE_BYTES)throw Error('UNKNOWN_PROVIDER_FAILURE');
     const payload=JSON.parse(response.body);if(payload.model!==PRICING.model||payload.object!=='chat.completion')throw Error('UNKNOWN_PROVIDER_FAILURE');usageCost(payload.usage);
     let result;
