@@ -35,8 +35,9 @@ function createBudgetLedger({file,now=()=>new Date(),limits={},policyKind='OFFLI
   if(live&&!initializing)assertInitialized();
   let fd;try{fd=fs.openSync(lock,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600)}catch{throw Error('LEDGER_LOCKED')}
   try{fs.writeFileSync(fd,JSON.stringify({pid:process.pid}));fs.fsyncSync(fd);assertRegular();
+   if(live&&!initializing)assertInitialized();
    if(initializing){if(fs.existsSync(target)||fs.existsSync(marker))throw Error('PILOT_ALREADY_BOOTSTRAPPED');const markerFd=fs.openSync(marker,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600);try{fs.writeFileSync(markerFd,JSON.stringify(identity));fs.fsyncSync(markerFd)}finally{fs.closeSync(markerFd)}const parent=fs.openSync(directory,fs.constants.O_RDONLY);try{fs.fsyncSync(parent)}finally{fs.closeSync(parent)}}
-   let state=blank();if(fs.existsSync(target)){const input=fs.openSync(target,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW);try{let parsed;try{parsed=JSON.parse(fs.readFileSync(input,'utf8'))}catch{throw Error('LEDGER_CORRUPT_OR_POLICY_CHANGED')}state=validate(parsed)}finally{fs.closeSync(input)}}const result=fn(state);persist(validate(state));return copy(result)}finally{fs.closeSync(fd);fs.unlinkSync(lock)}
+   let state=blank();if(live&&!initializing||fs.existsSync(target)){let input;try{input=fs.openSync(target,fs.constants.O_RDONLY|fs.constants.O_NOFOLLOW)}catch(e){if(live&&e.code==='ENOENT')throw Error('PILOT_LEDGER_MISSING');throw e}try{let parsed;try{parsed=JSON.parse(fs.readFileSync(input,'utf8'))}catch{throw Error('LEDGER_CORRUPT_OR_POLICY_CHANGED')}state=validate(parsed)}finally{fs.closeSync(input)}}const result=fn(state);if(live&&!initializing)assertInitialized();persist(validate(state));return copy(result)}finally{fs.closeSync(fd);fs.unlinkSync(lock)}
  }
  function reserve({requestId,digest}){
   if(typeof requestId!=='string'||!/^[A-Za-z0-9_-]{1,64}$/.test(requestId)||['__proto__','constructor','prototype'].includes(requestId)||typeof digest!=='string'||!/^[a-f0-9]{64}$/.test(digest))throw Error('REQUEST_ID_OR_DIGEST_INVALID');
