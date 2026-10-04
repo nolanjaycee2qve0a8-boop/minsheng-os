@@ -41,9 +41,9 @@ intent 限 LEVEL/SHARE/MECHANISM/GAP_REVIEW/SCENARIO/CAUSAL_SUPPORT/COMPARE_BASI
 - ASSUMPTION：id/type/text/evidenceIds/dependsOn；text 必须显式以“假设”开始，引用合法。已有案例情景必须保留引用；自由假设不升级为观测。
 - INFERENCE：id/type/text/evidenceIds/dependsOn/uncertainty/causalStatus；依赖必须指向此前的 claim，拒绝自环/前向引用/重复引用。引用必须由直接依赖的证据集合支撑，不能顺手挂一个无依赖来源。uncertainty 固定 HYPOTHESIS_ONLY，causalStatus 固定 NOT_IDENTIFIED。
 
-所有自由 ASSUMPTION/INFERENCE 均标 `HUMAN_REVIEW_REQUIRED`、`semanticTruthVerified:false`、`displayAsVerified:false`；这些标签由校验器生成，provider 无权传入。限制文本长度、控制符/HTML、数字结果及明显“必然/已证实/因果已识别”等措辞；该拦截不是自然语言证明器，也不能识别所有隐含断言。尚未复核的自由文本只能作为待审核候选保存/阅读，未来 UI 不得呈现为 VERIFIED 答案。事实、已知缺口和已有情景引用必须完整保留，删空、丢 warning 或把情景当事实均拒绝。
+所有自由 ASSUMPTION/INFERENCE 均标 `HUMAN_REVIEW_REQUIRED`、`semanticTruthVerified:false`、`displayAsVerified:false`；这些标签由校验器生成，provider 无权传入。限制文本长度、控制符/HTML、阿拉伯/全角数字、常见中文数额/比例和英文金额表达，以及明显“必然/已证实/因果已识别”等措辞；该拦截不是自然语言证明器，不能识别所有语言、隐含数值或断言。尚未复核的自由文本只能作为待审核候选保存/阅读，未来 UI 不得呈现为 VERIFIED 答案。事实、已知缺口和已有情景引用必须完整保留，删空、丢 warning 或把情景当事实均拒绝。
 
-没有新增中国全国因果系数、公共支出数据或居民总损失。机械情景数字仍来自已有案例，本阶段模型不得通过自由文字提出新数值；新增计算合同不在本轮。外国研究/代理参数没有自动纳入。
+没有新增中国全国因果系数、公共支出数据或居民总损失。机械情景数字仍来自已有案例；新增数值字段只能逐项匹配既有事实，新增计算合同不在本轮。自由文字中未被规则识别的数额也只会进入人工审核候选，不能自动成为已验证事实。外国研究/代理参数没有自动纳入。
 
 ## 实际离线示例：土地收入下降与公共支出
 

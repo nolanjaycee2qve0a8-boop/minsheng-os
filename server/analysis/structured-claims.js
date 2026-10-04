@@ -31,7 +31,8 @@ function preflight(payload,budget){
  return {inputTokenUpperBound,outputTokenCap:outputTokens,reservedMicroUsd,actualCostMicroUsd:0};
 }
 const FIXTURES=freeze(['ACCEPTED','BAD_CITATION','WRONG_UNIT','WRONG_PERIOD','UNSUPPORTED_CAUSAL','SCHEMA_INVALID','FAIL']);
-const textCheck=text=>{if(typeof text!=='string'||!text.trim()||text.length>600||/[\x00-\x1f<>]|javascript:|system:|忽略规则|[0-9０-９%％]|亿元|万亿元|已证实|必然|确定导致|充分证明|因果已识别/.test(text))fail('FREE_CLAIM_REJECTED')};
+const amountText=/[零〇一二三四五六七八九十百千万亿两壹贰叁肆伍陆柒捌玖拾佰仟萬億兩]+(?:点[零〇一二三四五六七八九]+)?\s*(?:元|万元|亿元|万亿元|个百分点|成|倍|户|人|年|月|日)|百分之|减半|翻番|\b(?:zero|one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand|million|billion)(?:[ -]+(?:hundred|thousand|million|billion|and|one|two|three|four|five|six|seven|eight|nine|ten))*\s+(?:dollars?|yuan|percent)\b/i;
+const textCheck=text=>{if(typeof text!=='string'||!text.trim()||text.length>600||/[\x00-\x1f<>]|javascript:|system:|忽略规则|[0-9０-９%％]|亿元|万亿元|已证实|必然|确定导致|充分证明|因果已识别/.test(text)||amountText.test(text))fail('FREE_CLAIM_REJECTED')};
 function fixtureResponse(base,entry){
  const claims=[];
  for(const fact of base.facts){const c=base.citations.find(x=>x.id===fact.id);claims.push({id:`f_${claims.length}`,type:'FACT',evidenceId:c.id,evidenceClassification:c.classification,value:c.value,unit:c.unit,period:c.period,geography:c.geography,scope:c.scope})}
