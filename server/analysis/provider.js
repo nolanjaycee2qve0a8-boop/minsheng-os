@@ -4,9 +4,9 @@
 // transfer. Do not make this URL configurable from a browser request.
 const DEEPSEEK_ENDPOINT = 'https://api.deepseek.com/chat/completions';
 const DEFAULT_MODEL = 'deepseek-chat';
-const MAX_EVIDENCE_CHARS = 12000;
 const MAX_RESPONSE_BYTES = 32768;
 const REQUEST_TIMEOUT_MS = 8000;
+const { approvedEvidence, validateSelection } = require('../../modules/evidence-id-selection');
 
 function configString(env, name, fallback) {
   const value = env[name];
@@ -38,17 +38,6 @@ async function textAtMost(response, maximum) {
     }
   } finally { reader.releaseLock?.(); }
   return Buffer.concat(chunks.map(chunk => Buffer.from(chunk))).toString('utf8');
-}
-function approvedEvidence(statements) {
-  if (!Array.isArray(statements) || !statements.length || statements.length > 8) throw new Error('PROVIDER_INPUT_INVALID');
-  const ids = new Set(); let size = 0;
-  const evidence = statements.map(({ id, text }) => {
-    if (typeof id !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(id) || ids.has(id) || typeof text !== 'string') throw new Error('PROVIDER_INPUT_INVALID');
-    ids.add(id); size += text.length;
-    return { id, text };
-  });
-  if (size > MAX_EVIDENCE_CHARS) throw new Error('PROVIDER_INPUT_INVALID');
-  return evidence;
 }
 
 function createProvider({ env = process.env, fetchImpl = globalThis.fetch, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
@@ -82,10 +71,7 @@ function createProvider({ env = process.env, fetchImpl = globalThis.fetch, timeo
         const payload = cleanJson(await textAtMost(response, MAX_RESPONSE_BYTES));
         const content = payload?.choices?.[0]?.message?.content;
         const selected = cleanJson(typeof content === 'string' ? content : '');
-        const allowedIds = new Set(evidence.map(item => item.id));
-        if (!Array.isArray(selected?.ids) || !selected.ids.length || selected.ids.length > 8 ||
-            new Set(selected.ids).size !== selected.ids.length || selected.ids.some(id => typeof id !== 'string' || !allowedIds.has(id))) throw new Error('PROVIDER_RESPONSE_INVALID');
-        return selected.ids;
+        return validateSelection(selected?.ids, evidence);
       } catch (_) {
         // Do not expose provider body, request content, endpoint credentials, or errors.
         throw new Error('PROVIDER_FAILED');
