@@ -31,4 +31,5 @@ const moduleText=fs.readFileSync('modules/property-livelihood-case.js','utf8');o
 ok(moduleText.includes('排除输入与治理缺口')&&moduleText.includes('excludedInputs'),'browser renderer exposes excluded inputs and governance gaps');
 ok(moduleText.includes("history.pushState(null,'','#case/property-livelihood-case')"),'case route differs from cockpit overview so overview and browser-back navigation remain effective');
 ok(moduleText.includes("addEventListener('hashchange',syncActive)")&&moduleText.includes("addEventListener('popstate',syncActive)"),'case navigation highlight clears when cockpit navigation or browser history restores another route');
-while(n<38)ok(true,'v0.34 coverage guard');console.log(`v0.34 property livelihood case tests PASS (${n} assertions)`);
+ok(report.evidence.find(x=>x.statementId==='s_land_share').temporalBasis==='同期派生比率','DERIVED ratio keeps its ratio basis despite cumulative flow inputs');
+ok(index.indexOf('modules/property-livelihood-case.js')<index.indexOf('modules/research-cockpit.js'),'case captures the initial route before cockpit initialization');console.log(`v0.34 property livelihood case tests PASS (${n} assertions)`);
