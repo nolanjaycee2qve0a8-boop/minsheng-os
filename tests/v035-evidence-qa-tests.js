@@ -45,8 +45,16 @@ const income=api.TOPICS[0].question,land=api.TOPICS[2].question;
   s=>{s.report.evidence.find(x=>x.statementId==='s_lgfv_gap').value=12345},
   s=>{delete s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').periodStart},
   s=>{delete s.documents.find(x=>x.id==='doc_nbs_income_2026h1_live_v014').dataPeriodStart}
+  ,s=>{delete s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').asOf}
+  ,s=>{delete s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').provenance.checksum}
+  ,s=>{s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').provenance.locator='forged locator'}
+  ,s=>{delete s.documents.find(x=>x.id==='doc_nbs_income_2026h1_live_v014').publicationDate}
  ]){const snapshot=snap();mutate(snapshot);const a=api.answer(income,null,{snapshot}),debt=api.answer(api.TOPICS[3].question,null,{snapshot});ok([...a.diagnostics,...debt.diagnostics].some(x=>x.reasons?.length),'classification, source binding and timing corruption blocked');ok(!JSON.stringify([...a.claims,...debt.claims]).includes('999')&&!JSON.stringify([...a.claims,...debt.claims]).includes('12345'),'fabricated values suppressed')}
  const rewritten=api.createSession({respond:()=>api.answer(income)});eq((await rewritten.send('法国收入多少？')).status,'INVALID_CITATION','response cannot rewrite submitted question');eq(rewritten.history,[]);
+ for(const question of ['银行的人均收入是多少？','银行居民收入是多少？','银行土地收入是多少？','地方债居民收入是多少？']){eq(api.answer(question).status,'UNSUPPORTED_QUESTION',question);eq(api.answer(question).claims,[])}
+ for(const mutate of [x=>{x.claims=[];x.citations=[]},x=>{x.claims.pop();x.citations.pop()},x=>x.claims.push(copy(x.claims[0]))]){const x=copy(r);mutate(x);eq(api.validateAnswer(x),false,'incomplete or repeated canonical answer rejected')}
+ const hijacked=api.createSession({respond:q=>api.answer(q,{topicId:'fiscal'})});eq((await hijacked.send('那来源呢？')).status,'INVALID_CITATION','no prior context may be invented');eq(hijacked.history,[]);
+ const swapped=api.createSession({respond:(q,ctx)=>api.answer(q,q===income?ctx:{topicId:'fiscal'})});await swapped.send(income);eq((await swapped.send('那来源呢？')).status,'INVALID_CITATION','existing income context cannot become fiscal');eq(swapped.context.topicId,'income');eq(swapped.history.length,1);
  const session=api.createSession();await session.send(income);const followup=await session.send('那来源和单位呢？');eq(followup.context.topicId,'income');eq(session.history.length,2);session.reset();eq(session.history,[]);eq(session.context,null);
  let resolve;const deferred=api.createSession({respond:()=>new Promise(done=>resolve=done)}),first=deferred.send(income);eq((await deferred.send(income)).status,'BUSY');deferred.cancel();resolve(api.answer(income));eq((await first).status,'CANCELLED');eq(deferred.history,[]);eq(deferred.pending,false);
  let resolveOld;const race=api.createSession({respond:()=>new Promise(done=>resolveOld=done)}),old=race.send(income);race.reset();resolveOld(api.answer(income));eq((await old).status,'CANCELLED');eq(race.context,null);

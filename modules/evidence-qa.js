@@ -11,7 +11,7 @@ window.MinshengEvidenceQA=(()=>{
   {id:'debt',label:'法定地方债',question:'6月末法定地方政府债务余额是多少？',ids:['s_legal_debt','s_lgfv_gap'],match:/法定地方政府债务|地方政府(?:法定)?债务|法定地方债|地方债/},
   {id:'limits',label:'缺口与情景边界',question:'能判断居民偿债、全国银行损失和LGFV敞口吗？',ids:['s_household_blocked','s_bank_scenario','s_lgfv_gap'],match:/缺口|阻断|损失|偿债|风险|lgfv|城投|因果|预测|情景|房价/}
  ]);
- TOPICS.forEach(t=>{Object.freeze(t.ids);Object.freeze(t)});
+ TOPICS.forEach(t=>{Object.freeze(t.ids);Object.freeze(t.match);Object.freeze(t)});
  const BOUNDARY='只描述已登记证据，不证明因果。累计流量与期末存量不得拼成同一当期快照。情景不是事实或预测；毛收入不是净财政资源；银行样本不代表全国。';
  const own=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
  function classify(question,context=null){
@@ -24,8 +24,9 @@ window.MinshengEvidenceQA=(()=>{
   if(/北京|天津|上海|重庆|杭州|浙江|江苏|广东|深圳|四川|山东|湖北|湖南|福建|安徽|江西|河南|河北|山西|陕西|甘肃|青海|贵州|云南|广西|海南|辽宁|吉林|黑龙江|内蒙古|新疆|西藏|宁夏|香港|澳门|台湾|城市|省份|某省|城镇|农村|某银行|某行|美国|日本|欧洲/.test(q))return {status:'SCOPE_MISMATCH',reason:'没有该地域或机构范围的已审查证据，不能用全国量替代。'};
   if(!/上半年|h1|1[—-]6月/.test(q)&&(/(?:\d{1,2}|一|二|三|四|五|六)月.*收入/.test(q)||/(?:[1-5]|一|二|三|四|五)月/.test(q)))return {status:'TIME_MISMATCH',reason:'没有该单月口径的合格证据，不能把半年累计量拆成单月。'};
   const limit=TOPICS.find(t=>t.id==='limits'),matched=limit.match.test(q)?[limit]:TOPICS.filter(t=>t.id!=='limits'&&t.match.test(q));
+  if(matched.length>1&&!/和|与|及|、|对比/.test(q))return {status:'UNSUPPORTED_QUESTION',reason:'不同指标必须明确分别询问，不能把指标串接成新范围。'};
   // A closed vocabulary prevents a new geography, device or adjacent measure being silently substituted.
-  const residual=q.replace(/居民正式债务服务计算|房地产开发贷款(?:余额)?|开发贷款(?:余额)?|开发贷(?:余额)?|开发商融资|房企融资|居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入|国有土地使用权出让收入|土地(?:使用权)?(?:出让)?(?:毛)?收入|土地出让|土地财政|法定地方政府债务(?:余额)?|地方政府(?:法定)?债务(?:余额)?|法定地方债|地方债|地方政府性基金本级收入|全国银行损失|银行损失|银行|lgfv敞口|lgfv|城投|居民偿债|偿债|房地产下行|研究缺口|阻断项|缺口|阻断|因果|情景|对比|预测|风险|房价|损失|敞口|2026年?|上半年|h1|1[—-]6月|6月末|六月末|6月|六月|全国|中国|能判断|不能判断|可以判断|能证明|能说明|有哪些|是什么|是多少|多少|能|不能|如何|为什么|说明|导致|还有|及其|及|和|与|的|那|这个|它|来源|出处|单位|口径|限制|占比|比重|情况|吗|呢|请|问|[？?，,、。；;：:]/g,'');
+  const residual=q.replace(/居民正式债务服务计算|房地产开发贷款(?:余额)?|开发贷款(?:余额)?|开发贷(?:余额)?|开发商融资|房企融资|居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入|国有土地使用权出让收入|土地(?:使用权)?(?:出让)?(?:毛)?收入|土地出让|土地财政|法定地方政府债务(?:余额)?|地方政府(?:法定)?债务(?:余额)?|法定地方债|地方债|地方政府性基金本级收入|全国银行损失|银行损失|lgfv敞口|lgfv|城投|居民偿债|偿债|房地产下行|研究缺口|阻断项|缺口|阻断|因果|情景|对比|预测|风险|房价|损失|敞口|2026年?|上半年|h1|1[—-]6月|6月末|六月末|6月|六月|全国|中国|能判断|不能判断|可以判断|能证明|能说明|有哪些|是什么|是多少|多少|能|不能|如何|为什么|说明|导致|还有|及其|及|和|与|的|那|这个|它|来源|出处|单位|口径|限制|占比|比重|情况|吗|呢|请|问|[？?，,、。；;：:]/g,'');
   if(residual)return {status:'UNSUPPORTED_QUESTION',reason:'问题包含本轮合同外的范围、对象或指标，不能用相邻证据替代。'};
   const followup=!matched.length&&/^(?:那|这个|它)?(?:的)?(?:来源|出处|单位|口径|限制|为什么|能说明)(?:(?:和|与)(?:来源|出处|单位|口径|限制))*(?:是什么|有哪些|呢|吗)?[？?]*$/.test(q)&&context&&TOPICS.some(t=>t.id===context.topicId);
   const topics=followup?[TOPICS.find(t=>t.id===context.topicId)]:matched;
@@ -52,12 +53,14 @@ window.MinshengEvidenceQA=(()=>{
      const record=found[0];refs.push(record);
      const original=approvedRecords.find(r=>r.id===id);
      if(!original||['value','unit','period','periodStart','periodEnd','geography','sectorScope','sourceDocumentId'].some(k=>record[k]===undefined||record[k]!==original[k]))issues.push('RECORD_CONTRACT_CONFLICT');
+     if(original&&['asOf','releaseDate','provenance'].some(k=>JSON.stringify(record[k])!==JSON.stringify(original[k])))issues.push('RECORD_CONTRACT_CONFLICT');
      if(record.fixture===true||record.provenance?.fixture===true||record.status!=='REAL'||record.qualification==='BLOCKED')issues.push('UNQUALIFIED_RECORD');
      if(record.stale===true||record.status==='STALE'||record.staleStatus==='STALE'||(record.qualityFlags||[]).includes('STALE')||(record.revision??0)!==0)issues.push('STALE');
      if(record.period!==item.period||record.geography!==item.geography)issues.push('SCOPE_PERIOD_CONFLICT');
      const docs=documents.filter(d=>d.id===record.sourceDocumentId),doc=docs[0];
      const originalDoc=approvedDocuments.find(d=>d.id===record.sourceDocumentId);
      if(!originalDoc||!doc||['originalUrl','dataPeriodStart','dataPeriodEnd'].some(k=>doc[k]===undefined||doc[k]!==originalDoc[k]))issues.push('SOURCE_TIME_BINDING_CONFLICT');
+     if(originalDoc&&doc&&['asOf','publicationDate','checksum'].some(k=>JSON.stringify(doc[k])!==JSON.stringify(originalDoc[k])))issues.push('SOURCE_TIME_BINDING_CONFLICT');
      if(docs.length!==1||!doc||doc.fixture===true||doc.status!=='REAL_SOURCE'||!/^https?:\/\//.test(doc.originalUrl||'')||!record.provenance?.locator)issues.push('MISSING_OR_CONFLICTING_SOURCE');
      if(doc?.stale===true)issues.push('STALE');
     }
@@ -98,10 +101,11 @@ window.MinshengEvidenceQA=(()=>{
   result.context={topicId:match.topicIds[0]};
   return result;
  }
- function validateAnswer(result){
+ function validateAnswer(result,expectedContext=null){
   if(!result||!Array.isArray(result.claims)||!Array.isArray(result.citations))return false;
   if(result.mode!=='LOCAL_CITED_DETERMINISTIC'||result.providerUsed!==false)return false;
-  const canonical=answer(result.question,result.context),authorized=new Map(canonical.citations.map(x=>[x.id,x]));
+  const canonical=answer(result.question,expectedContext),authorized=new Map(canonical.citations.map(x=>[x.id,x]));
+  if(['claims','citations'].some(k=>JSON.stringify(result[k])!==JSON.stringify(canonical[k])))return false;
   if(['status','notice','boundary','context','diagnostics'].some(k=>JSON.stringify(result[k])!==JSON.stringify(canonical[k])))return false;
   if(result.citations.some(x=>!authorized.has(x.id)||JSON.stringify(x)!==JSON.stringify(authorized.get(x.id))))return false;
   const ids=new Set(result.citations.map(x=>x.id));
@@ -112,9 +116,9 @@ window.MinshengEvidenceQA=(()=>{
   return {get history(){return clone(history)},get pending(){return !!pending},get context(){return clone(context)},
    async send(question){
     if(pending)return {status:'BUSY',notice:'已有问题处理中，请等待或取消。'};
-    const token=++sequence;pending=token;
-    try{const response=await respond(question,clone(context));if(pending!==token)return {status:'CANCELLED'};
-     if(response?.question!==question||!validateAnswer(response))return {status:'INVALID_CITATION',notice:'答案引用校验失败，已拒绝。'};
+    const token=++sequence,priorContext=clone(context);pending=token;
+    try{const response=await respond(question,clone(priorContext));if(pending!==token)return {status:'CANCELLED'};
+     if(response?.question!==question||!validateAnswer(response,priorContext))return {status:'INVALID_CITATION',notice:'答案引用校验失败，已拒绝。'};
      if(response.context)context=response.context;history.push(clone(response));if(history.length>20)history.shift();return clone(response);
     }catch{return pending!==token?{status:'CANCELLED'}:{status:'ERROR',notice:'证据不可用，未生成判断。'}}finally{if(pending===token)pending=null}
    },cancel(){pending=null;sequence++},reset(){pending=null;sequence++;context=null;history.length=0}
