@@ -5,6 +5,7 @@ window.MinshengEvidenceQAWorkspace=(()=>{
  const escape=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const session=api.createSession({respond:(question,context)=>new Promise(resolve=>setTimeout(()=>resolve(api.answer(question,context)),0))});
  let draft='',notice='',generation=0;
+ const leave=()=>{session.cancel();generation++};
  const root=()=>document.getElementById('researchCockpitRoot');
  function citationHtml(item,index,turn){
   const links=(item.sourceLinks||[]).filter(s=>/^https?:\/\//.test(s.url||'')).map(s=>`<a href="${escape(s.url)}" target="_blank" rel="noopener noreferrer">${escape(s.title)}</a>`).join(' · ');
@@ -25,7 +26,7 @@ window.MinshengEvidenceQAWorkspace=(()=>{
   });
   host.querySelector('[data-qa-cancel]').onclick=()=>{session.cancel();generation++;notice='已取消，未保存回答。';render()};
   host.querySelector('[data-qa-reset]').onclick=()=>{session.reset();generation++;draft='';notice='新对话已开始，追问上下文已清空。';render()};
-  host.querySelector('[data-qa-back]').onclick=()=>{location.hash='#cockpit/overview'};
+  host.querySelector('[data-qa-back]').onclick=()=>{leave();location.hash='#cockpit/overview'};
   host.querySelectorAll('[data-qa-example]').forEach(button=>button.onclick=()=>{draft=api.TOPICS.find(t=>t.id===button.dataset.qaExample).question;input.value=draft;input.focus()});
   host.querySelectorAll('[data-qa-cite]').forEach(link=>link.onclick=event=>{event.preventDefault();const target=document.getElementById(link.dataset.qaCite);target?.scrollIntoView({block:'center'});target?.focus({preventScroll:true})});
  }
@@ -34,6 +35,7 @@ window.MinshengEvidenceQAWorkspace=(()=>{
   const button=document.createElement('button');button.className='nav-item';button.dataset.qaRoute='evidence';button.textContent='有证据引用的问答';
   const sync=()=>{if(location.hash===route){nav.querySelectorAll('.nav-item').forEach(x=>x.classList.toggle('active',x===button));render()}else{button.classList.remove('active');session.cancel();generation++}};
   button.onclick=()=>{if(location.hash!==route)history.pushState(null,'',route);sync()};nav.querySelector('[data-cockpit-reset]')?.before(button);
+  nav.addEventListener('click',event=>{if(location.hash===route&&event.target.closest('[data-cockpit-route],[data-case-route],[data-cockpit-reset]'))leave()},true);
   addEventListener('hashchange',sync);addEventListener('popstate',sync);
   if(initialRoute){history.replaceState(null,'',route);sync()}
  }
