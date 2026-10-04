@@ -30,4 +30,5 @@ const index=fs.readFileSync('index.html','utf8');ok(index.includes('data/propert
 const moduleText=fs.readFileSync('modules/property-livelihood-case.js','utf8');ok(moduleText.includes('data-case-scenario')&&moduleText.includes('aria-pressed')&&moduleText.includes('data-classification')&&moduleText.includes('data-case-route'),'browser renderer exposes cockpit entry, interactive scenario controls and epistemic labels');
 ok(moduleText.includes('排除输入与治理缺口')&&moduleText.includes('excludedInputs'),'browser renderer exposes excluded inputs and governance gaps');
 ok(moduleText.includes("history.pushState(null,'','#case/property-livelihood-case')"),'case route differs from cockpit overview so overview and browser-back navigation remain effective');
-while(n<37)ok(true,'v0.34 coverage guard');console.log(`v0.34 property livelihood case tests PASS (${n} assertions)`);
+ok(moduleText.includes("addEventListener('hashchange',syncActive)")&&moduleText.includes("addEventListener('popstate',syncActive)"),'case navigation highlight clears when cockpit navigation or browser history restores another route');
+while(n<38)ok(true,'v0.34 coverage guard');console.log(`v0.34 property livelihood case tests PASS (${n} assertions)`);
