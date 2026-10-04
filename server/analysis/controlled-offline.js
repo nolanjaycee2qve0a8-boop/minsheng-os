@@ -50,7 +50,7 @@ function createOfflineAnalysis({simulation='NO_KEY',selectionIds=[]}={}){
  }});
  function local(question){
   const entry=QUESTIONS.find(x=>x.question===question);
-  const out={mode:'OFFLINE_CONTROLLED_ANALYSIS',question,status:entry?'LIMITED_ANALYSIS':'UNSUPPORTED_QUESTION',providerUsed:false,externalRequests:0,facts:[],assumptions:[],causalInferences:[],gaps:[],citations:[],conclusion:'不能作确定的因果结论。',boundary:'仅使用获准的本地结构化证据；情景不是事实或预测，毛收入不是净财政资源，银行样本不是全国，UNKNOWN不得补零；无已验证的跨部门总损失。'};
+  const out={mode:'OFFLINE_CONTROLLED_ANALYSIS',question,status:entry?'LIMITED_ANALYSIS':'UNSUPPORTED_QUESTION',providerUsed:false,externalRequests:0,facts:[],assumptions:[],causalInferences:[],gaps:[],citations:[],conclusion:'不能作确定的因果结论。',boundary:'仅使用获准的本地结构化证据；情景不是事实或预测，毛收入不是净财政资源，银行样本不是全国，UNKNOWN不得补零；累计流量与期末存量不得拼成同一当期快照或相加；无已验证的跨部门总损失。'};
   if(!entry)return out;
   const topics=entry.topic==='chain'?['income','loans','fiscal','debt']:entry.topic==='scenario'?['scenario']:entry.topic?[entry.topic]:[];
   const items=new Map();
@@ -67,7 +67,7 @@ function createOfflineAnalysis({simulation='NO_KEY',selectionIds=[]}={}){
  const noticeFor=status=>status==='OFFLINE_MOCK_SELECTED'?'仅为内存 mock 的 ID 选择；正文仍由本地证据重建。':status==='OFFLINE_PROVIDER_FAILED'?'离线模拟 provider 失败；已返回本地受限分析，不是模型回答。':'离线本地分析；未配置或未调用外部 provider，不是模型回答。';
  const selectableFrom=result=>result.citations.filter(x=>['REAL','DERIVED','SCENARIO'].includes(x.classification)).slice(0,8).map(x=>({id:x.id,text:x.text}));
  async function analyze(request){
-  if(!request||typeof request!=='object'||Array.isArray(request)||Object.keys(request).join(',')!=='question'||typeof request.question!=='string'||request.question.length>500||/[\x00-\x1f]/.test(request.question))return {mode:'OFFLINE_CONTROLLED_ANALYSIS',status:'INVALID_REQUEST',providerUsed:false,externalRequests:0};
+  if(!request||typeof request!=='object'||Array.isArray(request)||Object.keys(request).join(',')!=='question'||typeof request.question!=='string'||!request.question.trim()||request.question.length>500||/[\x00-\x1f]/.test(request.question))return {mode:'OFFLINE_CONTROLLED_ANALYSIS',status:'INVALID_REQUEST',providerUsed:false,externalRequests:0};
   const result=local(request.question),selectable=selectableFrom(result);
   let providerStatus='OFFLINE_NOT_NEEDED',selectedEvidenceIds=[];
   if(selectable.length){
