@@ -1,12 +1,14 @@
 'use strict';
 const crypto=require('node:crypto');
-const {createStructuredSandbox}=require('./structured-claims');
+const {createStructuredSandbox,CATALOG}=require('./structured-claims');
 const {PRICING,POLICY,usageCost}=require('./generation-pricing');
 const {isLiveTransport,checkTransportReady}=require('./generation-transport');
 const ENDPOINT='https://api.deepseek.com/chat/completions',MAX_RESPONSE_BYTES=65536;
 const SYSTEM='Return JSON only, {"schemaVersion":"v037-claims-1","claims":[...]}. Use only supplied evidence. Copy EVERY REAL/DERIVED as FACT {id,type,evidenceId,evidenceClassification,value,unit,period,geography,scope}; copy EVERY GAP/UNKNOWN/BLOCKED as GAP {id,type,evidenceId}. For every SCENARIO include ASSUMPTION {id,type,text,evidenceIds,dependsOn}; text starts with 假设. You may add conditional ASSUMPTION and INFERENCE {id,type,text,evidenceIds,dependsOn,uncertainty:"HYPOTHESIS_ONLY",causalStatus:"NOT_IDENTIFIED"}. Dependencies reference earlier claim IDs; inference citations must follow dependencies. No numeric free prose or proven causal claims. All free prose needs human review; citations do not identify causality. No extra fields, tools, private data or outside sources.';
-async function prepareGeneration(summary){
- const prepared=await createStructuredSandbox().prepare(summary),body={model:PRICING.model,thinking:{type:'disabled'},temperature:0,max_tokens:POLICY.maxOutputTokens,stream:false,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM},{role:'user',content:JSON.stringify(prepared.payload)}]},inputEnvelopeBytes=Buffer.byteLength(JSON.stringify(body),'utf8')+1024;
+async function prepareGeneration(summary,{live=false}={}){
+ const prepared=await createStructuredSandbox().prepare(summary),canonical=prepared.payload.questionSummary;
+ const publicPayload=live?{...prepared.payload,questionSummary:{topic:CATALOG.find(x=>JSON.stringify(x.summary)===JSON.stringify(canonical)).id,metricIds:canonical.metricIds,period:canonical.period,geography:canonical.geography}}:prepared.payload;
+ const body={model:PRICING.model,thinking:{type:'disabled'},temperature:0,max_tokens:POLICY.maxOutputTokens,stream:false,response_format:{type:'json_object'},messages:[{role:'system',content:SYSTEM},{role:'user',content:JSON.stringify(publicPayload)}]},inputEnvelopeBytes=Buffer.byteLength(JSON.stringify(body),'utf8')+1024;
  if(inputEnvelopeBytes>POLICY.maxInputTokens)throw Error('INPUT_ENVELOPE_EXCEEDED');return {prepared,body,inputEnvelopeBytes};
 }
 function createGenerationAdapter({ledger,transport=null,liveEnabled=false,timeoutMs=8000}={}){
@@ -28,7 +30,7 @@ function createGenerationAdapter({ledger,transport=null,liveEnabled=false,timeou
   let prepared,body,digest;
   try{
    if(live)checkTransportReady(transport);
-   ({prepared,body}=await prepareGeneration(summary));
+   ({prepared,body}=await prepareGeneration(summary,{live}));
    digest=crypto.createHash('sha256').update(JSON.stringify({body,priceVersion:PRICING.version,policyVersion:POLICY.version})).digest('hex');if(!transportUnchanged())throw Error('TRANSPORT_CHANGED');
   }catch{return {...meta,status:'PREFLIGHT_REJECTED'}}
   const previous=pending.get(requestId);if(previous){if(previous.digest!==digest)return {...meta,status:'REQUEST_ID_REUSED_FOR_DIFFERENT_PAYLOAD'};return previous.promise}

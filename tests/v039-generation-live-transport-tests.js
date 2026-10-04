@@ -27,7 +27,7 @@ const request=body=>({url:ENDPOINT,method:'POST',body,redirect:'error',credentia
  process.env=new Proxy({}, {get:(_,key)=>{if(String(key).includes('KEY')){secretReads++;throw Error('SECRET_READ_FORBIDDEN')}return undefined}});
  try{
   eq(liveReserveCost(),316493);eq(LIVE_POLICY.maxAttempts,20);eq(LIVE_POLICY.totalMicroUsd,1000000);eq(LIVE_POLICY.autoRenew,false);ok(!Object.hasOwn(LIVE_POLICY,'monthlyMicroUsd'));
-  const check=await inspect();eq(check.externalRequests,0);eq(check.secretReads,0);eq(check.inputs.length,20);eq(Math.max(...check.inputs.map(x=>x.inputEnvelopeBytes)),5862);eq(check.placeholderSyntaxConfirmed,false);
+  const check=await inspect();eq(check.externalRequests,0);eq(check.secretReads,0);eq(check.inputs.length,20);eq(Math.max(...check.inputs.map(x=>x.inputEnvelopeBytes)),5833);eq(check.placeholderSyntaxConfirmed,false);
   eq((await runPilot(parseOptions(['--check']))).status,'OFFLINE_LAUNCH_CHECK');
   for(const args of [[],['--live'],['--check','--live'],['--topic','q01','--topic','q02'],['--endpoint','https://evil.example']])throws(()=>parseOptions(args),/PILOT_/);
   for(const change of [{networkReady:false},{secretReady:false},{priceVersion:'wrong'},{priceCheckedAt:'2026-10-03'},{pilot:'wrong'}])throws(()=>createLiveTransport({handoff:{...handoff,...change},networkSecret,now}),/LIVE_HANDOFF/);
@@ -35,7 +35,7 @@ const request=body=>({url:ENDPOINT,method:'POST',body,redirect:'error',credentia
   for(const metadata of [undefined,{...networkSecret,domain:'evil.example'},{...networkSecret,key:'OTHER_KEY'},{...networkSecret,source:'ENV_SECRET'},{...networkSecret,placeholder:'bad\r\nheader'}])throws(()=>createLiveTransport({handoff,networkSecret:metadata,now}),/NETWORK_SECRET/);
   throws(()=>createGenerationAdapter({ledger:fresh().ledger,liveEnabled:true,transport:{mode:'LIVE',send:deny}}),/LIVE_REQUIRES/);
   const sandbox=createStructuredSandbox(),responses=new Map();for(const topic of CATALOG)responses.set(JSON.stringify(topic.summary),raw(await sandbox.run(topic.summary)));
-  const batch=fresh(),state=fakeHttps(body=>({body:JSON.stringify(envelope(responses.get(JSON.stringify(JSON.parse(JSON.parse(body).messages[1].content).questionSummary))))}),options=>{
+  const batch=fresh(),state=fakeHttps(body=>{const projection=JSON.parse(JSON.parse(body).messages[1].content).questionSummary;eq(Object.keys(projection).sort(),['geography','metricIds','period','topic']);const topic=CATALOG.find(t=>t.id===projection.topic);eq(projection.metricIds,topic.summary.metricIds);eq(projection.period,topic.summary.period);eq(projection.geography,'CN');return {body:JSON.stringify(envelope(responses.get(JSON.stringify(topic.summary))))}},options=>{
    eq(options.hostname,'api.deepseek.com');eq(options.path,'/chat/completions');eq(options.protocol,'https:');eq(options.port,443);eq(options.method,'POST');eq(options.rejectUnauthorized,true);eq(options.servername,'api.deepseek.com');eq(options.minVersion,'TLSv1.2');eq(options.agent,false);eq(options.headers.Authorization,'Bearer OFFLINE_TEST_NETWORK_SENTINEL');eq(options.headers['Accept-Encoding'],'identity');ok(!Object.hasOwn(options,'proxy'));
   });
   const transport=live(state),adapter=createGenerationAdapter({ledger:batch.ledger,transport,liveEnabled:true});

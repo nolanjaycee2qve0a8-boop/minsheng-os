@@ -14,14 +14,14 @@ function parseOptions(args){
  if(!result['--live']||!result['--handoff-ready']||[...values].some(k=>!result[k])||!CATALOG.some(x=>x.id===result['--topic']))throw Error('PILOT_HANDOFF_REQUIRED');return result;
 }
 async function inspect(){
- const inputs=[];for(const topic of CATALOG){const prepared=await prepareGeneration(topic.summary);inputs.push({topic:topic.id,inputEnvelopeBytes:prepared.inputEnvelopeBytes})}
+ const inputs=[];for(const topic of CATALOG){const prepared=await prepareGeneration(topic.summary,{live:true});inputs.push({topic:topic.id,inputEnvelopeBytes:prepared.inputEnvelopeBytes})}
  return {status:'OFFLINE_LAUNCH_CHECK',secretName:SECRET_NAME,networkSecretDomain:'api.deepseek.com',authorizationFormat:'Bearer <official non-secret placeholder>',placeholderSyntaxConfirmed:false,ledgerFile:LEDGER_FILE,policy:LIVE_POLICY,pricing:PRICING,reservedMicroUsd:liveReserveCost(),inputMeasurement:'UTF8_BYTES_PLUS_1024_NOT_ACTUAL_TOKENIZER',inputs,externalRequests:0,secretReads:0};
 }
 async function runPilot(options,{ledgerFile=LEDGER_FILE,requestImpl,now=()=>new Date()}={}){
  if(options.check)return inspect();
  const topic=CATALOG.find(x=>x.id===options['--topic']);if(!topic||options['--live']!==true||options['--handoff-ready']!==true)throw Error('PILOT_HANDOFF_REQUIRED');
  const handoff={pilot:PILOT,networkReady:true,secretReady:true,priceVersion:options['--price-version'],priceCheckedAt:options['--price-checked']};validateHandoff(handoff,now);
- await prepareGeneration(topic.summary);
+ await prepareGeneration(topic.summary,{live:true});
  const directory=path.dirname(ledgerFile);if(!fs.existsSync(directory)||!fs.lstatSync(directory).isDirectory()||(fs.statSync(directory).mode&0o077)!==0)throw Error('PILOT_PRIVATE_PERSISTENT_DIRECTORY_REQUIRED');
  const lock=path.join(directory,'pilot-run.lock');let fd;try{fd=fs.openSync(lock,fs.constants.O_WRONLY|fs.constants.O_CREAT|fs.constants.O_EXCL|fs.constants.O_NOFOLLOW,0o600)}catch{throw Error('PILOT_ALREADY_RUNNING_OR_STALE_LOCK')}
  try{
