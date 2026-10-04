@@ -34,6 +34,7 @@
     "tests/v030-official-data-ops-tests.js",
     "tests/v031-official-release-watch-tests.js",
     "tests/v032-evidence-briefing-tests.js",
+    "tests/v034-property-livelihood-case-tests.js",
     "tests/v09-calibration-tests.js",
     "tests/v091-historical-backfill-tests.js",
     "tests/v092-nbs-historical-tests.js",
