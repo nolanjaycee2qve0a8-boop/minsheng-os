@@ -47,6 +47,6 @@ function createBudgetLedger({file,now=()=>new Date(),limits={},policyKind='OFFLI
    r.state='SETTLED';r.heldMicroUsd=billed.costMicroUsd;r.usage=billed.usage;r.result=copy(overrun?{status:'USAGE_OVERRUN_BUDGET_FROZEN',mode:live?'LIVE_CONTROLLED_GENERATION':'OFFLINE_INJECTED_GENERATION',providerUsed:live,externalRequests:live?1:0,actualCostMicroUsd:live?null:0}:result);r.overrun=overrun;if(overrun)state.blocked=true;return r;
   });
  }
- return Object.freeze({reserve,unknown,settle,policy,reconcileUsage:(requestId,usage)=>settle(requestId,usage,{status:'COST_RECONCILED_NO_ANSWER',mode:'OFFLINE_INJECTED_GENERATION',providerUsed:false,externalRequests:0,actualCostMicroUsd:0},true),snapshot:()=>transaction(state=>state)});
+ return Object.freeze({reserve,unknown,settle,policy,reconcileUsage:(requestId,usage)=>settle(requestId,usage,{status:'COST_RECONCILED_NO_ANSWER',mode:live?'LIVE_CONTROLLED_GENERATION':'OFFLINE_INJECTED_GENERATION',providerUsed:live,externalRequests:0,actualCostMicroUsd:live?null:0},true),snapshot:()=>transaction(state=>state)});
 }
 module.exports={createBudgetLedger};
