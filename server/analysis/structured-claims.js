@@ -93,6 +93,6 @@ function createStructuredSandbox(){
   if(fixture==='SCHEMA_INVALID')response.rawText='forbidden';
   try{return {...meta,status:'HUMAN_REVIEW_REQUIRED',summary:clone(prepared.entry.summary),reservation,claims:validateResponse(response,prepared.base),citations:clone(prepared.base.citations),localBoundary:prepared.base.boundary,notice:'固定合成响应的离线校验；不是模型实测。新增自由分析句待人工复核，引用存在不代表因果已识别。'}}catch(e){return {...meta,status:'OFFLINE_RESPONSE_REJECTED',reason:e.message,reservation,localFallback:prepared.base}}
  }
- return Object.freeze({run,validate});
+ return Object.freeze({run,validate,prepare:async summary=>{const {payload,base}=await prepare(summary);return {payload:clone(payload),localFallback:clone(base)}}});
 }
 module.exports={CATALOG,normalizeQuestion,preflight,BUDGET_EXAMPLE,createStructuredSandbox};

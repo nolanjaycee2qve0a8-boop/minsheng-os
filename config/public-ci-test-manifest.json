@@ -38,6 +38,7 @@
     "tests/v035-evidence-qa-tests.js",
     "tests/v036-controlled-analysis-tests.js",
     "tests/v037-structured-claims-tests.js",
+    "tests/v038-generation-budget-tests.js",
     "tests/v09-calibration-tests.js",
     "tests/v091-historical-backfill-tests.js",
     "tests/v092-nbs-historical-tests.js",
