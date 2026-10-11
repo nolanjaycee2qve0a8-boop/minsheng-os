@@ -23,17 +23,21 @@ window.MinshengEvidenceQA=(()=>{
   if(years.some(y=>y!=='2026')||/(?:19|20)\d{2}[-/]\d|年末|年底|时间不明|时间未知|未知时间|最新|实时|今天|现在|明年|去年|今年以来|下半年|全年|季度|单季|跨年|趋势|同比|环比|7月|8月|9月|10月|11月|12月|七月|八月|九月|十月|十一月|十二月/.test(q))return {status:'TIME_MISMATCH',reason:'没有该时间或比较口径的已审查证据，不能判断。本轮仅覆盖已登记的上半年累计量和六月末存量。'};
   if(/北京|天津|上海|重庆|杭州|浙江|江苏|广东|深圳|四川|山东|湖北|湖南|福建|安徽|江西|河南|河北|山西|陕西|甘肃|青海|贵州|云南|广西|海南|辽宁|吉林|黑龙江|内蒙古|新疆|西藏|宁夏|香港|澳门|台湾|城市|省份|某省|城镇|农村|某银行|某行|美国|日本|欧洲/.test(q))return {status:'SCOPE_MISMATCH',reason:'没有该地域或机构范围的已审查证据，不能用全国量替代。'};
   if(!/上半年|h1|1[—-]6月/.test(q)&&(/(?:\d{1,2}|一|二|三|四|五|六)月.*收入/.test(q)||/(?:[1-5]|一|二|三|四|五)月/.test(q)))return {status:'TIME_MISMATCH',reason:'没有该单月口径的合格证据，不能把半年累计量拆成单月。'};
-  const limit=TOPICS.find(t=>t.id==='limits'),matched=limit.match.test(q)?[limit]:TOPICS.filter(t=>t.id!=='limits'&&t.match.test(q));
+  const limit=TOPICS.find(t=>t.id==='limits'),matched=limit.match.test(q)||/家庭偿债|居民债务服务|家庭债务服务|居民还本付息|家庭还本付息|房贷月供/.test(q)?[limit]:TOPICS.filter(t=>t.id!=='limits'&&t.match.test(q));
   if(matched.length>1&&!/和|与|及|、|对比/.test(q))return {status:'UNSUPPORTED_QUESTION',reason:'不同指标必须明确分别询问，不能把指标串接成新范围。'};
   // A closed vocabulary prevents a new geography, device or adjacent measure being silently substituted.
-  const residual=q.replace(/居民正式债务服务计算|房地产开发贷款(?:余额)?|开发贷款(?:余额)?|开发贷(?:余额)?|开发商融资|房企融资|居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入|国有土地使用权出让收入|土地(?:使用权)?(?:出让)?(?:毛)?收入|土地出让|土地财政|法定地方政府债务(?:余额)?|地方政府(?:法定)?债务(?:余额)?|法定地方债|地方债|地方政府性基金本级收入|全国银行损失|银行损失|lgfv敞口|lgfv|城投|居民偿债|偿债|房地产下行|研究缺口|阻断项|缺口|阻断|因果|情景|对比|预测|风险|房价|损失|敞口|2026年?|上半年|h1|1[—-]6月|6月末|六月末|6月|六月|全国|中国|能判断|不能判断|可以判断|能证明|能说明|有哪些|是什么|是多少|多少|能|不能|如何|为什么|说明|导致|还有|及其|及|和|与|的|那|这个|它|来源|出处|单位|口径|限制|占比|比重|情况|吗|呢|请|问|[？?，,、。；;：:]/g,'');
+  const residual=q.replace(/居民正式债务服务计算|房地产开发贷款(?:余额)?|开发贷款(?:余额)?|开发贷(?:余额)?|开发商融资|房企融资|居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入|国有土地使用权出让收入|土地(?:使用权)?(?:出让)?(?:毛)?收入|土地出让|土地财政|法定地方政府债务(?:余额)?|地方政府(?:法定)?债务(?:余额)?|法定地方债|地方债|地方政府性基金本级收入|全国银行损失|银行损失|lgfv敞口|lgfv|城投|居民偿债|家庭偿债|居民债务服务|家庭债务服务|居民还本付息|家庭还本付息|房贷月供|偿债|房地产下行|研究缺口|阻断项|缺口|阻断|因果|情景|对比|预测|风险|房价|损失|敞口|2026年?|上半年|h1|1[—-]6月|6月末|六月末|6月|六月|全国|中国|能判断|不能判断|可以判断|能证明|能说明|有哪些|是什么|是多少|多少|能|不能|如何|为什么|说明|导致|还有|及其|及|和|与|的|那|这个|它|来源|出处|单位|口径|限制|占比|比重|情况|吗|呢|请|问|[？?，,、。；;：:]/g,'');
   if(residual)return {status:'UNSUPPORTED_QUESTION',reason:'问题包含本轮合同外的范围、对象或指标，不能用相邻证据替代。'};
   const followup=!matched.length&&/^(?:那|这个|它)?(?:的)?(?:来源|出处|单位|口径|限制|为什么|能说明)(?:(?:和|与)(?:来源|出处|单位|口径|限制))*(?:是什么|有哪些|呢|吗)?[？?]*$/.test(q)&&context&&TOPICS.some(t=>t.id===context.topicId);
   const topics=followup?[TOPICS.find(t=>t.id===context.topicId)]:matched;
   if(!topics.length)return {status:'UNSUPPORTED_QUESTION',reason:'没有可匹配的已审查证据，不能判断。可选择下方五类问题。'};
   const half=/上半年|h1|1[—-]6月/.test(q),month=/(\d{1,2}|一|二|三|四|五|六)月/.test(q.replace(/1[—-]6月/g,''));
   if(month&&!half&&(topics.some(t=>['income','fiscal'].includes(t.id))||!/6月|六月/.test(q)))return {status:'TIME_MISMATCH',reason:'没有该单月口径的合格证据，不能把半年累计量拆成单月。'};
-  return {status:'MATCHED',topicIds:topics.map(t=>t.id),ids:[...new Set(topics.flatMap(t=>t.ids))],followup,period:'2026-H1 / 2026-06',geography:'CN',scenario:/情景/.test(q),explicitHalf:/上半年|h1|1[—-]6月/.test(q),explicitJune:/6月|六月/.test(q)};
+  const household=/居民偿债|家庭偿债|居民债务服务|家庭债务服务|居民还本付息|家庭还本付息|房贷月供/.test(q),bank=/银行损失|全国银行损失/.test(q),lgfv=/lgfv|城投/.test(q);
+  const focusedLimits=topics[0]?.id==='limits'&&!followup&&(household||bank||lgfv)?[
+   ...(household?['s_household_blocked']:[]),...(bank?['s_bank_scenario']:[]),...(lgfv?['s_lgfv_gap']:[])
+  ]:null;
+  return {status:'MATCHED',topicIds:topics.map(t=>t.id),ids:focusedLimits||[...new Set(topics.flatMap(t=>t.ids))],followup,period:'2026-H1 / 2026-06',geography:'CN',scenario:/情景/.test(q),explicitHalf:/上半年|h1|1[—-]6月/.test(q),explicitJune:/6月|六月/.test(q)};
  }
  function defaultSnapshot(){
   const state=typeof data!=='undefined'?data:null;
@@ -96,6 +100,11 @@ window.MinshengEvidenceQA=(()=>{
   }
   result.status=result.diagnostics.length?'ANSWER_WITH_GAPS':result.claims.length?'ANSWERED':'NO_EVIDENCE';
   result.notice=result.diagnostics.length?'存在缺口/STALE/冲突，相关问题不能判断；已排除相应数值。':'答案由现有证据确定性重建，未使用模型生成。';
+  if(match.ids.length===1&&match.ids[0]==='s_household_blocked'){
+   result.claims=[];result.citations=[];result.status='NO_EVIDENCE';
+   result.notice='居民偿债指标缺少合格的全国、2026年上半年债务服务流量及利率、期限、摊还与分布条件；不能以按揭余额或其他主题推算居民偿债。';
+   result.boundary='仅说明居民偿债缺口；不以其他主题或按揭余额替代。';
+  }
   if(match.explicitHalf&&chosen.some(x=>x.temporalBasis==='期末存量'))result.notice+=' 问题提到半年，但余额证据仅为六月末存量。';
   if(match.explicitJune&&chosen.some(x=>x.temporalBasis.includes('累计')))result.notice+=' 问题提到六月，但收入证据仅为上半年累计量，不能拆成单月。';
   result.context={topicId:match.topicIds[0]};
@@ -119,7 +128,7 @@ window.MinshengEvidenceQA=(()=>{
     const token=++sequence,priorContext=clone(context);pending=token;
     try{const response=await respond(question,clone(priorContext));if(pending!==token)return {status:'CANCELLED'};
      if(response?.question!==question||!validateAnswer(response,priorContext))return {status:'INVALID_CITATION',notice:'答案引用校验失败，已拒绝。'};
-     if(response.context)context=response.context;history.push(clone(response));if(history.length>20)history.shift();return clone(response);
+     context=response.context?clone(response.context):null;history.push({...clone(response),askedAt:new Date().toISOString(),sourceIds:response.citations.map(x=>x.id)});if(history.length>20)history.shift();return clone(response);
     }catch{return pending!==token?{status:'CANCELLED'}:{status:'ERROR',notice:'证据不可用，未生成判断。'}}finally{if(pending===token)pending=null}
    },cancel(){pending=null;sequence++},reset(){pending=null;sequence++;context=null;history.length=0}
   };
