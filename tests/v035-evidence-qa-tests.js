@@ -7,8 +7,9 @@ let n=0;const ok=(x,m)=>{n++;assert.ok(x,m)},eq=(x,y,m)=>{n++;assert.deepEqual(c
 const income=api.TOPICS[0].question,land=api.TOPICS[2].question;
 (async()=>{
  const original=JSON.stringify(snap());
- for(const topic of api.TOPICS){const r=api.answer(topic.question);ok(api.validateAnswer(r),topic.id+' has valid citations');ok(r.claims.length>0,topic.id+' has supported claims or cited gaps');eq(r.mode,'LOCAL_CITED_DETERMINISTIC');eq(r.providerUsed,false)}
+ for(const topic of api.TOPICS){const r=api.answer(topic.question);ok(api.validateAnswer(r),topic.id+' has valid citations');ok(topic.id==='limits'?r.status==='NO_EVIDENCE'&&r.claims.length===0:r.claims.length>0,topic.id+' has supported claims or an explicit refusal');eq(r.mode,'LOCAL_CITED_DETERMINISTIC');eq(r.providerUsed,false)}
  const r=api.answer(income);ok(r.claims.some(x=>x.text.includes('22981元')&&x.text.includes('期间累计人均流量')),'income remains cumulative per capita');
+ for(const [question,id] of [[income,'s_income_pc_h1'],['居民可支配收入是多少？','s_income_pc_h1'],['2026年6月末房地产开发贷款余额是多少？','s_dev_loan'],['6月末法定地方政府债务余额是多少？','s_legal_debt']]){const single=api.answer(question);eq(single.status,'ANSWERED',question+' is not downgraded by adjacent gaps');eq(single.citations.map(x=>x.id),[id],question+' cites only its requested indicator');eq(single.diagnostics,[],question+' has no unrelated gap')}
  ok(r.citations.find(x=>x.id==='s_income_pc_h1').sourceLinks[0].url.startsWith('https://www.stats.gov.cn/'),'income has original official URL');
  eq(api.answer(land).citations.find(x=>x.id==='s_land_share').temporalBasis,'同期派生比率');
  eq(api.answer('6月末开发贷是多少？').citations.find(x=>x.id==='s_dev_loan').temporalBasis,'期末存量');
@@ -21,7 +22,10 @@ const income=api.TOPICS[0].question,land=api.TOPICS[2].question;
  for(const question of ['居民偿债是多少？','家庭偿债是多少？','居民债务服务是多少？','家庭还本付息是多少？','房贷月供是多少？']){
   const gap=api.answer(question);eq(gap.status,'NO_EVIDENCE');eq(gap.claims,[]);eq(gap.citations,[]);eq(gap.diagnostics.map(x=>x.id),['s_household_blocked']);ok(gap.notice.includes('居民偿债指标缺少')&&gap.notice.includes('全国、2026年上半年'),'missing metric, geography and time stated');ok(!JSON.stringify(gap).includes('s_bank_scenario')&&!JSON.stringify(gap).includes('s_lgfv_gap'),'adjacent bank/LGFV excluded');
  }
- for(const question of ['全国银行损失是多少？','LGFV敞口是多少？']){const gap=api.answer(question);ok(!gap.citations.some(x=>x.id==='s_household_blocked'),'unrelated household gap excluded');ok(!gap.citations.some(x=>x.id===(question.includes('LGFV')?'s_bank_scenario':'s_lgfv_gap')),'other adjacent gap excluded')}
+ for(const [question,id] of [['全国银行损失是多少？','s_bank_scenario'],['LGFV敞口是多少？','s_lgfv_gap']]){const gap=api.answer(question);eq(gap.status,'NO_EVIDENCE');eq(gap.claims,[]);eq(gap.citations,[]);eq(gap.diagnostics.map(x=>x.id),[id]);ok(gap.notice.includes(question.includes('LGFV')?'可审计的观测':'情景能力不是现实损失数值'),'specific refusal explains missing observation')}
+ eq(api.answer('银行损失情景是多少？').status,'NO_EVIDENCE','scenario wording cannot turn absent losses into a numeric answer');
+ eq(api.answer('全国银行损失是多少？',null,{selectedIds:['s_bank_scenario']}).status,'INVALID_CITATION','scenario capability cannot be selected as an observed loss');
+ const joint=api.answer('能判断居民偿债、全国银行损失和LGFV敞口吗？');eq(joint.status,'NO_EVIDENCE');eq(joint.claims,[]);eq(joint.citations,[]);eq(joint.diagnostics.map(x=>x.id).sort(),['s_bank_scenario','s_household_blocked','s_lgfv_gap']);ok(joint.notice.includes('不能以相邻主题'),'joint limits cannot treat a scenario as an answer');
  for(const question of ['2025年居民偿债是多少？','2026年8月居民偿债是多少？']){const gap=api.answer(question);eq(gap.status,'TIME_MISMATCH');eq(gap.citations,[]);eq(gap.claims,[])}
  ok(api.answer('能证明房地产下行导致银行损失吗？').boundary.includes('不证明因果'),'no inferred causality');
  for(const ids of [['invented'],['s_land_gross','s_land_gross'],[],['s_income_pc_h1'],['s_land_gross','s_land_share','extra'],'untrusted prose'])eq(api.answer(land,null,{selectedIds:ids}).status,'INVALID_CITATION');
@@ -53,7 +57,7 @@ const income=api.TOPICS[0].question,land=api.TOPICS[2].question;
   ,s=>{delete s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').provenance.checksum}
   ,s=>{s.records.find(x=>x.id==='record_nbs_income_pc_national_2026h1').provenance.locator='forged locator'}
   ,s=>{delete s.documents.find(x=>x.id==='doc_nbs_income_2026h1_live_v014').publicationDate}
- ]){const snapshot=snap();mutate(snapshot);const a=api.answer(income,null,{snapshot}),debt=api.answer(api.TOPICS[3].question,null,{snapshot});ok([...a.diagnostics,...debt.diagnostics].some(x=>x.reasons?.length),'classification, source binding and timing corruption blocked');ok(!JSON.stringify([...a.claims,...debt.claims]).includes('999')&&!JSON.stringify([...a.claims,...debt.claims]).includes('12345'),'fabricated values suppressed')}
+ ]){const snapshot=snap();mutate(snapshot);const a=api.answer(income,null,{snapshot}),gaps=api.answer('研究缺口有哪些？',null,{snapshot});ok([...a.diagnostics,...gaps.diagnostics].some(x=>x.reasons?.length),'classification, source binding and timing corruption blocked');ok(!JSON.stringify([...a.claims,...gaps.claims]).includes('999')&&!JSON.stringify([...a.claims,...gaps.claims]).includes('12345'),'fabricated values suppressed')}
  const rewritten=api.createSession({respond:()=>api.answer(income)});eq((await rewritten.send('法国收入多少？')).status,'INVALID_CITATION','response cannot rewrite submitted question');eq(rewritten.history,[]);
  for(const question of ['银行的人均收入是多少？','银行居民收入是多少？','银行土地收入是多少？','地方债居民收入是多少？']){eq(api.answer(question).status,'UNSUPPORTED_QUESTION',question);eq(api.answer(question).claims,[])}
  for(const mutate of [x=>{x.claims=[];x.citations=[]},x=>{x.claims.pop();x.citations.pop()},x=>x.claims.push(copy(x.claims[0]))]){const x=copy(r);mutate(x);eq(api.validateAnswer(x),false,'incomplete or repeated canonical answer rejected')}

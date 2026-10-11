@@ -5,10 +5,10 @@ window.MinshengEvidenceQA=(()=>{
  const approvedReport=clone(window.MinshengPropertyLivelihoodCaseStudy.build());
  const approvedRecords=clone(window.MinshengDataRecords||[]),approvedDocuments=clone(window.MinshengSourceDocuments||[]);
  const TOPICS=Object.freeze([
-  {id:'income',label:'居民收入',question:'2026年上半年全国居民人均收入是多少？',ids:['s_income_pc_h1','s_household_blocked'],match:/居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入/},
-  {id:'loans',label:'房地产开发贷',question:'2026年6月末房地产开发贷款余额是多少？',ids:['s_dev_loan','s_bank_scenario'],match:/房地产开发贷款|开发贷|开发商融资|房企融资/},
+  {id:'income',label:'居民收入',question:'2026年上半年全国居民人均收入是多少？',ids:['s_income_pc_h1'],match:/居民(?:人均)?(?:可支配)?收入|人均(?:可支配)?收入/},
+  {id:'loans',label:'房地产开发贷',question:'2026年6月末房地产开发贷款余额是多少？',ids:['s_dev_loan'],match:/房地产开发贷款|开发贷|开发商融资|房企融资/},
   {id:'fiscal',label:'土地财政',question:'上半年土地出让收入及其占比是多少？',ids:['s_land_gross','s_land_share'],match:/土地(?:使用权)?(?:出让)?(?:毛)?收入|土地出让|土地财政/},
-  {id:'debt',label:'法定地方债',question:'6月末法定地方政府债务余额是多少？',ids:['s_legal_debt','s_lgfv_gap'],match:/法定地方政府债务|地方政府(?:法定)?债务|法定地方债|地方债/},
+  {id:'debt',label:'法定地方债',question:'6月末法定地方政府债务余额是多少？',ids:['s_legal_debt'],match:/法定地方政府债务|地方政府(?:法定)?债务|法定地方债|地方债/},
   {id:'limits',label:'缺口与情景边界',question:'能判断居民偿债、全国银行损失和LGFV敞口吗？',ids:['s_household_blocked','s_bank_scenario','s_lgfv_gap'],match:/缺口|阻断|损失|偿债|风险|lgfv|城投|因果|预测|情景|房价/}
  ]);
  TOPICS.forEach(t=>{Object.freeze(t.ids);Object.freeze(t.match);Object.freeze(t)});
@@ -37,7 +37,7 @@ window.MinshengEvidenceQA=(()=>{
   const focusedLimits=topics[0]?.id==='limits'&&!followup&&(household||bank||lgfv)?[
    ...(household?['s_household_blocked']:[]),...(bank?['s_bank_scenario']:[]),...(lgfv?['s_lgfv_gap']:[])
   ]:null;
-  return {status:'MATCHED',topicIds:topics.map(t=>t.id),ids:focusedLimits||[...new Set(topics.flatMap(t=>t.ids))],followup,period:'2026-H1 / 2026-06',geography:'CN',scenario:/情景/.test(q),explicitHalf:/上半年|h1|1[—-]6月/.test(q),explicitJune:/6月|六月/.test(q)};
+  return {status:'MATCHED',topicIds:topics.map(t=>t.id),ids:focusedLimits||[...new Set(topics.flatMap(t=>t.ids))],followup,limitsDecision:!!focusedLimits&&!followup&&!/缺口有哪些|阻断项有哪些/.test(q),period:'2026-H1 / 2026-06',geography:'CN',scenario:/情景/.test(q),explicitHalf:/上半年|h1|1[—-]6月/.test(q),explicitJune:/6月|六月/.test(q)};
  }
  function defaultSnapshot(){
   const state=typeof data!=='undefined'?data:null;
@@ -86,6 +86,17 @@ window.MinshengEvidenceQA=(()=>{
   for(const id of match.ids)if(!candidates.some(x=>x.id===id))result.diagnostics.push({id,status:'MISSING_EVIDENCE'});
   const eligible=candidates.filter(x=>!x.issues.length&&!['UNKNOWN','BLOCKED'].includes(x.classification));
   result.diagnostics.push(...candidates.filter(x=>x.issues.length||['UNKNOWN','BLOCKED'].includes(x.classification)).map(x=>({id:x.id,status:x.status,reasons:x.issues.length?x.issues:x.blockedReasons||x.limitations})));
+  if(match.limitsDecision){
+    if(own(options,'selectedIds')&&options.selectedIds?.length)return {...result,status:'INVALID_CITATION',notice:'没有可授权的数值证据，引用已拒绝。'};
+    result.diagnostics.push(...eligible.map(x=>({id:x.id,status:'SCENARIO_NOT_OBSERVATION',reasons:x.limitations||[]})));
+    const reasons=[];
+    if(match.ids.includes('s_household_blocked'))reasons.push('居民偿债指标缺少合格的全国、2026年上半年债务服务流量及利率、期限、摊还与分布条件');
+    if(match.ids.includes('s_bank_scenario'))reasons.push('全国银行实际损失缺少合格观测，情景能力不是现实损失数值');
+    if(match.ids.includes('s_lgfv_gap'))reasons.push('LGFV直接敞口缺少合格、可审计的观测');
+    result.status='NO_EVIDENCE';result.notice=`${reasons.join('；')}；不能以相邻主题、按揭余额或情景能力替代。`;
+    if(match.ids.length===1&&match.ids[0]==='s_household_blocked')result.boundary='仅说明居民偿债缺口；不以其他主题或按揭余额替代。';
+    result.context={topicId:match.topicIds[0]};return result;
+  }
   const ids=own(options,'selectedIds')?options.selectedIds:eligible.map(x=>x.id);
   if(eligible.length){try{selection.validateSelection(ids,eligible.map(x=>({id:x.id,text:x.text})))}catch{return {...result,status:'INVALID_CITATION',notice:'答案引用不属于当前合格证据集合，已拒绝展示。'}}}
   else if(own(options,'selectedIds')&&ids?.length)return {...result,status:'INVALID_CITATION',notice:'没有可授权的数值证据，引用已拒绝。'};
@@ -100,11 +111,6 @@ window.MinshengEvidenceQA=(()=>{
   }
   result.status=result.diagnostics.length?'ANSWER_WITH_GAPS':result.claims.length?'ANSWERED':'NO_EVIDENCE';
   result.notice=result.diagnostics.length?'存在缺口/STALE/冲突，相关问题不能判断；已排除相应数值。':'答案由现有证据确定性重建，未使用模型生成。';
-  if(match.ids.length===1&&match.ids[0]==='s_household_blocked'){
-   result.claims=[];result.citations=[];result.status='NO_EVIDENCE';
-   result.notice='居民偿债指标缺少合格的全国、2026年上半年债务服务流量及利率、期限、摊还与分布条件；不能以按揭余额或其他主题推算居民偿债。';
-   result.boundary='仅说明居民偿债缺口；不以其他主题或按揭余额替代。';
-  }
   if(match.explicitHalf&&chosen.some(x=>x.temporalBasis==='期末存量'))result.notice+=' 问题提到半年，但余额证据仅为六月末存量。';
   if(match.explicitJune&&chosen.some(x=>x.temporalBasis.includes('累计')))result.notice+=' 问题提到六月，但收入证据仅为上半年累计量，不能拆成单月。';
   result.context={topicId:match.topicIds[0]};
