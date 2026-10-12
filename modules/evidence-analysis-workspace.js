@@ -46,25 +46,55 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
    return index<0?'': ' <a href="#analysis-citation-'+turn+'-'+index+'" data-analysis-cite="analysis-citation-'+turn+'-'+index+'">['+escape(id)+']</a>';
   }).join('');
  }
+ const liveFailureStatuses=new Set(['EXTERNAL_CALL_NOT_AUTHORIZED','ONE_CALL_AUTHORIZATION_MISSING',
+  'DAILY_BUDGET_EXHAUSTED','PRICE_UNKNOWN','LEDGER_CORRUPT','LEDGER_LOCKED',
+  'AUTHENTICATION_FAILED','RATE_LIMITED','PROVIDER_FAILURE','MALFORMED_RESPONSE',
+  'TIMEOUT_OUTCOME_UNKNOWN','NETWORK_OUTCOME_UNKNOWN','OUTPUT_REJECTED',
+  'BUDGET_EXHAUSTED','DUPLICATE_SUBMISSION','EVIDENCE_PREFLIGHT_REJECTED',
+  'LEDGER_OVERAGE_REVIEW_REQUIRED','BUDGET_ACCOUNTING_EXCEEDED',
+  'LEDGER_OVERAGE_RECORD_FAILED','CREDENTIAL_UNAVAILABLE','RESPONSE_LIMIT_EXCEEDED',
+  'INPUT_LIMIT_EXCEEDED','LEDGER_REJECTED','QUESTION_NOT_APPROVED']);
+ function resultPresentation(result){
+  if(result.status==='REAL_API_VALIDATED'&&result.providerUsed===true&&
+     result.transport==='REAL_API'&&result.validationStatus==='EXISTING_CHAIN_PASSED')
+   return {badge:'真实 DeepSeek API · 已通过证据校验',
+    basis:'依据已登记的公开结构化证据和通过本地校验的真实 API 响应；本地原网页未重新核验，推断仍待人工审核。',
+    inferenceHeading:'推断（真实 API，待人工审核）'};
+  if(result.status==='SIMULATED_ANALYSIS_REVIEW_REQUIRED'&&
+     result.simulation==='OFFLINE_FIXED_MOCK'&&result.providerUsed===false)
+   return {badge:'固定离线模拟，非 DeepSeek 实测',basis:result.analysisBasis||'',
+    inferenceHeading:'推断（模拟，待人工审核）'};
+  if(result.status==='SIMULATED_GATE_VALIDATED'&&
+     result.simulation==='SIMULATED_HTTP_ONLY'&&result.providerUsed===false)
+   return {badge:'模拟传输，非真实 API',
+    basis:'服务端模拟传输通过本地证据校验；没有调用 DeepSeek。本地原网页未重新核验，推断仍待人工审核。',
+    inferenceHeading:'推断（模拟，待人工审核）'};
+  if(result.status==='LIVE_RESPONSE_REJECTED'||result.status==='OUTPUT_REJECTED'||
+     result.status==='MALFORMED_RESPONSE')
+   return {badge:'真实模式响应校验失败 · 无可信结论',
+    basis:'响应未通过格式或证据校验，不展示为已确认分析；本地原网页未重新核验。'};
+  if(result.status==='LIVE_SERVICE_UNAVAILABLE'||liveFailureStatuses.has(result.status))
+   return {badge:'真实请求失败或未获授权 · 无已校验结果',
+    basis:'真实模式未取得通过校验的答案；发送状态以本条记录为准，结果不明时不得自动重试。'};
+  return {badge:'离线模拟失败或无合格证据 · 无真实 API 结果',basis:''};
+ }
  function turnHtml(result,turn){
   const sources=result.sources||[];
-  const badge=result.status==='REAL_API_VALIDATED'&&result.providerUsed===true
-   ?'真实 DeepSeek API · 已通过证据校验':result.simulation==='SIMULATED_HTTP_ONLY'
-    ?'模拟传输，非真实 API':result.simulation==='OFFLINE_FIXED_MOCK'
-     ?'固定离线模拟，非 DeepSeek 实测':'未获真实结果；不得当作 API 成功';
+  const presentation=resultPresentation(result);
   return '<article class="panel analysis-turn"><h3>提问：'+escape(result.question)+'</h3>'+
    '<p>提问时间：'+escape(result.askedAt)+' · 来源：'+escape((result.sourceIds||[]).join('、')||'无合格来源')+'</p>'+
-   '<p><b>'+escape(result.status)+'</b> · '+badge+'</p>'+
+   '<p><b>'+escape(result.status)+'</b> · '+presentation.badge+'</p>'+
    (result.status==='REAL_API_VALIDATED'
     ?'<p>运行标记：REAL_API · 模型：'+escape(result.model)+' · 证据版本：'+escape(result.evidenceVersion)+
      ' · 校验：'+escape(result.validationStatus)+' · 用量：'+escape(JSON.stringify(result.usage))+'</p>'
     :'<p>运行标记：'+escape(result.simulation||'NO_REAL_RESULT')+' · 模型：'+escape(result.providerUsed?'deepseek-flash':'无')+
-      ' · 证据契约：v037-claims-1 · 外部调用：'+escape(result.externalRequests||0)+
-      ' · API 用量：'+(result.providerUsed?'未知（额度保留）':'0')+'。模拟或失败结果不得标为实测。</p>')+
+      ' · 证据契约：v037-claims-1 · 外部调用：'+escape(result.externalRequests??'未知')+
+      ' · API 用量：'+(result.providerUsed||result.externalRequests==null?'未知（额度可能保留）':'0')+
+      '。模拟或失败结果不得标为实测。</p>')+
    '<p>'+escape(result.notice)+'</p>'+
-   (result.analysisBasis?'<h4>分析依据</h4><p>'+escape(result.analysisBasis)+'</p>':'')+
+   (presentation.basis?'<h4>分析依据</h4><p>'+escape(presentation.basis)+'</p>':'')+
    (result.facts?.length?'<h4>证据事实（字段已核对）</h4>'+result.facts.map(f=>'<p>'+escape(f.text)+links(f.evidenceIds,sources,turn)+'</p>').join(''):'')+
-   (result.inferences?.length?'<h4>推断（模拟，待人工审核）</h4>'+result.inferences.map(i=>'<p>'+escape(i.text)+
+   (result.inferences?.length?'<h4>'+presentation.inferenceHeading+'</h4>'+result.inferences.map(i=>'<p>'+escape(i.text)+
     ' · '+escape(i.uncertainty)+links(i.evidenceIds,sources,turn)+'</p>').join(''):'')+
    (result.gaps?.length?'<h4>缺口</h4><ul>'+result.gaps.map(g=>'<li>'+escape(g.text)+'</li>').join('')+'</ul>':'')+
    (sources.length?'<details open><summary>可核验引用</summary><ul>'+sources.map((s,i)=>sourceHtml(s,turn,i)).join('')+
@@ -81,10 +111,10 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
    '<button type="submit" '+(session.pending?'disabled':'')+'>发送</button> <button type="button" data-analysis-cancel '+(session.pending?'':'disabled')+
    '>取消</button> <button type="button" data-analysis-reset>新对话</button> <button type="button" data-analysis-back>返回有证据问答</button></form>'+
    '<p role="status" aria-live="polite" data-analysis-status>'+escape(notice)+'</p>'+
-   '<p>当前模式：'+(mode==='LIVE'?'真实 API（未授权时拒发）':'固定离线模拟')+'。不含闲聊、算术、实时采集或历史预测。</p>'+
+   '<p>请求入口：'+(mode==='LIVE'?'真实 API（未授权时拒发）':'固定离线模拟')+'。每条答案的模式以其实际结果标识为准；不含闲聊、算术、实时采集或历史预测。</p>'+
    '<button type="button" data-analysis-mode>切换到'+(mode==='LIVE'?'离线模拟':'真实 API 闸门')+'</button>'+
    '<div aria-label="离线分析示例">'+(mode==='LIVE'?[liveQuestion]:questions).map((q,i)=>'<button type="button" data-analysis-example="'+i+'">'+escape(q)+'</button>').join(' ')+'</div></section>'+
-   '<section aria-label="当前分析"><h2>当前分析</h2>'+(session.pending?'<p>正在校验本题模拟响应；先前答案已移入历史。</p>':
+   '<section aria-label="当前分析"><h2>当前分析</h2>'+(session.pending?'<p>正在处理本题响应；先前答案已移入历史。</p>':
     current?turnHtml(current,history.length):'<p>尚无分析。</p>')+'</section>'+
    '<details data-analysis-history><summary>历史记录（'+history.length+'）</summary>'+
    history.map((item,i)=>turnHtml(item,i)).join('')+'</details></section>';
@@ -114,7 +144,7 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
  function install(){
   const nav=document.querySelector('.sidebar nav');if(!nav||!host()||nav.querySelector('[data-analysis-route]'))return;
   const button=document.createElement('button');button.className='nav-item';button.dataset.analysisRoute='offline';
-  button.textContent='证据分析（离线模拟）';
+  button.textContent='证据分析（离线／真实闸门）';
   const sync=()=>{if(location.hash===route){nav.querySelectorAll('.nav-item').forEach(item=>item.classList.toggle('active',item===button));render()}
    else{button.classList.remove('active');leave()}};
   button.onclick=()=>{if(location.hash!==route)history.pushState(null,'',route);sync()};

@@ -32,6 +32,7 @@
     "tests/v037-offline-evidence-analysis-tests.js",
     "tests/v038-deepseek-live-preflight-tests.js",
     "tests/v039-deepseek-one-shot-gate-tests.js",
+    "tests/v040-analysis-mode-copy-tests.js",
     "tests/v09-calibration-tests.js",
     "tests/v091-historical-backfill-tests.js",
     "tests/v092-nbs-historical-tests.js",

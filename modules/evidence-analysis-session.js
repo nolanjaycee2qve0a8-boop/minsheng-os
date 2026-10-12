@@ -63,17 +63,26 @@
      const response=await respond(question);
      if(pending!==token)return {status:'CANCELLED'};
      const safe=validateTurn(question,response,kind)?response:{
-      question,status:'INVALID_ANALYSIS_RESPONSE',facts:[],inferences:[],gaps:[],sources:[],
-      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,externalRequests:0,
-      notice:'分析响应未通过页面核验，未显示先前答案。'
+      question,status:kind==='LIVE'?'LIVE_RESPONSE_REJECTED':'INVALID_ANALYSIS_RESPONSE',
+      facts:[],inferences:[],gaps:[],sources:[],
+      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,
+      externalRequests:kind==='LIVE'?null:0,
+      notice:kind==='LIVE'
+       ?'真实模式响应未通过页面校验；是否已发送请求无法由页面确认，未显示先前答案。'
+       :'离线模拟响应未通过页面校验；未显示先前答案。'
      };
      current={...clone(safe),askedAt:new Date().toISOString(),sourceIds:safe.sources.map(x=>x.evidenceId)};
      return clone(current);
     }catch{
      if(pending!==token)return {status:'CANCELLED'};
-     current={question,status:'SERVICE_UNAVAILABLE',facts:[],inferences:[],gaps:[],sources:[],
-      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,externalRequests:0,
-      notice:'本地模拟服务不可用；未沿用先前答案。',askedAt:new Date().toISOString(),sourceIds:[]};
+     current={question,status:kind==='LIVE'?'LIVE_SERVICE_UNAVAILABLE':'SERVICE_UNAVAILABLE',
+      facts:[],inferences:[],gaps:[],sources:[],
+      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,
+      externalRequests:kind==='LIVE'?null:0,
+      notice:kind==='LIVE'
+       ?'真实服务未返回可核验结果；请求结果可能不明，未沿用先前答案，请勿自动重试。'
+       :'本地模拟服务不可用；未沿用先前答案。',
+      askedAt:new Date().toISOString(),sourceIds:[]};
      return clone(current);
     }finally{if(pending===token)pending=null}
    },
