@@ -55,7 +55,8 @@ function sourceFor(citation, documents) {
     publicationDate: document?.publicationDate || null,
     eventStart: document?.dataPeriodStart || null, eventEnd: document?.dataPeriodEnd || null,
     period: citation.period || null, geography: citation.geography || null,
-    unit: citation.unit || null, value: Number.isFinite(citation.value) ? citation.value : null,
+    unit: citation.unit || null, scope: citation.scope || null,
+    value: Number.isFinite(citation.value) ? citation.value : null,
     sourceStatus: citation.sourceStatus || null
   };
 }

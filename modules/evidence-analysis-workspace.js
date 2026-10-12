@@ -40,6 +40,7 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
   return '<article class="panel analysis-turn"><h3>提问：'+escape(result.question)+'</h3>'+
    '<p>提问时间：'+escape(result.askedAt)+' · 来源：'+escape((result.sourceIds||[]).join('、')||'无合格来源')+'</p>'+
    '<p><b>'+escape(result.status)+'</b> · 固定离线模拟，非 DeepSeek 实测</p>'+
+   '<p>运行标记：OFFLINE_FIXED_MOCK · 模型：无 · 证据契约：v037-claims-1 · 外部调用：0 · API 用量：0。真实 API 尚未授权，任何模拟结果不得标为实测。</p>'+
    '<p>'+escape(result.notice)+'</p>'+
    (result.analysisBasis?'<h4>分析依据</h4><p>'+escape(result.analysisBasis)+'</p>':'')+
    (result.facts?.length?'<h4>证据事实（字段已核对）</h4>'+result.facts.map(f=>'<p>'+escape(f.text)+links(f.evidenceIds,sources,turn)+'</p>').join(''):'')+
