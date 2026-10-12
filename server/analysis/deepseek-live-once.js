@@ -71,7 +71,9 @@ function createLiveGate({ ledger, credentialProvider, fetchImpl = globalThis.fet
   if (!['SIMULATED','REAL'].includes(mode) || (mode === 'REAL' && fetchImpl !== globalThis.fetch))
     throw Error('TRANSPORT_MODE_INVALID');
   let failure = null, reservation = null, sent = false, pending = false;
-  const checked = createSimulatedGate({ enabled, clock, timeoutMs,
+  // The validated chain's watchdog is a last resort; the transport's shorter
+  // abort deadline must fire first even when source preflight takes time.
+  const checked = createSimulatedGate({ enabled, clock, timeoutMs: LIMITS.timeoutMs,
     send: async request => {
       let reserved;
       try { reserved = ledger.reserve({ requestBytes: Buffer.byteLength(JSON.stringify(request.body), 'utf8') }); }
