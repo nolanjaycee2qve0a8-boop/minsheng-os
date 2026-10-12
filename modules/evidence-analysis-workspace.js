@@ -10,12 +10,23 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
   '能计算居民正式偿债能力吗？'
  ];
  const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch]));
- const session=window.MinshengEvidenceAnalysisSession.createSession({respond:async question=>{
+ const offlineSession=window.MinshengEvidenceAnalysisSession.createSession({respond:async question=>{
   const response=await fetch('/api/analysis/offline',{method:'POST',credentials:'omit',cache:'no-store',
    headers:{'Content-Type':'application/json'},body:JSON.stringify({question})});
   if(!response.ok)throw Error('LOCAL_SERVICE_UNAVAILABLE');
   return response.json();
  }});
+ const liveSession=window.MinshengEvidenceAnalysisSession.createSession({kind:'LIVE',respond:async question=>{
+  const response=await fetch('/api/analysis/live',{method:'POST',credentials:'omit',cache:'no-store',
+   headers:{'Content-Type':'application/json'},body:JSON.stringify({question})});
+  if(response.status===403)return {question,status:'EXTERNAL_CALL_NOT_AUTHORIZED',
+   facts:[],inferences:[],gaps:[],sources:[],providerUsed:false,externalRequests:0,
+   notice:'真实请求尚未获单次授权；没有调用 DeepSeek，也没有沿用旧答案。'};
+  if(!response.ok)throw Error('LIVE_SERVICE_UNAVAILABLE');
+  return response.json();
+ }});
+ const liveQuestion='2026年上半年全国居民人均可支配收入是多少？';
+ let mode='OFFLINE',session=offlineSession;
  let draft='',notice='',generation=0,lastSubmission={question:'',at:0};
  const host=()=>document.getElementById('researchCockpitRoot');
  const leave=()=>{session.cancel();generation++};
@@ -37,10 +48,19 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
  }
  function turnHtml(result,turn){
   const sources=result.sources||[];
+  const badge=result.status==='REAL_API_VALIDATED'&&result.providerUsed===true
+   ?'真实 DeepSeek API · 已通过证据校验':result.simulation==='SIMULATED_HTTP_ONLY'
+    ?'模拟传输，非真实 API':result.simulation==='OFFLINE_FIXED_MOCK'
+     ?'固定离线模拟，非 DeepSeek 实测':'未获真实结果；不得当作 API 成功';
   return '<article class="panel analysis-turn"><h3>提问：'+escape(result.question)+'</h3>'+
    '<p>提问时间：'+escape(result.askedAt)+' · 来源：'+escape((result.sourceIds||[]).join('、')||'无合格来源')+'</p>'+
-   '<p><b>'+escape(result.status)+'</b> · 固定离线模拟，非 DeepSeek 实测</p>'+
-   '<p>运行标记：OFFLINE_FIXED_MOCK · 模型：无 · 证据契约：v037-claims-1 · 外部调用：0 · API 用量：0。真实 API 尚未授权，任何模拟结果不得标为实测。</p>'+
+   '<p><b>'+escape(result.status)+'</b> · '+badge+'</p>'+
+   (result.status==='REAL_API_VALIDATED'
+    ?'<p>运行标记：REAL_API · 模型：'+escape(result.model)+' · 证据版本：'+escape(result.evidenceVersion)+
+     ' · 校验：'+escape(result.validationStatus)+' · 用量：'+escape(JSON.stringify(result.usage))+'</p>'
+    :'<p>运行标记：'+escape(result.simulation||'NO_REAL_RESULT')+' · 模型：'+escape(result.providerUsed?'deepseek-flash':'无')+
+      ' · 证据契约：v037-claims-1 · 外部调用：'+escape(result.externalRequests||0)+
+      ' · API 用量：'+(result.providerUsed?'未知（额度保留）':'0')+'。模拟或失败结果不得标为实测。</p>')+
    '<p>'+escape(result.notice)+'</p>'+
    (result.analysisBasis?'<h4>分析依据</h4><p>'+escape(result.analysisBasis)+'</p>':'')+
    (result.facts?.length?'<h4>证据事实（字段已核对）</h4>'+result.facts.map(f=>'<p>'+escape(f.text)+links(f.evidenceIds,sources,turn)+'</p>').join(''):'')+
@@ -54,15 +74,16 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
  function render(){
   const root=host();if(!root)return;
   const current=session.current,history=session.history;
-  root.innerHTML='<section class="research-cockpit"><div class="view-intro"><p class="eyebrow">EVIDENCE ANALYSIS · OFFLINE MOCK</p>'+
-   '<h1>基于证据的分析（离线模拟）</h1><p>只接受本轮已登记的全国结构化证据。固定模拟响应不代表 DeepSeek 已接通；事实与推断分区，缺证据就拒答。</p></div>'+
+  root.innerHTML='<section class="research-cockpit"><div class="view-intro"><p class="eyebrow">EVIDENCE ANALYSIS · '+(mode==='LIVE'?'LIVE GATED':'OFFLINE MOCK')+'</p>'+
+   '<h1>基于证据的分析（'+(mode==='LIVE'?'真实 API 闸门':'离线模拟')+'）</h1><p>只接受已登记的全国结构化证据。真实模式需本地单次授权；无授权不发送。模拟响应不代表 DeepSeek 已接通。</p></div>'+
    '<section class="panel"><form id="offlineAnalysisForm"><label for="offlineAnalysisQuestion">分析问题（单行，最多500字）</label>'+
    '<input id="offlineAnalysisQuestion" maxlength="500" autocomplete="off" value="'+escape(draft)+'" style="width:100%;padding:12px;margin:12px 0">'+
    '<button type="submit" '+(session.pending?'disabled':'')+'>发送</button> <button type="button" data-analysis-cancel '+(session.pending?'':'disabled')+
    '>取消</button> <button type="button" data-analysis-reset>新对话</button> <button type="button" data-analysis-back>返回有证据问答</button></form>'+
    '<p role="status" aria-live="polite" data-analysis-status>'+escape(notice)+'</p>'+
-   '<p>当前仅支持下列固定问题；不含闲聊、算术、实时采集、历史预测或真实 API。</p>'+
-   '<div aria-label="离线分析示例">'+questions.map((q,i)=>'<button type="button" data-analysis-example="'+i+'">'+escape(q)+'</button>').join(' ')+'</div></section>'+
+   '<p>当前模式：'+(mode==='LIVE'?'真实 API（未授权时拒发）':'固定离线模拟')+'。不含闲聊、算术、实时采集或历史预测。</p>'+
+   '<button type="button" data-analysis-mode>切换到'+(mode==='LIVE'?'离线模拟':'真实 API 闸门')+'</button>'+
+   '<div aria-label="离线分析示例">'+(mode==='LIVE'?[liveQuestion]:questions).map((q,i)=>'<button type="button" data-analysis-example="'+i+'">'+escape(q)+'</button>').join(' ')+'</div></section>'+
    '<section aria-label="当前分析"><h2>当前分析</h2>'+(session.pending?'<p>正在校验本题模拟响应；先前答案已移入历史。</p>':
     current?turnHtml(current,history.length):'<p>尚无分析。</p>')+'</section>'+
    '<details data-analysis-history><summary>历史记录（'+history.length+'）</summary>'+
@@ -75,14 +96,18 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
     notice='已拦截重复点击；稍后可主动重新分析。';root.querySelector('[data-analysis-status]').textContent=notice;return;
    }
    lastSubmission={question,at:now};const token=++generation;
-   const promise=session.send(question);notice='正在校验本地模拟响应…';render();
+   const promise=session.send(question);notice=mode==='LIVE'?'正在检查单次授权与证据…':'正在校验本地模拟响应…';render();
    const result=await promise;if(token!==generation||location.hash!==route)return;
    notice=result.notice||result.status;render();
   };
   root.querySelector('[data-analysis-cancel]').onclick=()=>{session.cancel();generation++;notice='已取消；本题未沿用旧答案。';render()};
   root.querySelector('[data-analysis-reset]').onclick=()=>{session.reset();generation++;draft='';lastSubmission={question:'',at:0};notice='新对话已开始。';render()};
+  root.querySelector('[data-analysis-mode]').onclick=()=>{session.cancel();session.reset();generation++;
+   mode=mode==='LIVE'?'OFFLINE':'LIVE';session=mode==='LIVE'?liveSession:offlineSession;
+   session.reset();draft='';lastSubmission={question:'',at:0};
+   notice=mode==='LIVE'?'真实模式仅在本地单次授权后发送；目前默认拒发。':'已切回固定离线模拟。';render()};
   root.querySelector('[data-analysis-back]').onclick=()=>{leave();location.hash='#qa/evidence'};
-  root.querySelectorAll('[data-analysis-example]').forEach(button=>button.onclick=()=>{draft=questions[Number(button.dataset.analysisExample)];input.value=draft;input.focus()});
+  root.querySelectorAll('[data-analysis-example]').forEach(button=>button.onclick=()=>{draft=(mode==='LIVE'?[liveQuestion]:questions)[Number(button.dataset.analysisExample)];input.value=draft;input.focus()});
   root.querySelectorAll('[data-analysis-cite]').forEach(link=>link.onclick=event=>{event.preventDefault();
    const target=document.getElementById(link.dataset.analysisCite);target?.scrollIntoView({block:'center'});target?.focus({preventScroll:true})});
  }
@@ -99,5 +124,5 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
   if(initialRoute){history.replaceState(null,'',route);sync()}
  }
  if(typeof document!=='undefined')setTimeout(install,0);
- return {render,install,session};
+  return {render,install,session:offlineSession,liveSession};
 })();

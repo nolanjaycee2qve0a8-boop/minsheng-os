@@ -5,14 +5,34 @@
  const allowed=new Set(['SIMULATED_ANALYSIS_REVIEW_REQUIRED','NO_EVIDENCE','UNSUPPORTED_QUESTION',
   'MOCK_TIMEOUT','MOCK_RATE_LIMIT','MOCK_RESPONSE_REJECTED','SOURCE_TEXT_REJECTED',
   'EVIDENCE_UNAVAILABLE','INVALID_REQUEST']);
- function validateTurn(question,result){
-  if(!result||result.question!==question||!allowed.has(result.status)||
-   result.simulation!=='OFFLINE_FIXED_MOCK'||result.providerUsed!==false||
-   result.externalRequests!==0||!Array.isArray(result.facts)||!Array.isArray(result.inferences)||
+ const liveFailures=new Set(['EXTERNAL_CALL_NOT_AUTHORIZED','ONE_CALL_AUTHORIZATION_MISSING',
+  'DAILY_BUDGET_EXHAUSTED','PRICE_UNKNOWN','LEDGER_CORRUPT','LEDGER_LOCKED',
+  'AUTHENTICATION_FAILED','RATE_LIMITED','PROVIDER_FAILURE','MALFORMED_RESPONSE',
+  'TIMEOUT_OUTCOME_UNKNOWN','NETWORK_OUTCOME_UNKNOWN','OUTPUT_REJECTED',
+  'BUDGET_EXHAUSTED','DUPLICATE_SUBMISSION','EVIDENCE_PREFLIGHT_REJECTED',
+  'LEDGER_OVERAGE_REVIEW_REQUIRED','BUDGET_ACCOUNTING_EXCEEDED',
+  'LEDGER_OVERAGE_RECORD_FAILED','CREDENTIAL_UNAVAILABLE','RESPONSE_LIMIT_EXCEEDED',
+  'INPUT_LIMIT_EXCEEDED','LEDGER_REJECTED','QUESTION_NOT_APPROVED']);
+ function validateTurn(question,result,kind='OFFLINE'){
+  if(!result||result.question!==question||!Array.isArray(result.facts)||!Array.isArray(result.inferences)||
    !Array.isArray(result.gaps)||!Array.isArray(result.sources))return false;
+  if(kind==='LIVE'){
+   if(result.status==='REAL_API_VALIDATED'||result.status==='SIMULATED_GATE_VALIDATED'){
+    if(result.question!==question||result.validationStatus!=='EXISTING_CHAIN_PASSED'||
+       result.model!=='deepseek-flash'||
+       (result.status==='REAL_API_VALIDATED' &&
+        (result.providerUsed!==true||result.externalRequests!==1||result.transport!=='REAL_API'))||
+       (result.status==='SIMULATED_GATE_VALIDATED' &&
+        (result.providerUsed!==false||result.externalRequests!==0||
+         result.simulation!=='SIMULATED_HTTP_ONLY')))return false;
+   }else return liveFailures.has(result.status)&&!result.facts.length&&
+     !result.inferences.length&&!result.sources.length;
+  }else if(result.question!==question||!allowed.has(result.status)||
+   result.simulation!=='OFFLINE_FIXED_MOCK'||result.providerUsed!==false||
+   result.externalRequests!==0)return false;
   const sources=new Map(result.sources.map(x=>[x.evidenceId,x]));
   if(sources.size!==result.sources.length)return false;
-  if(result.status==='SIMULATED_ANALYSIS_REVIEW_REQUIRED'){
+  if(['SIMULATED_ANALYSIS_REVIEW_REQUIRED','REAL_API_VALIDATED','SIMULATED_GATE_VALIDATED'].includes(result.status)){
    if(!result.inputContract||result.inputContract.question!==question||
       !Array.isArray(result.inputContract.evidence)||
       JSON.stringify(result.inputContract.evidence)!==JSON.stringify(result.sources))return false;
@@ -27,8 +47,9 @@
   }else if(result.facts.length||result.inferences.length||result.sources.length)return false;
   return true;
  }
- function createSession({respond}={}){
+ function createSession({respond,kind='OFFLINE'}={}){
   if(typeof respond!=='function')throw Error('ANALYSIS_RESPONDER_REQUIRED');
+  if(!['OFFLINE','LIVE'].includes(kind))throw Error('ANALYSIS_KIND_INVALID');
   let current=null,pending=null,sequence=0;const history=[];
   return Object.freeze({
    get current(){return current&&clone(current)},
@@ -41,9 +62,9 @@
     try{
      const response=await respond(question);
      if(pending!==token)return {status:'CANCELLED'};
-     const safe=validateTurn(question,response)?response:{
+     const safe=validateTurn(question,response,kind)?response:{
       question,status:'INVALID_ANALYSIS_RESPONSE',facts:[],inferences:[],gaps:[],sources:[],
-      simulation:'OFFLINE_FIXED_MOCK',providerUsed:false,externalRequests:0,
+      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,externalRequests:0,
       notice:'分析响应未通过页面核验，未显示先前答案。'
      };
      current={...clone(safe),askedAt:new Date().toISOString(),sourceIds:safe.sources.map(x=>x.evidenceId)};
@@ -51,7 +72,7 @@
     }catch{
      if(pending!==token)return {status:'CANCELLED'};
      current={question,status:'SERVICE_UNAVAILABLE',facts:[],inferences:[],gaps:[],sources:[],
-      simulation:'OFFLINE_FIXED_MOCK',providerUsed:false,externalRequests:0,
+      simulation:kind==='OFFLINE'?'OFFLINE_FIXED_MOCK':null,providerUsed:false,externalRequests:0,
       notice:'本地模拟服务不可用；未沿用先前答案。',askedAt:new Date().toISOString(),sourceIds:[]};
      return clone(current);
     }finally{if(pending===token)pending=null}

@@ -14,6 +14,7 @@ const QUESTIONS = Object.freeze([
   '6月末法定地方政府债务余额是多少？',
   '能计算居民正式偿债能力吗？'
 ]);
+const LIVE_FIRST_QUESTION = '2026年上半年全国居民人均可支配收入是多少？';
 const BOUNDARY = '仅分析本轮已登记的全国结构化证据；不证明因果，不把情景当作现实或预测，不将半年流量与六月末存量拼接。';
 const SAFE_REJECTIONS = new Set(['SCHEMA_INVALID', 'REFERENCE_SCHEMA_INVALID', 'CLAIM_ID_OR_TYPE_INVALID',
   'FACT_BINDING_MISMATCH', 'GAP_BINDING_MISMATCH', 'UNAUTHORIZED_OR_FORWARD_REFERENCE',
@@ -99,12 +100,13 @@ function createOfflineEvidenceAnalysis({ fixture = 'ACCEPTED', mockResponse = nu
     const question = input.question.trim();
     const base = { question, simulation: 'OFFLINE_FIXED_MOCK', providerUsed: false, externalRequests: 0,
       facts: [], inferences: [], gaps: [], sources: [], boundary: BOUNDARY };
-    if (!QUESTIONS.includes(question)) return { ...base, status: 'UNSUPPORTED_QUESTION',
+    const canonicalQuestion = question === LIVE_FIRST_QUESTION ? QUESTIONS[0] : question;
+    if (!QUESTIONS.includes(canonicalQuestion)) return { ...base, status: 'UNSUPPORTED_QUESTION',
       notice: '问题超出当前证据分析范围；不能用相邻证据、闲聊或算术回答替代。' };
     let prepared, summary;
-    try { summary = normalizeQuestion(question); prepared = await sandbox.prepare(summary); }
+    try { summary = normalizeQuestion(canonicalQuestion); prepared = await sandbox.prepare(summary); }
     catch { return { ...base, status: 'EVIDENCE_UNAVAILABLE', notice: '本地证据预检失败，未生成分析。' }; }
-    const cited = qa.answer(question === QUESTIONS[4] ? '居民偿债是多少？' : question);
+    const cited = qa.answer(canonicalQuestion === QUESTIONS[4] ? '居民偿债是多少？' : canonicalQuestion);
     if (!qa.validateAnswer(cited) ||
         (prepared.localFallback.facts.length &&
          (cited.status !== 'ANSWERED' ||
@@ -160,4 +162,4 @@ function createOfflineEvidenceAnalysis({ fixture = 'ACCEPTED', mockResponse = nu
   }
   return Object.freeze({ analyze, questions: QUESTIONS });
 }
-module.exports = { createOfflineEvidenceAnalysis, QUESTIONS, BOUNDARY, sourceFor };
+module.exports = { createOfflineEvidenceAnalysis, QUESTIONS, LIVE_FIRST_QUESTION, BOUNDARY, sourceFor };

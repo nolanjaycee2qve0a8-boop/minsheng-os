@@ -5,6 +5,7 @@ const path = require('node:path');
 const { createStructuredSandbox, normalizeQuestion } = require('../server/analysis/structured-claims');
 const { createSimulatedGate, previewFirstRequest, FIRST_QUESTION, LIMITS,
   ENDPOINT, MODEL } = require('../server/analysis/deepseek-live-preflight');
+const { QUESTIONS } = require('../server/analysis/offline-evidence-analysis');
 let count = 0;
 const eq = (a,b,m) => { count++; assert.deepEqual(a,b,m); };
 const ok = (v,m) => { count++; assert.ok(v,m); };
@@ -13,12 +14,12 @@ const fields = { FACT: ['id','type','evidenceId','evidenceClassification','value
   GAP: ['id','type','evidenceId'], ASSUMPTION: ['id','type','text','evidenceIds','dependsOn'],
   INFERENCE: ['id','type','text','evidenceIds','dependsOn','uncertainty','causalStatus'] };
 async function validClaims() {
-  const result = await createStructuredSandbox().run(normalizeQuestion(FIRST_QUESTION));
+  const result = await createStructuredSandbox().run(normalizeQuestion(QUESTIONS[0]));
   eq(result.status,'HUMAN_REVIEW_REQUIRED');
   return { schemaVersion:'v037-claims-1', claims:result.claims.map(c =>
     Object.fromEntries(fields[c.type].map(k => [k,c[k]]))) };
 }
-const envelope = claim => ({ status:200, body:{ choices:[{finish_reason:'stop',
+const envelope = claim => ({ status:200, body:{ model:MODEL,choices:[{finish_reason:'stop',
   message:{content:JSON.stringify(claim)}}], usage:{prompt_tokens:900,completion_tokens:100} } });
 async function test() {
   const preview = await previewFirstRequest();
@@ -36,9 +37,11 @@ async function test() {
     sent.evidence[0].eventStart && sent.evidence[0].eventEnd);
   ok(!JSON.stringify(sent).includes('s_bank_scenario'));
   const page = fs.readFileSync(path.join(__dirname,'../modules/evidence-analysis-workspace.js'),'utf8');
-  ok(page.includes('OFFLINE_FIXED_MOCK') && page.includes('真实 API 尚未授权') &&
-    page.includes('外部调用：0') && page.includes('模型：无'),
-  'browser continues to distinguish the offline mock from an authorized real result');
+  ok(page.includes('OFFLINE_FIXED_MOCK') && page.includes('REAL_API_VALIDATED') &&
+    page.includes('固定离线模拟，非 DeepSeek 实测') &&
+    page.includes('真实 DeepSeek API · 已通过证据校验') &&
+    page.includes('外部调用：') && page.includes('模型：'),
+  'browser keeps stronger, distinct labels for offline mock and validated real API');
   const raw=await validClaims();
   let sends=0;
   const closed=createSimulatedGate({send:async()=>{sends++;return envelope(raw)}});

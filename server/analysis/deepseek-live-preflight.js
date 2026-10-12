@@ -2,13 +2,13 @@
 // Preparation only: this module has no fetch, credential, route, or real-call switch.
 // Injected send() is a simulated HTTP service. Its content still passes the
 // accepted offline evidence selector, response-safety check and claim validator.
-const { createOfflineEvidenceAnalysis, QUESTIONS } = require('./offline-evidence-analysis');
+const { createOfflineEvidenceAnalysis, LIVE_FIRST_QUESTION } = require('./offline-evidence-analysis');
 const { parseResponseData } = require('./generation-response-safety');
 const { createHash } = require('node:crypto');
 
 const ENDPOINT = 'https://api.deepseek.com/chat/completions';
 const MODEL = 'deepseek-flash';
-const FIRST_QUESTION = QUESTIONS[0];
+const FIRST_QUESTION = LIVE_FIRST_QUESTION;
 const LIMITS = Object.freeze({ calls: 1, automaticRetries: 0, inputBytes: 6000,
   outputTokens: 512, responseBytes: 16384, timeoutMs: 8000 });
 const SCHEMA_VERSION = 'v037-claims-1';
@@ -93,7 +93,7 @@ function createSimulatedGate({ send, clock = () => new Date().toISOString(), ena
           throw Error(failure);
         }
         const envelope = reply.body;
-        if (!envelope || typeof envelope !== 'object' ||
+        if (!envelope || typeof envelope !== 'object' || envelope.model !== MODEL ||
             Buffer.byteLength(JSON.stringify(envelope), 'utf8') > LIMITS.responseBytes ||
             !Array.isArray(envelope.choices) || envelope.choices.length !== 1 ||
             envelope.choices[0]?.finish_reason !== 'stop' ||

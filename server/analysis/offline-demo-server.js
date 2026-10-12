@@ -10,9 +10,9 @@ const ORIGIN = 'http://127.0.0.1:' + PORT;
 const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css',
   '.json': 'application/json', '.svg': 'image/svg+xml', '.png': 'image/png',
   '.jpg': 'image/jpeg', '.woff2': 'font/woff2' };
-function staticPath(url) {
+function staticPath(url, origin = ORIGIN) {
   let name;
-  try { name = decodeURIComponent(new URL(url, ORIGIN).pathname); } catch { return null; }
+  try { name = decodeURIComponent(new URL(url, origin).pathname); } catch { return null; }
   if (name === '/') name = '/index.html';
   if (name.includes('..') || name.includes('\\') || name.includes('\0')) return null;
   const relative = name.slice(1);
@@ -21,7 +21,9 @@ function staticPath(url) {
   const full = path.resolve(root, relative);
   return full.startsWith(root + path.sep) ? full : null;
 }
-function createServer(service = createOfflineEvidenceAnalysis()) {
+function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null, port = PORT) {
+  if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('LOCAL_PORT_INVALID');
+  const origin = 'http://127.0.0.1:' + port;
   return http.createServer(async (req, res) => {
     const send = (status, body) => {
       if (res.writableEnded || res.destroyed) return;
@@ -29,12 +31,15 @@ function createServer(service = createOfflineEvidenceAnalysis()) {
         'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
       res.end(JSON.stringify(body));
     };
-    if (req.headers.host !== '127.0.0.1:' + PORT) return send(403, { status: 'HOST_DENIED' });
+    if (req.headers.host !== '127.0.0.1:' + port) return send(403, { status: 'HOST_DENIED' });
     if (req.url === '/api/analysis/offline/health' && req.method === 'GET')
       return send(200, { status: 'OFFLINE_MOCK_READY', providerUsed: false, externalRequests: 0 });
-    if (req.url === '/api/analysis/offline') {
+    if (req.url === '/api/analysis/live' && !liveGate)
+      return send(403, { status: 'EXTERNAL_CALL_NOT_AUTHORIZED',
+        providerUsed: false, externalRequests: 0 });
+    if (req.url === '/api/analysis/offline' || req.url === '/api/analysis/live') {
       if (req.method !== 'POST') return send(405, { status: 'METHOD_NOT_ALLOWED' });
-      if (req.headers.origin !== ORIGIN || !/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type'] || ''))
+      if (req.headers.origin !== origin || !/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type'] || ''))
         return send(403, { status: 'ORIGIN_OR_CONTENT_TYPE_DENIED' });
       const chunks = []; let bytes = 0;
       try {
@@ -43,12 +48,15 @@ function createServer(service = createOfflineEvidenceAnalysis()) {
           if (bytes > 2048) return send(413, { status: 'REQUEST_TOO_LARGE' });
           chunks.push(chunk);
         }
-        const answer = await service.analyze(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+        const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        if (!input || Object.keys(input).join() !== 'question' ||
+            typeof input.question !== 'string') return send(400, { status: 'INVALID_REQUEST' });
+        const answer = await (req.url === '/api/analysis/live' ? liveGate : service).analyze(input);
         return send(200, answer);
       } catch { return send(400, { status: 'INVALID_REQUEST' }); }
     }
     if (req.method !== 'GET' && req.method !== 'HEAD') return send(405, { status: 'METHOD_NOT_ALLOWED' });
-    const file = staticPath(req.url);
+    const file = staticPath(req.url, origin);
     if (!file) return send(404, { status: 'NOT_FOUND' });
     try {
       const stat = fs.statSync(file);
@@ -61,8 +69,9 @@ function createServer(service = createOfflineEvidenceAnalysis()) {
   });
 }
 if (require.main === module) {
-  const server = createServer();
+  const port = process.env.MINSHENG_DEMO_PORT ? Number(process.env.MINSHENG_DEMO_PORT) : PORT;
+  const server = createServer(undefined, null, port);
   server.on('error', () => { console.error('OFFLINE_ANALYSIS_DEMO_FAILED'); process.exitCode = 1; });
-  server.listen(PORT, '127.0.0.1', () => console.log(ORIGIN + '/#qa/analysis-offline'));
+  server.listen(port, '127.0.0.1', () => console.log('http://127.0.0.1:' + port + '/#qa/analysis-offline'));
 }
 module.exports = { createServer, PORT, staticPath };
