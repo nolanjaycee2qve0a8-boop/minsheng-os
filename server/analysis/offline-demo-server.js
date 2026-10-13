@@ -4,6 +4,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { createOfflineEvidenceAnalysis } = require('./offline-evidence-analysis');
+const { createLimitedOfflineEvaluation } = require('./limited-offline-evaluation');
 const root = path.resolve(__dirname, '../..');
 const PORT = 4189;
 const ORIGIN = 'http://127.0.0.1:' + PORT;
@@ -21,7 +22,8 @@ function staticPath(url, origin = ORIGIN) {
   const full = path.resolve(root, relative);
   return full.startsWith(root + path.sep) ? full : null;
 }
-function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null, port = PORT) {
+function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null, port = PORT,
+  evaluation = createLimitedOfflineEvaluation()) {
   if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('LOCAL_PORT_INVALID');
   const origin = 'http://127.0.0.1:' + port;
   return http.createServer(async (req, res) => {
@@ -34,10 +36,14 @@ function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null
     if (req.headers.host !== '127.0.0.1:' + port) return send(403, { status: 'HOST_DENIED' });
     if (req.url === '/api/analysis/offline/health' && req.method === 'GET')
       return send(200, { status: 'OFFLINE_MOCK_READY', providerUsed: false, externalRequests: 0 });
+    if (req.url === '/api/analysis/evaluation/health' && req.method === 'GET')
+      return send(200, { status: 'SYNTHETIC_EVALUATION_READY', providerUsed: false,
+        externalRequests: 0 });
     if (req.url === '/api/analysis/live' && !liveGate)
       return send(403, { status: 'EXTERNAL_CALL_NOT_AUTHORIZED',
         providerUsed: false, externalRequests: 0 });
-    if (req.url === '/api/analysis/offline' || req.url === '/api/analysis/live') {
+    if (req.url === '/api/analysis/offline' || req.url === '/api/analysis/live' ||
+        req.url === '/api/analysis/evaluation') {
       if (req.method !== 'POST') return send(405, { status: 'METHOD_NOT_ALLOWED' });
       if (req.headers.origin !== origin || !/^application\/json(?:;\s*charset=utf-8)?$/i.test(req.headers['content-type'] || ''))
         return send(403, { status: 'ORIGIN_OR_CONTENT_TYPE_DENIED' });
@@ -49,6 +55,11 @@ function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null
           chunks.push(chunk);
         }
         const input = JSON.parse(Buffer.concat(chunks).toString('utf8'));
+        if (req.url === '/api/analysis/evaluation') {
+          if (!input || Object.keys(input).join() !== 'caseId' ||
+              typeof input.caseId !== 'string') return send(400, { status: 'INVALID_REQUEST' });
+          return send(200, evaluation.evaluate(input.caseId));
+        }
         if (!input || Object.keys(input).join() !== 'question' ||
             typeof input.question !== 'string') return send(400, { status: 'INVALID_REQUEST' });
         const answer = await (req.url === '/api/analysis/live' ? liveGate : service).analyze(input);
