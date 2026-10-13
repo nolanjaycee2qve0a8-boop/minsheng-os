@@ -35,6 +35,7 @@
     "tests/v040-analysis-mode-copy-tests.js",
     "tests/v041-limited-offline-evaluation-tests.js",
     "tests/v042-income-explanation-preflight-tests.js",
+    "tests/v043-income-live-launcher-tests.js",
     "tests/v09-calibration-tests.js",
     "tests/v091-historical-backfill-tests.js",
     "tests/v092-nbs-historical-tests.js",

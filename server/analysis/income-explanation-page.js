@@ -1,0 +1,9 @@
+'use strict';
+const INCOME_PAGE=`<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>两期收入解释 · 单次验收</title><style>body{font:17px/1.7 system-ui;max-width:900px;margin:32px auto;padding:16px;color:#153e38;background:#f6faf8}section,article{background:white;border:1px solid #bccfc8;padding:20px;margin:16px 0}button{padding:12px;font:inherit}pre{white-space:pre-wrap;overflow-wrap:anywhere}a{overflow-wrap:anywhere}</style>
+<h1>两期收入解释：受限单次验收</h1><p>默认不发送。只有新请求获本地单次授权后才能调用 DeepSeek；切换页面、刷新或重启不恢复额度。</p>
+<p>本题事实和程序计算已提供给模型，只验收引用、数值与解释边界，不是独立计算或自由分析能力证明。</p>
+<section><h2 id="question">这些变化说明什么，不能据此推断什么？</h2><button id="send">检查授权并发送一次</button><p id="notice" role="status">尚未发送；本页面没有读取密钥的入口。</p></section>
+<h2>当前结果</h2><section id="current">尚无结果。</section><details id="history"><summary>历史结果（默认折叠）</summary><div id="history-items"></div></details>
+<script src="/modules/income-explanation-panel.js"></script></html>`;
+module.exports={INCOME_PAGE};

@@ -54,7 +54,7 @@ async function main(){
   eq(beijingDay(new Date('2026-10-12T15:59:00Z')),'2026-10-12');
   eq(beijingDay(new Date('2026-10-12T16:01:00Z')),'2026-10-13');
   eq(reserveMicroUsd(PRICE),3072);ok(reserveMicroUsd(PRICE)*3<=POLICY.dailyMicroUsd);
-  eq(approvalPolicy(new Date(NOW)).dailyCalls,3);
+  eq(approvalPolicy(new Date(NOW)).dailyCalls,1);
   const preview=await previewFirstRequest();
   eq(JSON.parse(preview.body.messages[1].content).question,FIRST_QUESTION);
   eq(JSON.parse(preview.body.messages[1].content).evidence.map(x=>x.evidenceId),['s_income_pc_h1']);

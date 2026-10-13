@@ -23,7 +23,7 @@ function staticPath(url, origin = ORIGIN) {
   return full.startsWith(root + path.sep) ? full : null;
 }
 function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null, port = PORT,
-  evaluation = createLimitedOfflineEvaluation()) {
+  evaluation = createLimitedOfflineEvaluation(), incomePage = null) {
   if (!Number.isInteger(port) || port < 1024 || port > 65535) throw Error('LOCAL_PORT_INVALID');
   const origin = 'http://127.0.0.1:' + port;
   return http.createServer(async (req, res) => {
@@ -34,6 +34,11 @@ function createServer(service = createOfflineEvidenceAnalysis(), liveGate = null
       res.end(JSON.stringify(body));
     };
     if (req.headers.host !== '127.0.0.1:' + port) return send(403, { status: 'HOST_DENIED' });
+    if(req.url==='/income-explanation'&&req.method==='GET'&&incomePage){
+      res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store',
+        'Content-Security-Policy':"default-src 'self'; script-src 'self'; connect-src 'self'; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'none'"});
+      return res.end(incomePage);
+    }
     if (req.url === '/api/analysis/offline/health' && req.method === 'GET')
       return send(200, { status: 'OFFLINE_MOCK_READY', providerUsed: false, externalRequests: 0 });
     if (req.url === '/api/analysis/evaluation/health' && req.method === 'GET')

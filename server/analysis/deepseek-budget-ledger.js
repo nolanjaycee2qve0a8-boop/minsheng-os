@@ -54,10 +54,16 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
       return row;
     });
     if (!rows.length || rows[0].kind !== 'POLICY' || !policyValid(rows[0].policy) ||
-        rows.slice(1).some(row => !['GRANT','RESERVE','OVERAGE'].includes(row.kind))) throw Error('LEDGER_CORRUPT');
+        rows.slice(1).some(row => !['GRANT','RESERVE','OVERAGE','RESTRICT_POLICY'].includes(row.kind))) throw Error('LEDGER_CORRUPT');
+    let policy = rows[0].policy;
     const grants = new Map(), reservations = new Set();
     for (const row of rows.slice(1)) {
-      if (row.kind === 'GRANT') {
+      if (row.kind === 'RESTRICT_POLICY') {
+        if (!policyValid(row.policy) || row.policy.dailyCalls > policy.dailyCalls ||
+            row.policy.dailyMicroUsd > policy.dailyMicroUsd ||
+            Date.parse(row.policy.price.confirmedAt) < Date.parse(policy.price.confirmedAt)) throw Error('LEDGER_CORRUPT');
+        policy = row.policy;
+      } else if (row.kind === 'GRANT') {
         if (!row.id || grants.has(row.id) || !/^[a-f0-9]{64}$/.test(row.questionDigest || '') ||
             !Number.isFinite(Date.parse(row.expiresAt))) throw Error('LEDGER_CORRUPT');
         grants.set(row.id, row);
@@ -71,7 +77,7 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
     }
     const spent = new Set(rows.filter(row => row.kind === 'RESERVE').map(row => row.grantId));
     if (spent.size !== reservations.size) throw Error('LEDGER_CORRUPT');
-    return { rows, grants, spent };
+    return { rows, grants, spent, policy };
   }
   function append(rows, payload) {
     const rest = { ...payload, prev: rows.at(-1).hash };
@@ -98,14 +104,28 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
       return id;
     });
   }
-  function reserve({ id = randomUUID(), requestBytes }) {
+  function restrictPolicy(policy) {
+    // Explicit user price confirmation only; never creates, truncates or resets a journal.
     return locked(() => {
-      const state = entries(), policy = state.rows[0].policy, at = now();
+      const state = entries();
+      if (!policyValid(policy) || policy.dailyCalls > state.policy.dailyCalls ||
+          policy.dailyMicroUsd > state.policy.dailyMicroUsd ||
+          Date.parse(policy.price.confirmedAt) < Date.parse(state.policy.price.confirmedAt)) throw Error('POLICY_RESTRICTION_INVALID');
+      append(state.rows, { kind: 'RESTRICT_POLICY', policy });
+    });
+  }
+  function reserve({ id = randomUUID(), requestBytes, constraints } = {}) {
+    return locked(() => {
+      const state = entries(), policy = state.policy, at = now();
       if (state.rows.some(row => row.kind === 'OVERAGE')) throw Error('LEDGER_OVERAGE_REVIEW_REQUIRED');
       if (!integer(requestBytes, 1) || requestBytes > LIMITS.inputBytes) throw Error('INPUT_LIMIT_EXCEEDED');
       if (at.getTime() < Date.parse(policy.price.confirmedAt) ||
           at.getTime() >= Date.parse(policy.price.expiresAt)) throw Error('PRICE_UNKNOWN');
       const microUsd = reserveMicroUsd(policy.price), day = beijingDay(at);
+      if (constraints && (policy.dailyCalls > constraints.dailyCalls || policy.dailyMicroUsd > constraints.dailyMicroUsd ||
+          microUsd !== constraints.reservedMicroUsd || policy.price.model !== constraints.model ||
+          policy.price.inputPerMillionMicroUsd !== constraints.inputPerMillionMicroUsd ||
+          policy.price.outputPerMillionMicroUsd !== constraints.outputPerMillionMicroUsd)) throw Error('BUDGET_BINDING_MISMATCH');
       const today = state.rows.filter(row => row.kind === 'RESERVE' && row.day === day);
       if (today.length >= policy.dailyCalls ||
           today.reduce((n, row) => n + row.microUsd, 0) + microUsd > policy.dailyMicroUsd)
@@ -128,7 +148,7 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
       append(state.rows, { kind: 'OVERAGE', reservationId, inputTokens, outputTokens });
     });
   }
-  return Object.freeze({ initialize, grantOne, reserve, flagOverage, inspect, journal, authorizationDigest });
+  return Object.freeze({ initialize, grantOne, restrictPolicy, reserve, flagOverage, inspect, journal, authorizationDigest });
 }
 module.exports = { createLedger, beijingDay, reserveMicroUsd, INPUT_TOKEN_RESERVE,
   OUTPUT_TOKEN_RESERVE, questionDigest };
