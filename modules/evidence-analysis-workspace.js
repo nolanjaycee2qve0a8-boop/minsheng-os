@@ -37,7 +37,9 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
  let evaluationCurrent=null,evaluationPending=false,evaluationToken=0;
  const evaluationHistory=[];
  const host=()=>document.getElementById('researchCockpitRoot');
- const leave=()=>{session.cancel();generation++};
+ const clearEvaluation=()=>{evaluationToken++;evaluationCurrent=null;
+  evaluationPending=false;evaluationHistory.length=0};
+ const leave=()=>{session.cancel();generation++;clearEvaluation()};
  function sourceHtml(source,turn,index){
   const id='analysis-citation-'+turn+'-'+index;
   const link=source.sourceUrl&&/^https?:\/\//.test(source.sourceUrl)
@@ -183,7 +185,8 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
    '<button type="submit" '+(session.pending?'disabled':'')+'>发送</button> <button type="button" data-analysis-cancel '+(session.pending?'':'disabled')+
    '>取消</button> <button type="button" data-analysis-reset>新对话</button> <button type="button" data-analysis-back>返回有证据问答</button></form>'+
    '<p role="status" aria-live="polite" data-analysis-status>'+escape(notice)+'</p>'+
-   '<p>请求入口：'+(mode==='LIVE'?'真实 API（未授权时拒发）':'固定离线模拟')+'。每条答案的模式以其实际结果标识为准；上方分析入口不含闲聊、算术、实时采集或历史预测。下方独立合成评测仅做确定性机械计算。</p>'+
+   '<p>请求入口：'+(mode==='LIVE'?'真实 API（未授权时拒发）':'固定离线模拟')+'。每条答案的模式以其实际结果标识为准；本入口不含闲聊、算术、实时采集或历史预测。'+
+   (mode==='OFFLINE'?'下方独立合成评测仅做确定性机械计算。':'合成评测只在离线模式展示。')+'</p>'+
    '<button type="button" data-analysis-mode>切换到'+(mode==='LIVE'?'离线模拟':'真实 API 闸门')+'</button>'+
    '<div aria-label="离线分析示例">'+(mode==='LIVE'?[liveQuestion]:questions).map((q,i)=>'<button type="button" data-analysis-example="'+i+'">'+escape(q)+'</button>').join(' ')+'</div></section>'+
    '<section aria-label="当前分析"><h2>当前分析</h2>'+(session.pending?'<p>正在处理本题响应；先前答案已移入历史。</p>':
@@ -203,8 +206,9 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
    notice=result.notice||result.status;render();
   };
   root.querySelector('[data-analysis-cancel]').onclick=()=>{session.cancel();generation++;notice='已取消；本题未沿用旧答案。';render()};
-  root.querySelector('[data-analysis-reset]').onclick=()=>{session.reset();generation++;draft='';lastSubmission={question:'',at:0};notice='新对话已开始。';render()};
+  root.querySelector('[data-analysis-reset]').onclick=()=>{session.reset();generation++;clearEvaluation();draft='';lastSubmission={question:'',at:0};notice='新对话已开始。';render()};
   root.querySelector('[data-analysis-mode]').onclick=()=>{session.cancel();session.reset();generation++;
+   clearEvaluation();
    mode=mode==='LIVE'?'OFFLINE':'LIVE';session=mode==='LIVE'?liveSession:offlineSession;
    session.reset();draft='';lastSubmission={question:'',at:0};
    notice=mode==='LIVE'?'真实模式仅在本地单次授权后发送；目前默认拒发。':'已切回固定离线模拟。';render()};

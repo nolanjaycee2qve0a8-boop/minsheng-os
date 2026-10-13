@@ -141,6 +141,14 @@ async function run() {
     'new conflict replaces the current calculation');
   ok(page.root.innerHTML.includes('合成评测历史（1）') &&
     page.root.innerHTML.includes('C01 · 合成两期'), 'history keeps its own question');
+  page.root.querySelector('[data-analysis-mode]').onclick();
+  ok(!page.root.innerHTML.includes('受限分析能力评测（仅合成）') &&
+    page.root.innerHTML.includes('合成评测只在离线模式展示。'),
+    'live mode has no synthetic panel or misleading lower-panel copy');
+  page.root.querySelector('[data-analysis-mode]').onclick();
+  ok(page.root.innerHTML.includes('尚未运行合成评测。') &&
+    page.root.innerHTML.includes('合成评测历史（0）'),
+    'switching back cannot resurrect a prior synthetic answer');
   const failing = pageFixture({ evaluate: id => {
     if (id === 'C01') return service.evaluate(id);
     throw Error('OFFLINE_TEST_FAILURE');
