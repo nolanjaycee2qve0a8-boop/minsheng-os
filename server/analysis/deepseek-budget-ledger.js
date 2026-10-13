@@ -29,8 +29,9 @@ function reserveMicroUsd(price) {
   return Math.ceil((INPUT_TOKEN_RESERVE * price.inputPerMillionMicroUsd +
     OUTPUT_TOKEN_RESERVE * price.outputPerMillionMicroUsd) / 1000000);
 }
-function createLedger({ directory, now = () => new Date() }) {
+function createLedger({ directory, now = () => new Date(), authorizationDigest = questionDigest }) {
   if (!path.isAbsolute(directory || '')) throw Error('LEDGER_ABSOLUTE_PATH_REQUIRED');
+  if (!/^[a-f0-9]{64}$/.test(authorizationDigest || '')) throw Error('AUTHORIZATION_DIGEST_INVALID');
   const journal = path.join(directory, 'deepseek-budget-v1.jsonl');
   const lock = path.join(directory, 'deepseek-budget-v1.lock');
   function locked(work) {
@@ -57,13 +58,13 @@ function createLedger({ directory, now = () => new Date() }) {
     const grants = new Map(), reservations = new Set();
     for (const row of rows.slice(1)) {
       if (row.kind === 'GRANT') {
-        if (!row.id || grants.has(row.id) || row.questionDigest !== questionDigest ||
+        if (!row.id || grants.has(row.id) || !/^[a-f0-9]{64}$/.test(row.questionDigest || '') ||
             !Number.isFinite(Date.parse(row.expiresAt))) throw Error('LEDGER_CORRUPT');
         grants.set(row.id, row);
       } else if (row.kind === 'RESERVE') {
         if (!row.id || reservations.has(row.id) || !grants.has(row.grantId) ||
             !/^\d{4}-\d{2}-\d{2}$/.test(row.day) || !integer(row.microUsd, 1) ||
-            row.questionDigest !== questionDigest) throw Error('LEDGER_CORRUPT');
+            row.questionDigest !== grants.get(row.grantId).questionDigest) throw Error('LEDGER_CORRUPT');
         reservations.add(row.id);
       } else if (!reservations.has(row.reservationId) || !integer(row.inputTokens, 1) ||
           !integer(row.outputTokens, 0)) throw Error('LEDGER_CORRUPT');
@@ -93,7 +94,7 @@ function createLedger({ directory, now = () => new Date() }) {
       const state = entries();
       if (!id || state.grants.has(id) || !Number.isFinite(Date.parse(expiresAt)) ||
           Date.parse(expiresAt) <= now().getTime()) throw Error('GRANT_INVALID');
-      append(state.rows, { kind: 'GRANT', id, questionDigest, expiresAt });
+      append(state.rows, { kind: 'GRANT', id, questionDigest: authorizationDigest, expiresAt });
       return id;
     });
   }
@@ -110,11 +111,11 @@ function createLedger({ directory, now = () => new Date() }) {
           today.reduce((n, row) => n + row.microUsd, 0) + microUsd > policy.dailyMicroUsd)
         throw Error('DAILY_BUDGET_EXHAUSTED');
       const grant = [...state.grants.values()].find(row => !state.spent.has(row.id) &&
-        Date.parse(row.expiresAt) > at.getTime());
+        row.questionDigest === authorizationDigest && Date.parse(row.expiresAt) > at.getTime());
       if (!grant) throw Error('ONE_CALL_AUTHORIZATION_MISSING');
       if (state.rows.some(row => row.id === id)) throw Error('DUPLICATE_REQUEST');
       append(state.rows, { kind: 'RESERVE', id, grantId: grant.id, day, microUsd,
-        questionDigest, at: at.toISOString() });
+        questionDigest: authorizationDigest, at: at.toISOString() });
       return { id, day, microUsd, grantId: grant.id };
     });
   }
@@ -127,7 +128,7 @@ function createLedger({ directory, now = () => new Date() }) {
       append(state.rows, { kind: 'OVERAGE', reservationId, inputTokens, outputTokens });
     });
   }
-  return Object.freeze({ initialize, grantOne, reserve, flagOverage, inspect, journal });
+  return Object.freeze({ initialize, grantOne, reserve, flagOverage, inspect, journal, authorizationDigest });
 }
 module.exports = { createLedger, beijingDay, reserveMicroUsd, INPUT_TOKEN_RESERVE,
   OUTPUT_TOKEN_RESERVE, questionDigest };
