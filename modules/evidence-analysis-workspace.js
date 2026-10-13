@@ -15,6 +15,11 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
   ['C07','关键值缺失'],['C08','来源冲突'],['C09','混合无关子题'],
   ['C10','来源夹带指令'],['C11','相关不等于因果']
  ];
+ const evaluationStatuses={C01:'CALCULATED',C02:'INCOMPARABLE_PERIOD',
+  C03:'INCOMPARABLE_GEOGRAPHY',C04:'INCOMPARABLE_UNIT',
+  C05:'INCOMPARABLE_DEFINITION',C06:'ZERO_DENOMINATOR',C07:'MISSING_INPUT',
+  C08:'SOURCE_CONFLICT',C09:'MIXED_SCOPE_REJECTED',
+  C10:'SOURCE_INSTRUCTION_REJECTED',C11:'CALCULATED'};
  const escape=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[ch]));
  const offlineSession=window.MinshengEvidenceAnalysisSession.createSession({respond:async question=>{
   const response=await fetch('/api/analysis/offline',{method:'POST',credentials:'omit',cache:'no-store',
@@ -113,6 +118,7 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
  }
  function validateEvaluationResult(result,caseId){
   if(!result||result.caseId!==caseId||result.schemaVersion!=='v041-synthetic-1'||
+     !Object.hasOwn(evaluationStatuses,caseId)||
      result.simulation!=='TEST_SYNTHETIC'||result.providerUsed!==false||
      result.externalRequests!==0||!Array.isArray(result.evidence)||
      !Array.isArray(result.facts)||!Array.isArray(result.inferences)||
@@ -122,7 +128,9 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
       !item.sourceTitle||!item.publicationDate))return false;
   if(result.status==='CALCULATED'){
    const [a,b]=result.evidence,c=result.calculation;
-   return result.evidence.length===2&&result.facts.length===2&&c&&
+   const causal=caseId==='C11';
+   return evaluationStatuses[caseId]==='CALCULATED'&&
+    result.evidence.length===2&&result.facts.length===2&&c&&
     c.type==='MECHANICAL_CALCULATION'&&c.sourceClaim===false&&
     c.validation==='DETERMINISTIC_RECOMPUTED'&&a.value!==0&&
     a.unit===b.unit&&a.geography===b.geography&&a.definition===b.definition&&
@@ -132,14 +140,21 @@ window.MinshengEvidenceAnalysisWorkspace=(()=>{
     c.differenceFormula==='('+b.value+' − '+a.value+') = '+c.difference+' '+a.unit&&
     c.growthFormula==='('+b.value+' − '+a.value+') / '+a.value+' × 100 = '+c.growthPercent+'%'&&
     JSON.stringify(c.inputEvidenceIds)===JSON.stringify([a.evidenceId,b.evidenceId])&&
-    result.facts.every((f,i)=>f.evidenceId===result.evidence[i].evidenceId&&
+    result.facts.every((f,i)=>f.classification==='TEST_SYNTHETIC'&&
+     f.evidenceId===result.evidence[i].evidenceId&&
      f.value===result.evidence[i].value&&f.unit===result.evidence[i].unit&&
-     f.period===result.evidence[i].period);
+     f.period===result.evidence[i].period)&&
+    (causal?result.inferences.length===1&&result.inferences[0].type==='HYPOTHESIS'&&
+     result.inferences[0].text==='政策解释只是假设；合成数值相关变化不能证明因果。'&&
+     result.inferences[0].causalStatus==='NOT_IDENTIFIED'&&
+     result.inferences[0].humanReviewRequired===true&&
+     result.inferences[0].verifiedConclusion===false&&
+     JSON.stringify(result.inferences[0].evidenceIds)===JSON.stringify([a.evidenceId,b.evidenceId])&&
+     result.gaps.length===1:result.inferences.length===0&&result.gaps.length===0);
   }
-  return ['INCOMPARABLE_PERIOD','INCOMPARABLE_GEOGRAPHY','INCOMPARABLE_UNIT',
-   'INCOMPARABLE_DEFINITION','ZERO_DENOMINATOR','MISSING_INPUT','SOURCE_CONFLICT',
-   'MIXED_SCOPE_REJECTED','SOURCE_INSTRUCTION_REJECTED','OFFLINE_SERVICE_FAILURE',
-   'MOCK_RESPONSE_REJECTED'].includes(result.status)&&result.facts.length===0&&
+  const failure=['OFFLINE_SERVICE_FAILURE','MOCK_RESPONSE_REJECTED'].includes(result.status);
+  return (result.status===evaluationStatuses[caseId]||failure)&&
+   (!failure||result.evidence.length===0)&&result.facts.length===0&&
    result.calculation===null&&result.inferences.length===0;
  }
  function evaluationHtml(result){

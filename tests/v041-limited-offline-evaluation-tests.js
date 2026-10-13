@@ -121,6 +121,10 @@ async function run() {
   ok(page.root.innerHTML.includes('受限分析能力评测（仅合成）'), 'panel visibly synthetic');
   ok(page.workspace.validateEvaluationResult(calculated, 'C01'),
     'browser checks deterministic arithmetic');
+  ok(page.workspace.validateEvaluationResult(causal, 'C11'),
+    'browser accepts only the explicitly bounded causal-hypothesis case');
+  ok(page.workspace.validateEvaluationResult(conflict, 'C08'),
+    'browser displays source conflict without a calculation');
   const forgedPage = copy(calculated); forgedPage.calculation.growthPercent = 999;
   ok(!page.workspace.validateEvaluationResult(forgedPage, 'C01'),
     'browser rejects tampered numeric result');
@@ -130,6 +134,18 @@ async function run() {
   const forgedFormula = copy(calculated); forgedFormula.calculation.growthFormula = '模型声称增长率 100%';
   ok(!page.workspace.validateEvaluationResult(forgedFormula, 'C01'),
     'browser rejects a forged displayed formula');
+  const forgedInference = copy(calculated);
+  forgedInference.inferences = [{ type:'HYPOTHESIS', text:'政策已经证明导致增长。',
+    evidenceIds:['syn_a','syn_b'],causalStatus:'PROVEN',humanReviewRequired:false,
+    verifiedConclusion:true }];
+  ok(!page.workspace.validateEvaluationResult(forgedInference, 'C01'),
+    'browser rejects a causal claim grafted onto arithmetic');
+  const forgedCausal = copy(causal); forgedCausal.inferences[0].causalStatus = 'PROVEN';
+  ok(!page.workspace.validateEvaluationResult(forgedCausal, 'C11'),
+    'browser rejects promotion of a hypothesis into causality');
+  const mislabeled = copy(calculated); mislabeled.caseId = 'C08';
+  ok(!page.workspace.validateEvaluationResult(mislabeled, 'C08'),
+    'browser rejects a conflict case mislabeled as calculated');
   await page.clickCase('C01');
   ok(page.root.innerHTML.includes('差额：(110 − 100) = 10 测试元'),
     'page shows the deterministic formula and unit');
