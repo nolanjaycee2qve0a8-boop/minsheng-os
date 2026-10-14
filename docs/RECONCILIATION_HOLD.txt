@@ -1,0 +1,68 @@
+Persistent reconciliation hold — 2026-10-14
+
+Baseline: 63df71aebc53c2021c0025ec9852e8b4a05a8640.
+Incident: ledger-audit-20261014-6b73f1. Historical application acceptance reports
+one call (496 input / 77 output tokens). The 709-byte v1 journal contains POLICY
+and GRANT, no RESERVE. Independent provider receipt/bill is absent; root cause
+is UNDETERMINED. A missing journal event does not mean zero historical calls.
+Estimated costs are not provider bills. LIVE_ACCEPTANCE.md remains unmodified.
+
+Scope and state contract
+- Original v1 JSONL and its policy/grant bytes are NOT rewritten or appended.
+- reconciliation-hold-v1.json is a separate restrictive audit envelope bound to
+  exact journal path/bytes/SHA and the fixed REPORT/EVIDENCE/LIVE_ACCEPTANCE hashes.
+- The current production guard always denies. HELD, missing, interrupted,
+  unreadable, corrupted, journal mismatch and evidence mismatch ALL deny.
+  There is NO allowed/cleared state and NO unlock/reset switch in this release.
+- Authorize-income and serve-income-approved stop before ledger/prompt/key access.
+  Old authorize-one / serve-approved remain disabled. Current old REAL gate,
+  new REAL gate, default sendOnce and default legacy provider are guarded.
+  Production initialize/grant/restrict/reserve/flagOverage are blocked, including
+  aliases resolved to the production directory. Changing cwd/day/restarting or
+  deleting the sidecar cannot re-enable the standard production entry points.
+- Synthetic ledger helpers and injected mock transports remain test seams, not
+  proof that arbitrary injected functions cannot network. This code does NOT
+  prevent running old checkouts, arbitrary scripts or changing source code.
+- The standalone live page is paused, with a disabled send button. Backend guards
+  do not depend on the page. Existing offline Q&A and synthetic analyses remain.
+
+Atomic publication and races
+Maintenance publishHold uses the SAME exclusive directory lock as the v1 journal,
+verifies fixed inputs before and under lock, creates an exclusive pending marker,
+fsyncs an exclusive staged envelope and links it atomically to a non-overwriting
+final name. It verifies final bytes; only its own exact successful staging and
+pending files are removed. A crash can leave lock/pending/staging; no automatic
+repair, stale-lock deletion, journal reconstruction or refund is provided.
+The deny-only production guard is in effect even BEFORE publication. There is no
+allow decision to race with reservation. Ledger mutation is checked again under
+the existing lock. The sidecar documents the incident; absence never authorizes.
+This is tested process-interruption safety, not a claim of storage hardware
+power-loss certification. Durability uncertainty also remains fail-closed.
+
+Real installation preconditions
+First complete synthetic regression + non-implementer review; verify the exact
+original hashes; confirm no active current sending workflow and no journal lock.
+Then install only the sidecar with productionCase. If activity or identity cannot
+be established, stop without installation. Never run authorization or approved
+service commands as an installation test. Do not read a key. Installation outcome
+and exact hashes belong in the D-drive acceptance report, not an invented RESERVE.
+
+Future reconciliation — DESIGN ONLY, requires separate user approval
+A. Recover an authoritative original ledger and/or verifiable supplier evidence:
+   preserve both copies, establish provenance/request/time/account correspondence,
+   distinguish usage records, reservations and actual bill, reconcile discrepancy
+   with explicit audit linkage. Propose reconciliation + conservative accounting
+   and independent review; do not invent a historical event or auto-unlock.
+B. Evidence cannot be recovered: retain the application-level one-call claim and
+   uncertainty permanently; propose explicit conservative count/cost treatment
+   without pretending an unknown date/cost is known. A separate approved decision
+   must establish any future available budget. Never silently reset today's quota.
+Neither path itself grants a request, renews a price, resets a budget or unlocks.
+Any future change allowing sends requires a separately reviewed implementation
+and user approval; this release intentionally cannot perform that transition.
+
+Validation: v044 synthetic-only tests registered in public-ci-test-manifest.json.
+Three public CI categories remain NOT_RUN: local source validation requires local
+source material; real-browser validation requires a browser; live acquisition
+requires external acquisition/authorization. Separate manual browser checks do
+not rewrite those CI categories. This task real sends 0 / real credential reads 0.

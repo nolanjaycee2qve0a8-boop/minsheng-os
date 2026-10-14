@@ -7,6 +7,7 @@ const DEFAULT_MODEL = 'deepseek-chat';
 const MAX_RESPONSE_BYTES = 32768;
 const REQUEST_TIMEOUT_MS = 8000;
 const { approvedEvidence, validateSelection } = require('../../modules/evidence-id-selection');
+const { assertSendingAllowed } = require('./reconciliation-hold');
 
 function configString(env, name, fallback) {
   const value = env[name];
@@ -41,6 +42,7 @@ async function textAtMost(response, maximum) {
 }
 
 function createProvider({ env = process.env, fetchImpl = globalThis.fetch, timeoutMs = REQUEST_TIMEOUT_MS } = {}) {
+  if (fetchImpl === globalThis.fetch) assertSendingAllowed(); // legacy standard transport; before env access
   // The key is retained only in this closure. It is never returned, logged,
   // embedded in a browser response, or included in the request body.
   const apiKey = env.DEEPSEEK_API_KEY;

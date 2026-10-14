@@ -11,6 +11,7 @@ const { INCOME_PAGE } = require('./income-explanation-page');
 const { createOfflineEvidenceAnalysis } = require('./offline-evidence-analysis');
 const { createServer, PORT } = require('./offline-demo-server');
 const { MODEL } = require('./deepseek-live-preflight');
+const { assertSendingAllowed } = require('./reconciliation-hold');
 
 const LEDGER_DIRECTORY = path.join(os.homedir(), 'AppData', 'Local', 'MinshengOS', 'deepseek-live-ledger');
 const PEAK_PRICE = Object.freeze({ model: MODEL, inputPerMillionMicroUsd: 300000,
@@ -21,6 +22,7 @@ function approvalPolicy(now = new Date()) {
       expiresAt: new Date(now.getTime() + 24 * 3600000).toISOString() } };
 }
 function createApprovedServer({ ledger, credentialProvider, fetchImpl, mode = 'REAL', now = () => new Date(), port = PORT } = {}) {
+  if (mode === 'REAL') assertSendingAllowed();
   // Reading an existing ledger is safe. Missing/corrupt/stale policy or missing
   // one-call grant is rejected later by reserve() before fetch is reached.
   checkReady(ledger,now());
@@ -30,6 +32,7 @@ function createApprovedServer({ ledger, credentialProvider, fetchImpl, mode = 'R
 function incomeLedger(){return createLedger({directory:LEDGER_DIRECTORY,authorizationDigest:boundRequest().authorizationDigest})}
 async function approveOneInteractively({ ledger = incomeLedger(),
   input = process.stdin, output = process.stdout, now = new Date(), confirm } = {}) {
+  ledger.assertWritable(); // before prompts; no price refresh/new grant can clear the hold
   if (!input.isTTY || !output.isTTY) throw Error('INTERACTIVE_TTY_REQUIRED');
   const request=boundRequest();
   if(ledger.authorizationDigest!==request.authorizationDigest)throw Error('AUTHORIZATION_SCOPE_MISMATCH');
@@ -59,6 +62,7 @@ async function approveOneInteractively({ ledger = incomeLedger(),
 }
 async function main(mode) {
   if(mode==='authorize-one'||mode==='serve-approved')throw Error('OLD_ENTRY_DISABLED');
+  if(mode==='authorize-income'||mode==='serve-income-approved')assertSendingAllowed();
   if(mode==='preview-income'){const {bodyText,...request}=boundRequest();console.log(JSON.stringify({...request,budget:BUDGET},null,2));return;}
   if(mode===undefined||mode==='offline-income'){
     const server=createServer(createOfflineEvidenceAnalysis(),null,PORT,undefined,INCOME_PAGE);
@@ -84,7 +88,7 @@ async function main(mode) {
 }
 if (require.main === module) main(process.argv[2]).catch(error => {
   // Only allowlisted codes; never print provider exceptions, request bodies or key.
-  const codes = new Set(['MODE_REQUIRED','INTERACTIVE_TTY_REQUIRED','AUTHORIZATION_NOT_GIVEN',
+  const codes = new Set(['RECONCILIATION_REQUIRED','MODE_REQUIRED','INTERACTIVE_TTY_REQUIRED','AUTHORIZATION_NOT_GIVEN',
     'LEDGER_MISSING','LEDGER_CORRUPT','LEDGER_LOCKED','PRICE_UNKNOWN',
     'ONE_CALL_AUTHORIZATION_MISSING','OLD_ENTRY_DISABLED','GRANT_ALREADY_RECORDED',
     'AUTHORIZATION_SCOPE_MISMATCH','BUDGET_BINDING_MISMATCH','DAILY_BUDGET_EXHAUSTED','POLICY_RESTRICTION_INVALID',

@@ -3,6 +3,7 @@
 const {createHash}=require('node:crypto');
 const {requestDraft,validateEnvelope,CONTEXT,SOURCE_BINDINGS,QUESTION}=require('./income-explanation-preflight');
 const {sendOnce}=require('./deepseek-live-once');
+const {assertSendingAllowed}=require('./reconciliation-hold');
 const {beijingDay,reserveMicroUsd,INPUT_TOKEN_RESERVE}=require('./deepseek-budget-ledger');
 const BODY_SHA='c68d427982b1ce35ebd7b83a54db08c89ac99936c7e59afc1632456b9c22ba59';
 const BUDGET=Object.freeze({calls:1,automaticRetries:0,dailyCalls:1,dailyMicroUsd:3100,reservedMicroUsd:3072,
@@ -30,7 +31,7 @@ function checkReady(ledger,now=new Date(),requireGrant=true){
     !state.spent.has(x.id)&&Date.parse(x.expiresAt)>at))throw Error('ONE_CALL_AUTHORIZATION_MISSING');
   return state;
 }
-const CODES=new Set(['AUTHORIZATION_SCOPE_MISMATCH','REQUEST_BINDING_MISMATCH','BUDGET_BINDING_MISMATCH',
+const CODES=new Set(['RECONCILIATION_REQUIRED','AUTHORIZATION_SCOPE_MISMATCH','REQUEST_BINDING_MISMATCH','BUDGET_BINDING_MISMATCH',
  'ONE_CALL_AUTHORIZATION_MISSING','DAILY_BUDGET_EXHAUSTED','PRICE_UNKNOWN','LEDGER_MISSING','LEDGER_CORRUPT','LEDGER_LOCKED',
  'LEDGER_OVERAGE_REVIEW_REQUIRED','AUTHENTICATION_FAILED','RATE_LIMITED','PROVIDER_FAILURE','MALFORMED_RESPONSE',
  'MALFORMED_OR_TRUNCATED_RESPONSE','USAGE_LIMIT_REJECTED','FACT_BINDING_MISMATCH','CALCULATION_BINDING_MISMATCH',
@@ -53,6 +54,7 @@ function createIncomeGate({ledger,credentialProvider,fetchImpl,mode='SIMULATED',
     if(used)return {...empty,status:'ONE_CALL_LIMIT'};
     pending=true;
     try{
+      if(mode==='REAL')assertSendingAllowed(); // before inspection, reservation, credentials and transport
       const request=boundRequest();checkReady(ledger,now());
       reservation=ledger.reserve({requestBytes:request.bodyBytes,constraints:BUDGET});used=true;
       const reply=await sendOnce(request,{credentialProvider,fetchImpl:mode==='REAL'?globalThis.fetch:fetchImpl,

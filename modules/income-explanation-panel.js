@@ -14,7 +14,7 @@ function valid(r){
  r.calculation?.calculationId==='calc_income_pc_2025h1_2026h1'&&JSON.stringify(r.calculation.inputIds)===JSON.stringify(ids)&&r.calculation.difference===1141&&r.calculation.unit==='元/人'&&r.calculation.nominalPercent==='5.22436'&&
  JSON.stringify(r.limitations)===JSON.stringify(limits)&&r.sources.length===2&&r.sources.every((s,i)=>s.evidenceId===ids[i]&&/^https:\/\/www\.stats\.gov\.cn\//.test(s.url));
 }
-function label(r){return r.status==='REAL_INCOME_VALIDATED_REVIEW_REQUIRED'?'真实 API：字段校验通过，解释待人工审核':r.status==='SIMULATED_INCOME_VALIDATED_REVIEW_REQUIRED'?'模拟响应：未发送 DeepSeek，解释待人工审核':'失败或未授权：没有已校验结果，不自动重试';}
+function label(r){return r.status==='RECONCILIATION_REQUIRED'?'账本待对账，真实发送暂停':r.status==='REAL_INCOME_VALIDATED_REVIEW_REQUIRED'?'真实 API：字段校验通过，解释待人工审核':r.status==='SIMULATED_INCOME_VALIDATED_REVIEW_REQUIRED'?'模拟响应：未发送 DeepSeek，解释待人工审核':'失败或未授权：没有已校验结果，不自动重试';}
 function createSession(respond){let current=null,pending=false;const history=[];return {
  get current(){return current},get history(){return history.slice()},get pending(){return pending},
  async send(){if(pending)return;pending=true;if(current)history.push(current);current=null;
@@ -23,6 +23,7 @@ function createSession(respond){let current=null,pending=false;const history=[];
  finally{pending=false}return current;}
 };}
 function install(document){const button=document.getElementById('send');if(!button)return;
+ if(button.getAttribute?.('data-reconciliation-hold')==='true'){button.disabled=true;return;}
  const session=createSession(async()=>{const response=await fetch('/api/analysis/live',{method:'POST',cache:'no-store',credentials:'omit',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:QUESTION})});
  if(response.status===403)return {schemaVersion:'income-live-result-1',question:QUESTION,bodySha256:SHA,status:'EXTERNAL_CALL_NOT_AUTHORIZED',validationStatus:'NOT_VALIDATED',facts:[],sources:[],calculation:null,explanation:null};
  if(!response.ok)throw Error('LOCAL_FAILURE');return response.json()});

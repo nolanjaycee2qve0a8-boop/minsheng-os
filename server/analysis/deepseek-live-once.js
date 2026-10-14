@@ -3,9 +3,11 @@
 // an explicitly granted persistent ledger and an in-memory credential provider.
 const { createSimulatedGate, FIRST_QUESTION, LIMITS, MODEL } = require('./deepseek-live-preflight');
 const { questionDigest, INPUT_TOKEN_RESERVE } = require('./deepseek-budget-ledger');
+const { assertSendingAllowed } = require('./reconciliation-hold');
 
 async function sendOnce(request, { credentialProvider, fetchImpl = globalThis.fetch, onAttempt = () => {},
   timeoutMs = LIMITS.timeoutMs } = {}) {
+  if (fetchImpl === globalThis.fetch) assertSendingAllowed(); // before any credential access
   if (typeof credentialProvider !== 'function' || typeof fetchImpl !== 'function')
     throw Error('TRANSPORT_NOT_CONFIGURED');
   if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > LIMITS.timeoutMs)
@@ -86,6 +88,9 @@ function createLiveGate({ ledger, credentialProvider, fetchImpl = globalThis.fet
       catch (error) { failure = error.message; throw Error(failure); }
     } });
   async function analyze({ question } = {}) {
+    if (mode === 'REAL') return { question, status: 'RECONCILIATION_REQUIRED', transport: 'REAL_NOT_SENT',
+      providerUsed: false, externalRequests: 0, validationStatus: 'NOT_VALIDATED',
+      facts: [], inferences: [], gaps: [], sources: [], notice: '账本待对账，真实发送暂停。' };
     if (pending) return { question, status: 'DUPLICATE_SUBMISSION', transport: 'NONE',
       providerUsed: false, externalRequests: 0, facts: [], inferences: [], gaps: [], sources: [] };
     pending = true;

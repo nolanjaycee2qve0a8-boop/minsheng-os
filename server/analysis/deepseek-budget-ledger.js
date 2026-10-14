@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { createHash, randomUUID } = require('node:crypto');
 const { MODEL, FIRST_QUESTION, LIMITS } = require('./deepseek-live-preflight');
+const { protectedDirectory, assertSendingAllowed } = require('./reconciliation-hold');
 
 const INPUT_TOKEN_RESERVE = 8192; // includes conservative framing margin over the 6000-byte body cap
 const OUTPUT_TOKEN_RESERVE = LIMITS.outputTokens;
@@ -29,15 +30,20 @@ function reserveMicroUsd(price) {
   return Math.ceil((INPUT_TOKEN_RESERVE * price.inputPerMillionMicroUsd +
     OUTPUT_TOKEN_RESERVE * price.outputPerMillionMicroUsd) / 1000000);
 }
-function createLedger({ directory, now = () => new Date(), authorizationDigest = questionDigest }) {
+function createLedger({ directory, now = () => new Date(), authorizationDigest = questionDigest, reconciliationRequired = false }) {
   if (!path.isAbsolute(directory || '')) throw Error('LEDGER_ABSOLUTE_PATH_REQUIRED');
   if (!/^[a-f0-9]{64}$/.test(authorizationDigest || '')) throw Error('AUTHORIZATION_DIGEST_INVALID');
   const journal = path.join(directory, 'deepseek-budget-v1.jsonl');
   const lock = path.join(directory, 'deepseek-budget-v1.lock');
-  function locked(work) {
+  // The optional flag only ADDS a restriction for synthetic tests; false never overrides production.
+  function assertWritable() {
+    if (reconciliationRequired || protectedDirectory(directory)) assertSendingAllowed();
+  }
+  function locked(work, readOnly = false) {
+    if (!readOnly) assertWritable();
     if (!fs.existsSync(directory)) throw Error('LEDGER_MISSING');
     try { fs.mkdirSync(lock); } catch { throw Error('LEDGER_LOCKED'); }
-    try { return work(); } finally { fs.rmdirSync(lock); }
+    try { if (!readOnly) assertWritable(); return work(); } finally { fs.rmdirSync(lock); }
   }
   function entries() {
     let raw;
@@ -86,6 +92,7 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
     try { fs.writeSync(fd, line); fs.fsyncSync(fd); } finally { fs.closeSync(fd); }
   }
   function initialize(policy) {
+    assertWritable();
     if (!policyValid(policy)) throw Error('POLICY_INVALID');
     fs.mkdirSync(directory, { recursive: true });
     return locked(() => {
@@ -139,7 +146,7 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
       return { id, day, microUsd, grantId: grant.id };
     });
   }
-  function inspect() { return locked(() => entries()); }
+  function inspect() { return locked(() => entries(), true); }
   function flagOverage({ reservationId, inputTokens, outputTokens }) {
     return locked(() => {
       const state = entries();
@@ -148,7 +155,7 @@ function createLedger({ directory, now = () => new Date(), authorizationDigest =
       append(state.rows, { kind: 'OVERAGE', reservationId, inputTokens, outputTokens });
     });
   }
-  return Object.freeze({ initialize, grantOne, restrictPolicy, reserve, flagOverage, inspect, journal, authorizationDigest });
+  return Object.freeze({ initialize, grantOne, restrictPolicy, reserve, flagOverage, inspect, journal, authorizationDigest, assertWritable });
 }
 module.exports = { createLedger, beijingDay, reserveMicroUsd, INPUT_TOKEN_RESERVE,
   OUTPUT_TOKEN_RESERVE, questionDigest };
