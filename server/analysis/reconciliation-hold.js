@@ -16,7 +16,8 @@ const incident = {
   evidence: [
     { path: audit + '/REPORT.txt', sha256: '355ab2f567a830e7f962bcbe4d3f2ccfe3f7dac1463e3a7d49f3e07961079782' },
     { path: audit + '/EVIDENCE.json', sha256: '075aebe63ff4ef7216ff3fc047f35cece545b7d179570d2adf083476ccdf0d91' },
-    { path: 'C:/Users/22908/Documents/ChatGPT/民生备份/2026-10-12/phase5-deepseek-result-mode-1c7d811-20261012/LIVE_ACCEPTANCE.md',
+    { path: path.join(os.homedir(), 'Documents', 'ChatGPT', '民生备份', '2026-10-12',
+        'phase5-deepseek-result-mode-1c7d811-20261012', 'LIVE_ACCEPTANCE.md'),
       sha256: 'e7823b4f7f8421e1545489426eb2351e52ede7a829539b1e29848319e5f7b7f5' }
   ],
   discrepancy: { journalKinds: ['POLICY', 'GRANT'], reserveCount: 0,
